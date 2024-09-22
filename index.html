@@ -104,17 +104,18 @@
         const saveButton = document.getElementById('save');
         const postButton = document.getElementById('post');
 
-        const colors = [
-            "#BEBDBB", "#F8D4CB", "#F7DFC5", "#F8F4CB", "#D3ECC1", "#D3E4F0", "#F0E7F2", "#F8E3EA"
+        let colors = [
+            "#BEBDBB", "#F8D4CB", "#F7DFC5", "#F8F4CB", "#D3ECC1", "#D3E4F0", "#F0E7F2"
         ];
 
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
         let currentLayer = ctxBlack;
-        let penColor = "#36364A";
-        let backgroundColor = "#F2EEE6";
-        let currentColor = penColor;
+        const blackpenColor = "#36364A";
+        const backgroundColor = "#F2EEE6";
+        let currentColor = blackpenColor;
+        let currentColorindex = 0;
         let isEraser = false;
         let undoStack = [];
 
@@ -142,7 +143,7 @@
 
         function setColor(color) {
             currentColor = color;
-            if(color == penColor){
+            if(color == blackpenColor){
                 currentLayer = ctxBlack;
             }else{
                 currentLayer = ctxColor;
@@ -162,7 +163,7 @@
                 } else {
                     eraserColor.classList.add('active');
                 }
-            } else if (currentColor === penColor) {
+            } else if (currentColor === blackpenColor) {
                 blackPenButton.classList.add('active');
             } else {
                 const activeColorBtn = document.querySelector(`.color-btn[data-color="${currentColor}"]`);
@@ -223,7 +224,7 @@
                 black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
                 color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
             });
-            if (undoStack.length > 10) {
+            if (undoStack.length > 2) {
                 undoStack.shift();
             }
         }
@@ -330,7 +331,7 @@
         colorLayer.addEventListener('mousemove', updateCursor);
 
         blackPenButton.addEventListener('click', () => {
-            setColor(penColor);
+            setColor(blackpenColor);
             isEraser = false;
             updateActiveButton();
             updatePenSize();
