@@ -144,8 +144,13 @@
 
         function setColor(color) {
             currentColor = color;
-            currentLayer = color === penColor ? ctxBlack : ctxColor;
-            colorPalette.value = color;
+            if(color == penColor){
+                currentLayer = ctxBlack;
+            }else{
+                currentLayer = ctxColor;
+                colorPalette.value = color;
+            }
+            
             isEraser = false;
             updateActiveButton();
             updatePenSize();
