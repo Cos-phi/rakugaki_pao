@@ -118,6 +118,7 @@
         let currentColorindex = 0;
         let isEraser = false;
         let undoStack = [];
+        const undoLimit = 1;
 
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
@@ -224,7 +225,7 @@
                 black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
                 color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
             });
-            if (undoStack.length > 2) {
+            if (undoStack.length > undoLimit) {
                 undoStack.shift();
             }
         }
