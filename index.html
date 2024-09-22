@@ -76,6 +76,7 @@
             <button id="eraserBlack">黒ペン消し</button>
             色ブラシ
             <div id="colorButtons"></div>
+            <input id="palette" type="color" value="#F7DFC5">
             <button id="eraserColor">色ブラシ消し</button>
             <button id="undo">元に戻す</button>
             <button id="clear">クリア</button>
@@ -93,6 +94,7 @@
         const cursor = document.getElementById('cursor');
         const penSizeInput = document.getElementById('pen-size');
         const colorButtons = document.getElementById('colorButtons');
+        const colorPalette = document.getElementById('palette');
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
         const eraserColor = document.getElementById('eraserColor');
@@ -102,7 +104,7 @@
         const postButton = document.getElementById('post');
 
         const colors = [
-            "#F8D4CB", "#F7DFC5", "#F8F4CB", "#D3ECC1", "#D3E4F0", "#F0E7F2", "#F8E3EA"
+            "#BEBDBB", "#F8D4CB", "#F7DFC5", "#F8F4CB", "#D3ECC1", "#D3E4F0", "#F0E7F2", "#F8E3EA"
         ];
 
         let isDrawing = false;
@@ -356,6 +358,10 @@
                 }
             }
         });
+
+        colorPalette.addEventListener('input', () => {
+            const inputColorval = colorPalette.value;
+        }, false);
 
         undoButton.addEventListener('click', undo);
         clearButton.addEventListener('click', clearCanvas);
