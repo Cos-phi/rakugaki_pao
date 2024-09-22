@@ -88,8 +88,8 @@
     </div>
     <script>
         const app_info = {
-            "client_id":"PtQxn_RYas7ohEl_aP9lj0Ze-l1xLLDOqTytZ-bjz7k",
-            "client_secret":"lkzyDEULz47libvp-upzNu-j3MUN9MgtiQUQYXUeGxg",
+            "client_id":"fAPnpTwYhXj8DpeGxY-brBtnM43Yw-0Tzjvi6iw1DBs",
+            "client_secret":"CTufqdnM6j3Cxx3FZPIH8O4Vnqg9BIJohvZybCbfBqo",
             "vapid_key":"BCMA3J7dkSc4NYWbGKgzgqqHIkkwTKJmJkWZRfkxPI9Poh4msHmnb0LGnUMxM5oVTX4-3qF5WElseplSwxmKkYk="
         };
         const serverUrl = "https://mistodon.cloud"; // 霧鯖だけですわ
@@ -128,6 +128,7 @@
         let isEraser = false;
         let undoStack = [];
         const undoLimit = 1;
+        let accessToken = null;
 
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
@@ -268,37 +269,18 @@
             link.click();
         }
 
-        function postToMastodon() {
-            const combinedCanvas = document.createElement('canvas');
-            combinedCanvas.width = 720;
-            combinedCanvas.height = 720;
-            const ctx = combinedCanvas.getContext('2d');
-            ctx.drawImage(backgroundLayer, 0, 0);
-            ctx.drawImage(colorLayer, 0, 0);
-            ctx.drawImage(blackLayer, 0, 0);
-            
-            const dataURL = combinedCanvas.toDataURL('image/png');
-
-
-
-            const params = new URLSearchParams(document.location.search);
-            const accessToken = params.get('code');
-
-            if (!accessToken) { 
-                alert('先に「トークンの取得」ボタンを押してくださいませ。');
-                return;
-            }
-
+        function postImage(dataURL, accessToken) {
+            alert(`アクセストークン：${accessToken}`);
             fetch(`${serverUrl}/api/v1/media`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-                body: (() => {
-                    const formData = new FormData();
-                    formData.append('file', dataURLToBlob(dataURL), 'drawing.png');
-                    return formData;
-                })()
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                    body: (() => {
+                        const formData = new FormData();
+                        formData.append('file', dataURLToBlob(dataURL), 'drawing.png');
+                        return formData;
+                    })()
             })
             .then(response => response.json())
             .then(data => {
@@ -319,10 +301,53 @@
                 console.error('Error:', error);
                 alert('投稿中にエラーが発生しました。');
             });
+
+        }
+
+        function postToMastodon() {
+            const combinedCanvas = document.createElement('canvas');
+            combinedCanvas.width = 720;
+            combinedCanvas.height = 720;
+            const ctx = combinedCanvas.getContext('2d');
+            ctx.drawImage(backgroundLayer, 0, 0);
+            ctx.drawImage(colorLayer, 0, 0);
+            ctx.drawImage(blackLayer, 0, 0);
+            
+            const dataURL = combinedCanvas.toDataURL('image/png');
+
+
+
+            const params = new URLSearchParams(document.location.search);
+            const code = params.get('code');
+
+            if (!code) { 
+                alert('先に「トークンの取得」ボタンを押してくださいませ。');
+                return;
+            }
+
+            if (accessToken) {
+                postImage(dataURL, accessToken);
+            } else {
+                fetch(`${serverUrl}/oauth/token`, 
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `code=${code}&client_id=${app_info.client_id}&client_secret=${app_info.client_secret}&grant_type=authorization_code&redirect_uri=https://kurajo.ivory.ne.jp/rakugaki_pao/index.html&scope=write%20read`
+                    }
+                )
+                .then(response => response.json())
+                .then(data=>{
+                    accessToken = data.access_token;
+                    postImage(dataURL, accessToken);
+                    return data.access_token;
+                })
+            }
         }
 
         function getTokenRedirect() {
-            document.location = `https://mistodon.cloud/oauth/authorize?response_type=code&redirect_uri=https://kurajo.ivory.ne.jp/rakugaki_pao/index.html&scope=write&client_id=${app_info.client_id}`;
+            document.location = `https://mistodon.cloud/oauth/authorize?response_type=code&redirect_uri=https://kurajo.ivory.ne.jp/rakugaki_pao/index.html&scope=write%20read&client_id=${app_info.client_id}`;
         }
 
         function dataURLToBlob(dataURL) {
