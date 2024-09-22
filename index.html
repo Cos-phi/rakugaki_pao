@@ -332,6 +332,7 @@
         colorLayer.addEventListener('mousemove', updateCursor);
 
         blackPenButton.addEventListener('click', () => {
+            currentLayer = ctxBlack;
             setColor(blackpenColor);
             isEraser = false;
             updateActiveButton();
