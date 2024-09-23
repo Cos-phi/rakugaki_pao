@@ -252,6 +252,7 @@
 
         function saveLocalstorage() {
             saveLayeronlocalstorage("blacklayerkey",blackLayer);    
+            saveLayeronlocalstorage("colorlayerkey",colorLayer);    
         }
 
         function restoreLayeronlocalstorage(localstoragekey,layer) {
@@ -268,8 +269,7 @@
 
         function restoreLocalstorage() {
             restoreLayeronlocalstorage("blacklayerkey",blackLayer);
-
-            
+            restoreLayeronlocalstorage("colorlayerkey",colorLayer);
         }
 
         function startDrawingMouse(e) {
