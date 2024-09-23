@@ -195,16 +195,14 @@
             }
         }
 
-        function startDrawing(e) {
+        function startDrawing(x, y) {
             isDrawing = true;
-            [lastX, lastY] = [e.offsetX, e.offsetY];
+            [lastX, lastY] = [x, y];
             saveState();
         }
 
-        function draw(e) {
+        function draw(x, y) {
             if (!isDrawing) return;
-            const x = e.offsetX;
-            const y = e.offsetY;
             currentLayer.beginPath();
             currentLayer.moveTo(lastX, lastY);
             currentLayer.lineTo(x, y);
@@ -225,12 +223,12 @@
             currentLayer.globalCompositeOperation = 'source-over';
         }
 
-        function updateCursor(e) {
+        function updateCursor(x, y) {
             const size = parseInt(penSizeInput.value);
             cursor.style.width = `${size}px`;
             cursor.style.height = `${size}px`;
-            cursor.style.left = `${e.offsetX - size / 2}px`;
-            cursor.style.top = `${e.offsetY - size / 2}px`;
+            cursor.style.left = `${x - size / 2}px`;
+            cursor.style.top = `${y - size / 2}px`;
         }
 
         function saveState() {
@@ -241,6 +239,39 @@
             if (undoStack.length > undoLimit) {
                 undoStack.shift();
             }
+        }
+
+        function startDrawingMouse(e) {
+            startDrawing(e.offsetX, e.offsetY);
+        }
+
+        function drawMouse(e) {
+            draw(e.offsetX, e.offsetY);
+        }
+            
+        function updateCursorMouse(e) {
+            updateCursor(e.offsetX, e.offsetY);
+        }
+
+        function touchToOffsetXY(e) {
+            const target = e.touches[0].target;
+            const r = target.getBoundingClientRect();
+            return [e.touches[0].pageX - r.left, e.touches[0].pageY - r.top];
+        }
+
+        function startDrawingTouch(e) {
+            e.preventDefault();
+            startDrawing(...touchToOffsetXY(e));
+        }
+
+        function drawTouch(e) {
+            e.preventDefault();
+            draw(...touchToOffsetXY(e));
+        }
+            
+        function updateCursorTouch(e) {
+            e.preventDefault();
+            updateCursor(...touchToOffsetXY(e));
         }
 
         function undo() {
@@ -364,17 +395,29 @@
             return new Blob([uInt8Array], { type: contentType });
         }
 
-        blackLayer.addEventListener('mousedown', startDrawing);
-        blackLayer.addEventListener('mousemove', draw);
+        blackLayer.addEventListener('mousedown', startDrawingMouse);
+        blackLayer.addEventListener('mousemove', drawMouse);
         blackLayer.addEventListener('mouseup', stopDrawing);
         blackLayer.addEventListener('mouseout', stopDrawing);
-        blackLayer.addEventListener('mousemove', updateCursor);
+        blackLayer.addEventListener('mousemove', updateCursorMouse);
 
-        colorLayer.addEventListener('mousedown', startDrawing);
-        colorLayer.addEventListener('mousemove', draw);
+        colorLayer.addEventListener('mousedown', startDrawingMouse);
+        colorLayer.addEventListener('mousemove', drawMouse);
         colorLayer.addEventListener('mouseup', stopDrawing);
         colorLayer.addEventListener('mouseout', stopDrawing);
-        colorLayer.addEventListener('mousemove', updateCursor);
+        colorLayer.addEventListener('mousemove', updateCursorMouse);
+
+        blackLayer.addEventListener('touchstart', startDrawingTouch);
+        blackLayer.addEventListener('touchmove', drawTouch);
+        blackLayer.addEventListener('touchend', stopDrawing);
+        blackLayer.addEventListener('touchcancel', stopDrawing);
+        blackLayer.addEventListener('touchmove', updateCursorTouch);
+
+        colorLayer.addEventListener('touchstart', startDrawingTouch);
+        colorLayer.addEventListener('touchmove', drawTouch);
+        colorLayer.addEventListener('touchend', stopDrawing);
+        colorLayer.addEventListener('touchcancel', stopDrawing);
+        colorLayer.addEventListener('touchmove', updateCursorTouch);
 
         blackPenButton.addEventListener('click', () => {
             currentLayer = ctxBlack;
