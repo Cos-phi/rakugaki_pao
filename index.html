@@ -246,19 +246,29 @@
             }
         }
 
-        function saveLocalstorage() {
-            window.localStorage.setItem("blacklayer",blackLayer.toDataURL());
+        function saveLayeronlocalstorage(localstoragekey,layer){
+            window.localStorage.setItem(localstoragekey,layer.toDataURL());
         }
 
-        function restoreLocalstorage() {
-            let base64blacklayer = window.localStorage.getItem("blacklayer");
+        function saveLocalstorage() {
+            saveLayeronlocalstorage("blacklayer",blackLayer);    
+        }
+
+        function restoreLayeronlocalstorage(localstoragekey,layer) {
+            let base64blacklayer = window.localStorage.getItem(localstoragekey);
             if ( base64blacklayer != null) {
                 let image = new Image();
                 image.src = base64blacklayer;
                 image.onload = function(){
-                    ctxBlack.drawImage(image,0,0);
+                    layer.getContext('2d').drawImage(image,0,0);
                 }
             }
+            
+        }
+
+        function restoreLocalstorage() {
+            restoreLayeronlocalstorage("blacklayer",blackLayer);
+
             
         }
 
