@@ -203,7 +203,6 @@
             isDrawing = true;
             [lastX, lastY] = [x, y];
             saveState();
-            saveLocalstorage();
         }
 
         function draw(x, y) {
@@ -226,6 +225,7 @@
         function stopDrawing() {
             isDrawing = false;
             currentLayer.globalCompositeOperation = 'source-over';
+            saveLocalstorage();
         }
 
         function updateCursor(x, y) {
