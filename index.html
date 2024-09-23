@@ -98,8 +98,8 @@
             "vapid_key":"BCMA3J7dkSc4NYWbGKgzgqqHIkkwTKJmJkWZRfkxPI9Poh4msHmnb0LGnUMxM5oVTX4-3qF5WElseplSwxmKkYk="
         };
         const serverUrl = "https://mistodon.cloud"; // 霧鯖だけですわ
-        const localstoragekeyBlack = 'blacklayer';
-        const localstoragekeyColor = 'colorlayer';
+        const localstoragekeyBlack = 'blacklayerlskey';
+        const localstoragekeyColor = 'colorlayerlskey';
 
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
@@ -251,7 +251,7 @@
         }
 
         function saveLocalstorage() {
-            saveLayeronlocalstorage("blacklayer",blackLayer);    
+            saveLayeronlocalstorage("blacklayerkey",blackLayer);    
         }
 
         function restoreLayeronlocalstorage(localstoragekey,layer) {
@@ -267,7 +267,7 @@
         }
 
         function restoreLocalstorage() {
-            restoreLayeronlocalstorage("blacklayer",blackLayer);
+            restoreLayeronlocalstorage("blacklayerkey",blackLayer);
 
             
         }
