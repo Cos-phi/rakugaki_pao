@@ -135,7 +135,6 @@
         let isEraser = false;
         let undoStack = [];
         const undoLimit = 1;
-        let accessToken = null;
 
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
@@ -390,25 +389,24 @@
                 return;
             }
 
-            if (accessToken) {
-                postImage(dataURL, accessToken);
-            } else {
-                fetch(`${serverUrl}/oauth/token`, 
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: `code=${code}&client_id=${app_info.client_id}&client_secret=${app_info.client_secret}&grant_type=authorization_code&redirect_uri=https://kurajo.ivory.ne.jp/rakugaki_pao/index.html&scope=write%20read`
-                    }
-                )
-                .then(response => response.json())
-                .then(data=>{
-                    accessToken = data.access_token;
-                    postImage(dataURL, accessToken);
-                    return data.access_token;
-                })
-            }
+            fetch(`${serverUrl}/oauth/token`, 
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `code=${code}&client_id=${app_info.client_id}&client_secret=${app_info.client_secret}&grant_type=authorization_code&redirect_uri=https://kurajo.ivory.ne.jp/rakugaki_pao/index.html&scope=write%20read`
+                }
+            )
+            .then(response => response.json())
+            .then(data=>{
+                postImage(dataURL, data.access_token);
+                return data.access_token;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('投稿中にエラーが発生しましたわ。(2)');
+            });
         }
 
         function getTokenRedirect() {
