@@ -98,6 +98,8 @@
             "vapid_key":"BCMA3J7dkSc4NYWbGKgzgqqHIkkwTKJmJkWZRfkxPI9Poh4msHmnb0LGnUMxM5oVTX4-3qF5WElseplSwxmKkYk="
         };
         const serverUrl = "https://mistodon.cloud"; // 霧鯖だけですわ
+        const localstoragekeyBlack = 'blacklayer';
+        const localstoragekeyColor = 'colorlayer';
 
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
@@ -201,6 +203,7 @@
             isDrawing = true;
             [lastX, lastY] = [x, y];
             saveState();
+            saveLocalstorage();
         }
 
         function draw(x, y) {
@@ -241,6 +244,22 @@
             if (undoStack.length > undoLimit) {
                 undoStack.shift();
             }
+        }
+
+        function saveLocalstorage() {
+            window.localStorage.setItem("blacklayer",blackLayer.toDataURL());
+        }
+
+        function restoreLocalstorage() {
+            let base64blacklayer = window.localStorage.getItem("blacklayer");
+            if ( base64blacklayer != null) {
+                let image = new Image();
+                image.src = base64blacklayer;
+                image.onload = function(){
+                    ctxBlack.drawImage(image,0,0);
+                }
+            }
+            
         }
 
         function startDrawingMouse(e) {
@@ -285,6 +304,7 @@
 
         function clearCanvas() {
             saveState();
+            saveLocalstorage();
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
         }
@@ -473,6 +493,7 @@
         createColorButtons();
         updateActiveButton();
         updatePenSize();
+        restoreLocalstorage();
     </script>
 </body>
 </html>
