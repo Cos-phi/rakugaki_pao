@@ -134,7 +134,6 @@
         let currentColorindex = 0;
         let isEraser = false;
         let undoStack = [];
-        let toolSize = 4;
         const undoLimit = 1;
 
         ctxBg.fillStyle = backgroundColor;
@@ -473,6 +472,8 @@
         penSizeInput.addEventListener('change', () => {
             let size = parseInt(penSizeInput.value);
             size = 2**size;
+            console.info("penSizeInput:",penSizeInput.value);
+            console.info("Size:",size);
             if (isEraser) {
                 if (currentLayer === ctxBlack) {
                     toolSizes.blackEraser = size;
