@@ -135,15 +135,17 @@
         let isEraser = false;
         let undoStack = [];
         const undoLimit = 1;
+        
+        let penSizeCalculated = 4;
 
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
 
         const toolSizes = {
-            blackPen: 4,
-            colorPen: 32,
-            blackEraser: 32,
-            colorEraser: 32
+            blackPen: 2,
+            colorPen: 5,
+            blackEraser: 5,
+            colorEraser: 5
         };
 
         function createColorButtons() {
@@ -215,7 +217,7 @@
                 currentLayer.globalCompositeOperation = 'source-over';
                 currentLayer.strokeStyle = currentColor;
             }
-            currentLayer.lineWidth = parseInt(penSizeInput.value);
+            currentLayer.lineWidth = 2**parseInt(penSizeInput.value);
             currentLayer.lineCap = 'round';
             currentLayer.stroke();
             [lastX, lastY] = [x, y];
@@ -228,7 +230,7 @@
         }
 
         function updateCursor(x, y) {
-            const size = parseInt(penSizeInput.value);
+            const size = 2**parseInt(penSizeInput.value);
             cursor.style.width = `${size}px`;
             cursor.style.height = `${size}px`;
             cursor.style.left = `${x - size / 2}px`;
@@ -470,10 +472,7 @@
         });
 
         penSizeInput.addEventListener('change', () => {
-            let size = parseInt(penSizeInput.value);
-            size = 2**size;
-            console.info("penSizeInput:",penSizeInput.value);
-            console.info("Size:",size);
+            const size = parseInt(penSizeInput.value);
             if (isEraser) {
                 if (currentLayer === ctxBlack) {
                     toolSizes.blackEraser = size;
@@ -483,6 +482,7 @@
             } else {
                 if (currentLayer === ctxBlack) {
                     toolSizes.blackPen = size;
+                    console.info("BPSize:",toolSizes.blackPen);
                 } else {
                     toolSizes.colorPen = size;
                 }
