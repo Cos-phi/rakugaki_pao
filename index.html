@@ -36,8 +36,15 @@
             border: 1px solid #000;
             border-radius: 50%;
         }
-        #controls {
+        #controls1 {
             margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 720px;
+        }
+        #controls2 {
+            margin-top: 20px;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
@@ -45,7 +52,7 @@
         }
         button {
             padding: 5px 10px;
-            height: 35px;
+            height: 32px;
             cursor: pointer;
             font-size: 14px;
             
@@ -53,25 +60,26 @@
             border-radius: 4px;
         }
         span {
-            padding: 8px 1px;
+            padding: 7px 1px;
             font-size: 14px;
         }
         .color-btn {
             width: 30px;
-            height: 35px;
-            border: 1px solid #000;
-            
+            height: 30px;
+            border: 1px solid #000;      
             border-radius: 4px;
         }
         input[type="color"] {
-            width: 30px;
-            height: 35px;
+            width: 32px;
+            height: 32px;
             border: 1px solid #000;
-            
             border-radius: 4px;
+            cursor: pointer;
         }
         .active {
             border: 3px solid #000;
+            vertical-align: 1px
+
         }
         #tool-size {
             width: 80px;
@@ -86,7 +94,7 @@
             <canvas id="blackLayer" width="720" height="720"></canvas>
             <div id="cursor"></div>
         </div>
-        <div id="controls">  
+        <div id="controls1">  
             <input type="range" id="tool-size" min="0" max="6">
             <button id="blackPen">黒ペン</button>
             <button id="eraserBlack">黒ペン消し</button>
@@ -95,9 +103,11 @@
             <input id="palette" type="color" value="#F7DFC5">
             <div id="colorPalette"></div>
             <button id="eraserColor">色ブラシ消し</button>
+        </div>
+        <div id="controls2">
             <button id="undo">元に戻す</button>
-            <button id="clear">クリア</button>
-            <button id="save">保存</button>
+            <button id="clear">全て消す</button>
+            <button id="save">ファイルに保存</button>
             <button id="post">マストドンに投稿</button>
             <button id="getToken">トークンの取得</button>
         </div>
