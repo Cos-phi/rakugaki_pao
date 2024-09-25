@@ -45,19 +45,36 @@
         }
         button {
             padding: 5px 10px;
+            height: 35px;
             cursor: pointer;
+            font-size: 14px;
+            
+            border: 1px solid #000;
+            border-radius: 4px;
+        }
+        span {
+            padding: 8px 1px;
+            font-size: 14px;
         }
         .color-btn {
             width: 30px;
-            height: 30px;
+            height: 35px;
             border: 1px solid #000;
-            border-radius: 5px;
+            
+            border-radius: 4px;
+        }
+        input[type="color"] {
+            width: 30px;
+            height: 35px;
+            border: 1px solid #000;
+            
+            border-radius: 4px;
         }
         .active {
             border: 3px solid #000;
         }
         #tool-size {
-            width: 60px;
+            width: 80px;
         }
     </style>
 </head>
@@ -73,7 +90,7 @@
             <input type="range" id="tool-size" min="0" max="6">
             <button id="blackPen">黒ペン</button>
             <button id="eraserBlack">黒ペン消し</button>
-            色ブラシ
+            <span>色ブラシ</span>
             <div id="colorButtons"></div>
             <input id="palette" type="color" value="#F7DFC5">
             <div id="colorPalette"></div>
