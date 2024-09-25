@@ -98,8 +98,8 @@
             "vapid_key":"BCMA3J7dkSc4NYWbGKgzgqqHIkkwTKJmJkWZRfkxPI9Poh4msHmnb0LGnUMxM5oVTX4-3qF5WElseplSwxmKkYk="
         };
         const serverUrl = "https://mistodon.cloud"; // 霧鯖だけですわ
-        const localstoragekeyBlack = 'blacklayerlskey';
-        const localstoragekeyColor = 'colorlayerlskey';
+        const localstorageKeyBlack = 'blacklayerlskey';
+        const localstorageKeyColor = 'colorlayerlskey';
 
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
@@ -108,7 +108,7 @@
         const ctxColor = colorLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
-        const toolsizeParamInput = document.getElementById('tool-size');
+        const toolSizeParamInput = document.getElementById('tool-size');
         const colorButtons = document.getElementById('colorButtons');
         const colorPalette = document.getElementById('palette');
         const blackPenButton = document.getElementById('blackPen');
@@ -128,9 +128,9 @@
         let lastX = 0;
         let lastY = 0;
         let currentLayer = ctxBlack;
-        const blackpenColor = "#36364A";
+        const blackPenColor = "#36364A";
         const backgroundColor = "#F2EEE6";
-        let currentColor = blackpenColor;
+        let currentColor = blackPenColor;
         let isEraser = false;
         let undoStack = [];
         const undoLimit = 1;
@@ -139,7 +139,7 @@
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
 
-        const toolsizesParam = {
+        const toolSizesParam = {
             blackPen: 2,
             colorBrush: 5,
             blackEraser: 5,
@@ -160,7 +160,7 @@
 
         function setColor(color) {
             currentColor = color;
-            if(color == blackpenColor){
+            if(color == blackPenColor){
                 currentLayer = ctxBlack;
             }else{
                 currentLayer = ctxColor;
@@ -180,7 +180,7 @@
                 } else {
                     eraserColor.classList.add('active');
                 }
-            } else if (currentColor === blackpenColor) {
+            } else if (currentColor === blackPenColor) {
                 blackPenButton.classList.add('active');
             } else {
                 const activeColorBtn = document.querySelector(`.color-btn[data-color="${currentColor}"]`);
@@ -192,9 +192,9 @@
 
         function updateToolSize() {
             if (isEraser) {
-                toolsizeParamInput.value = currentLayer === ctxBlack ? toolsizesParam.blackEraser : toolsizesParam.colorEraser;
+                toolSizeParamInput.value = currentLayer === ctxBlack ? toolSizesParam.blackEraser : toolSizesParam.colorEraser;
             } else {
-                toolsizeParamInput.value = currentLayer === ctxBlack ? toolsizesParam.blackPen : toolsizesParam.colorBrush;
+                toolSizeParamInput.value = currentLayer === ctxBlack ? toolSizesParam.blackPen : toolSizesParam.colorBrush;
             }
         }
 
@@ -215,7 +215,7 @@
                 currentLayer.globalCompositeOperation = 'source-over';
                 currentLayer.strokeStyle = currentColor;
             }
-            currentLayer.lineWidth = 2**parseInt(toolsizeParamInput.value);
+            currentLayer.lineWidth = 2**parseInt(toolSizeParamInput.value);
             currentLayer.lineCap = 'round';
             currentLayer.stroke();
             [lastX, lastY] = [x, y];
@@ -228,7 +228,7 @@
         }
 
         function updateCursor(x, y) {
-            const size = 2**parseInt(toolsizeParamInput.value);
+            const size = 2**parseInt(toolSizeParamInput.value);
             cursor.style.width = `${size}px`;
             cursor.style.height = `${size}px`;
             cursor.style.left = `${x - size / 2}px`;
@@ -450,7 +450,7 @@
 
         blackPenButton.addEventListener('click', () => {
             currentLayer = ctxBlack;
-            setColor(blackpenColor);
+            setColor(blackPenColor);
             isEraser = false;
             updateActiveButton();
             updateToolSize();
@@ -470,20 +470,20 @@
             updateToolSize();
         });
 
-        toolsizeParamInput.addEventListener('change', () => {
-            const size = parseInt(toolsizeParamInput.value);
+        toolSizeParamInput.addEventListener('change', () => {
+            const size = parseInt(toolSizeParamInput.value);
             if (isEraser) {
                 if (currentLayer === ctxBlack) {
-                    toolsizesParam.blackEraser = size;
+                    toolSizesParam.blackEraser = size;
                 } else {
-                    toolsizesParam.colorEraser = size;
+                    toolSizesParam.colorEraser = size;
                 }
             } else {
                 if (currentLayer === ctxBlack) {
-                    toolsizesParam.blackPen = size;
-                    console.info("BPSize:",toolsizesParam.blackPen);
+                    toolSizesParam.blackPen = size;
+                    console.info("BPSize:",toolSizesParam.blackPen);
                 } else {
-                    toolsizesParam.colorBrush = size;
+                    toolSizesParam.colorBrush = size;
                 }
             }
         });
