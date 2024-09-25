@@ -83,7 +83,7 @@
 
         }
         #tool-size {
-            width: 80px;
+            width: 60px;
         }
     </style>
 </head>
@@ -99,11 +99,9 @@
             <input type="range" id="tool-size" min="1" max="7">
             <button id="blackPen">黒ペン</button>
             <button id="eraserBlack">黒ペン消し</button>
-            <span>色ブラシ</span>
-            <div id="colorButtons"></div>
-
+            <button id="colorBrushButton">色ブラシ</button>
             <input id="palette" type="color" value="#F7DFC5">
-
+            <div id="colorButtons"></div>
             <button id="eraserColor">色ブラシ消し</button>
         </div>
         <div id="controls2">
@@ -138,6 +136,7 @@
         const cursor = document.getElementById('cursor');
         const toolSizeParamInput = document.getElementById('tool-size');
         const colorButtons = document.getElementById('colorButtons');
+        const colorBrushButton = document.getElementById('colorBrushButton')
         const colorPalette = document.getElementById('palette');
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
@@ -148,9 +147,13 @@
         const postButton = document.getElementById('post');
         const getTokenButton = document.getElementById('getToken');
 
+        
+
         let PaletteColors = [
             "#BEBDBB", "#F8D4CB", "#F7DFC5", "#F8F4CB", "#D3ECC1", "#D3E4F0", "#F0E7F2"
         ];
+
+        let curPaletteColor = PaletteColors[2];
 
         let isDrawing = false;
         let lastX = 0;
@@ -169,8 +172,8 @@
 
         const toolSizesParam = {
             blackPen: 2,
-            colorBrush: 4,
-            blackEraser: 5,
+            colorBrush: 5,
+            blackEraser: 4,
             colorEraser: 6
         };
 
@@ -193,6 +196,7 @@
             }else{
                 currentLayer = ctxColor;
                 colorPalette.value = color;
+                curPaletteColor = color;
             }
             
             isEraser = false;
@@ -201,7 +205,7 @@
         }
 
         function updateActiveButton() {
-            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#palette').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#colorBrushButton').forEach(btn => btn.classList.remove('active'));
             if (isEraser) {
                 if (currentLayer === ctxBlack) {
                     eraserBlack.classList.add('active');
@@ -215,6 +219,7 @@
                 if (activeColorBtn) {
                     activeColorBtn.classList.add('active');
                 }
+                colorBrushButton.classList.add('active');
             }
         }
 
@@ -484,6 +489,14 @@
             updateToolSize();
         });
 
+        colorBrushButton.addEventListener('click', () => {
+            currentLayer = ctxColor;
+            setColor(curPaletteColor);
+            isEraser = false;
+            updateActiveButton();
+            updateToolSize();
+        });
+
         eraserBlack.addEventListener('click', () => {
             currentLayer = ctxBlack;
             isEraser = true;
@@ -516,10 +529,11 @@
         });
 
         colorPalette.addEventListener('input', () => {
-            const inputColorVal = colorPalette.value;
+            inputColorVal = colorPalette.value;
             console.info("colorPaletteValue:",inputColorVal);
             currentLayer = ctxColor;
             setColor(inputColorVal);
+            curPaletteColor = inputColorVal;
             isEraser = false;
             updateActiveButton();
             updateToolSize();
