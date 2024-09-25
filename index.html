@@ -57,7 +57,6 @@
             height: 32px;
             cursor: pointer;
             font-size: 14px;
-            
             border: 1px solid #000;
             border-radius: 4px;
         }
@@ -71,7 +70,7 @@
             border: 1px solid #000;      
             border-radius: 4px;
         }
-        input[type="color"] {
+        #palette {
             width: 32px;
             height: 32px;
             border: 1px solid #000;
@@ -102,8 +101,9 @@
             <button id="eraserBlack">黒ペン消し</button>
             <span>色ブラシ</span>
             <div id="colorButtons"></div>
+
             <input id="palette" type="color" value="#F7DFC5">
-            <div id="colorPalette"></div>
+
             <button id="eraserColor">色ブラシ消し</button>
         </div>
         <div id="controls2">
@@ -201,7 +201,7 @@
         }
 
         function updateActiveButton() {
-            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#palette').forEach(btn => btn.classList.remove('active'));
             if (isEraser) {
                 if (currentLayer === ctxBlack) {
                     eraserBlack.classList.add('active');
@@ -509,7 +509,6 @@
             } else {
                 if (currentLayer === ctxBlack) {
                     toolSizesParam.blackPen = size;
-                    console.info("BPSize:",toolSizesParam.blackPen);
                 } else {
                     toolSizesParam.colorBrush = size;
                 }
