@@ -120,7 +120,7 @@
         const postButton = document.getElementById('post');
         const getTokenButton = document.getElementById('getToken');
 
-        let colors = [
+        let PaletteColors = [
             "#BEBDBB", "#F8D4CB", "#F7DFC5", "#F8F4CB", "#D3ECC1", "#D3E4F0", "#F0E7F2"
         ];
 
@@ -147,7 +147,7 @@
         };
 
         function createColorButtons() {
-            colors.forEach(color => {
+            PaletteColors.forEach(color => {
                 const button = document.createElement('button');
                 button.className = 'color-btn';
                 button.style.backgroundColor = color;
@@ -489,7 +489,8 @@
         });
 
         colorPalette.addEventListener('input', () => {
-            const inputColorval = colorPalette.value;
+            const inputColorVal = colorPalette.value;
+            console.info("colorPaletteValue:",inputColorVal);
         }, false);
 
         undoButton.addEventListener('click', undo);
