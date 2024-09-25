@@ -491,6 +491,11 @@
         colorPalette.addEventListener('input', () => {
             const inputColorVal = colorPalette.value;
             console.info("colorPaletteValue:",inputColorVal);
+            currentLayer = ctxColor;
+            setColor(inputColorVal);
+            isEraser = false;
+            updateActiveButton();
+            updateToolSize();
         }, false);
 
         undoButton.addEventListener('click', undo);
