@@ -56,7 +56,7 @@
         .active {
             border: 3px solid #000;
         }
-        #pen-size {
+        #tool-size {
             width: 60px;
         }
     </style>
@@ -70,7 +70,7 @@
             <div id="cursor"></div>
         </div>
         <div id="controls">  
-            <input type="range" id="pen-size" min="0" max="6">
+            <input type="range" id="tool-size" min="0" max="6">
             <button id="blackPen">黒ペン</button>
             <button id="eraserBlack">黒ペン消し</button>
             色ブラシ
@@ -108,7 +108,7 @@
         const ctxColor = colorLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
-        const penSizeInput = document.getElementById('pen-size');
+        const toolsizeParamInput = document.getElementById('tool-size');
         const colorButtons = document.getElementById('colorButtons');
         const colorPalette = document.getElementById('palette');
         const blackPenButton = document.getElementById('blackPen');
@@ -139,9 +139,9 @@
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
 
-        const toolSizes = {
+        const toolsizesParam = {
             blackPen: 2,
-            colorPen: 5,
+            colorBrush: 5,
             blackEraser: 5,
             colorEraser: 6
         };
@@ -169,7 +169,7 @@
             
             isEraser = false;
             updateActiveButton();
-            updatePenSize();
+            updateToolSize();
         }
 
         function updateActiveButton() {
@@ -190,11 +190,11 @@
             }
         }
 
-        function updatePenSize() {
+        function updateToolSize() {
             if (isEraser) {
-                penSizeInput.value = currentLayer === ctxBlack ? toolSizes.blackEraser : toolSizes.colorEraser;
+                toolsizeParamInput.value = currentLayer === ctxBlack ? toolsizesParam.blackEraser : toolsizesParam.colorEraser;
             } else {
-                penSizeInput.value = currentLayer === ctxBlack ? toolSizes.blackPen : toolSizes.colorPen;
+                toolsizeParamInput.value = currentLayer === ctxBlack ? toolsizesParam.blackPen : toolsizesParam.colorBrush;
             }
         }
 
@@ -215,7 +215,7 @@
                 currentLayer.globalCompositeOperation = 'source-over';
                 currentLayer.strokeStyle = currentColor;
             }
-            currentLayer.lineWidth = 2**parseInt(penSizeInput.value);
+            currentLayer.lineWidth = 2**parseInt(toolsizeParamInput.value);
             currentLayer.lineCap = 'round';
             currentLayer.stroke();
             [lastX, lastY] = [x, y];
@@ -228,7 +228,7 @@
         }
 
         function updateCursor(x, y) {
-            const size = 2**parseInt(penSizeInput.value);
+            const size = 2**parseInt(toolsizeParamInput.value);
             cursor.style.width = `${size}px`;
             cursor.style.height = `${size}px`;
             cursor.style.left = `${x - size / 2}px`;
@@ -453,37 +453,37 @@
             setColor(blackpenColor);
             isEraser = false;
             updateActiveButton();
-            updatePenSize();
+            updateToolSize();
         });
 
         eraserBlack.addEventListener('click', () => {
             currentLayer = ctxBlack;
             isEraser = true;
             updateActiveButton();
-            updatePenSize();
+            updateToolSize();
         });
 
         eraserColor.addEventListener('click', () => {
             currentLayer = ctxColor;
             isEraser = true;
             updateActiveButton();
-            updatePenSize();
+            updateToolSize();
         });
 
-        penSizeInput.addEventListener('change', () => {
-            const size = parseInt(penSizeInput.value);
+        toolsizeParamInput.addEventListener('change', () => {
+            const size = parseInt(toolsizeParamInput.value);
             if (isEraser) {
                 if (currentLayer === ctxBlack) {
-                    toolSizes.blackEraser = size;
+                    toolsizesParam.blackEraser = size;
                 } else {
-                    toolSizes.colorEraser = size;
+                    toolsizesParam.colorEraser = size;
                 }
             } else {
                 if (currentLayer === ctxBlack) {
-                    toolSizes.blackPen = size;
-                    console.info("BPSize:",toolSizes.blackPen);
+                    toolsizesParam.blackPen = size;
+                    console.info("BPSize:",toolsizesParam.blackPen);
                 } else {
-                    toolSizes.colorPen = size;
+                    toolsizesParam.colorBrush = size;
                 }
             }
         });
@@ -500,7 +500,7 @@
 
         createColorButtons();
         updateActiveButton();
-        updatePenSize();
+        updateToolSize();
         restoreLocalstorage();
     </script>
 </body>
