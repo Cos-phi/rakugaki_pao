@@ -71,14 +71,14 @@
             border-radius: 4px;
         }
         #palette {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 24px;
             cursor: pointer;
+            
         }
         .active {
             border: 3px solid #000;
             vertical-align: 1px
-
         }
         #tool-size {
             width: 60px;
@@ -97,15 +97,16 @@
             <input type="range" id="tool-size" min="1" max="7">
             <button id="blackPen">黒ペン</button>
             <button id="eraserBlack">黒ペン消し</button>
+            <span>色ブラシ</span>
             <div id="colorButtons"></div>
             <button id="changeableColorButton" class="color-btn" display: flex></button>
-            <input id="palette" type="color" value="#F7DFC5">
+            <input id="palette" type="color" value="#909090">
             <button id="eraserColor">色ブラシ消し</button>
         </div>
         <div id="controls2">
-            <button id="undo">↩️ 元に戻す</button>
-            <button id="clear">🚿全て消す</button>
-            <button id="save">💾ファイルに保存</button>
+            <button id="undo">↩️元に戻す</button>
+            <button id="clear">🧹全て消す</button>
+            <button id="save">⬇️保存</button>
             <button id="post">☁️マストドンに投稿</button>
             <button id="getToken">🗝️トークンの取得</button>
         </div>
@@ -151,7 +152,7 @@
             "#F9C7C6", "#F7DFC5", "#F9F19A", "#7BB07F", "#9DBEEA", "#E4D0E9","#BEBDBB"
         ];
 
-        let curPaletteColor = "#808080";
+        let curPaletteColor = "#909090";
 
         let isDrawing = false;
         let lastX = 0;
@@ -189,6 +190,7 @@
         function createChangeableColorButton() {
             changeableColorButton.style.backgroundColor = curPaletteColor;
             colorButtons.appendChild(changeableColorButton);
+            colorButtons.appendChild(colorPalette);
         }
 
         function updateColorButton(color){
