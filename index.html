@@ -71,10 +71,8 @@
             border-radius: 4px;
         }
         #palette {
-            width: 32px;
-            height: 32px;
-            border: 1px solid #000;
-            border-radius: 4px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
         }
         .active {
@@ -99,9 +97,9 @@
             <input type="range" id="tool-size" min="1" max="7">
             <button id="blackPen">黒ペン</button>
             <button id="eraserBlack">黒ペン消し</button>
-            <button id="colorBrushButton">色ブラシ</button>
-            <input id="palette" type="color" value="#F7DFC5">
             <div id="colorButtons"></div>
+            <button id="changeableColorButton" class="color-btn" display: flex></button>
+            <input id="palette" type="color" value="#F7DFC5">
             <button id="eraserColor">色ブラシ消し</button>
         </div>
         <div id="controls2">
@@ -136,7 +134,7 @@
         const cursor = document.getElementById('cursor');
         const toolSizeParamInput = document.getElementById('tool-size');
         const colorButtons = document.getElementById('colorButtons');
-        const colorBrushButton = document.getElementById('colorBrushButton')
+        const changeableColorButton = document.getElementById('changeableColorButton')
         const colorPalette = document.getElementById('palette');
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
@@ -153,7 +151,7 @@
             "#F9C7C6", "#F7DFC5", "#F9F19A", "#7BB07F", "#9DBEEA", "#E4D0E9","#BEBDBB"
         ];
 
-        let curPaletteColor = PaletteColors[1];
+        let curPaletteColor = "#808080";
 
         let isDrawing = false;
         let lastX = 0;
@@ -188,6 +186,15 @@
             });
         }
 
+        function createChangeableColorButton() {
+            changeableColorButton.style.backgroundColor = curPaletteColor;
+            colorButtons.appendChild(changeableColorButton);
+        }
+
+        function updateColorButton(color){
+            changeableColorButton.style.backgroundColor = color;
+        }
+
 
         function setColor(color) {
             currentColor = color;
@@ -196,7 +203,6 @@
             }else{
                 currentLayer = ctxColor;
                 colorPalette.value = color;
-                curPaletteColor = color;
             }
             
             isEraser = false;
@@ -205,7 +211,7 @@
         }
 
         function updateActiveButton() {
-            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#colorBrushButton').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#changeableColorButton').forEach(btn => btn.classList.remove('active'));
             if (isEraser) {
                 if (currentLayer === ctxBlack) {
                     eraserBlack.classList.add('active');
@@ -218,8 +224,9 @@
                 const activeColorBtn = document.querySelector(`.color-btn[data-color="${currentColor}"]`);
                 if (activeColorBtn) {
                     activeColorBtn.classList.add('active');
+                }else{
+                    changeableColorButton.classList.add('active');
                 }
-                colorBrushButton.classList.add('active');
             }
         }
 
@@ -489,7 +496,7 @@
             updateToolSize();
         });
 
-        colorBrushButton.addEventListener('click', () => {
+        changeableColorButton.addEventListener('click', () => {
             currentLayer = ctxColor;
             setColor(curPaletteColor);
             isEraser = false;
@@ -537,6 +544,7 @@
             isEraser = false;
             updateActiveButton();
             updateToolSize();
+            updateColorButton(curPaletteColor);
         }, false);
 
         undoButton.addEventListener('click', undo);
@@ -546,6 +554,7 @@
         getTokenButton.addEventListener('click', getTokenRedirect);
 
         createColorButtons();
+        createChangeableColorButton();
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
