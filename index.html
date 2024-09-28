@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>rakugaki_pao</title>
     <style>
+        html {
+            transform-origin: center center;
+            transform: scale(1); 
+        }
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -85,6 +89,12 @@
         }
         #tool-size {
             width: 60px;
+        }
+        @media screen and (max-width: 720px) {
+            html {
+                transform-origin: center center;
+                transform: scale(0.5); 
+            }
         }
     </style>
 </head>
