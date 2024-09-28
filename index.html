@@ -97,6 +97,7 @@
             <div id="cursor"></div>
         </div>
         <div id="controls1">  
+            <button id="reload">🔄️</button>
             <input type="range" id="tool-size" min="1" max="7">
             <button id="blackPen" class="pen-btn"></button>
             <button id="eraserBlack" class="eraser-btn"></button>
@@ -143,6 +144,7 @@
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
         const eraserColor = document.getElementById('eraserColor');
+        const reloadButton = document.getElementById('reload');
         const undoButton = document.getElementById('undo');
         const clearButton = document.getElementById('clear');
         const saveButton = document.getElementById('save');
@@ -552,6 +554,7 @@
             updateColorButton(curPaletteColor);
         }, false);
 
+        reloadButton.addEventListener('click', () => {location.reload()});
         undoButton.addEventListener('click', undo);
         clearButton.addEventListener('click', clearCanvas);
         saveButton.addEventListener('click', saveImage);
