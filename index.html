@@ -123,6 +123,7 @@
             <button id="eraserColor" class="eraser-btn" title="色ブラシ消し"></button>
         </div>
         <div id="controls2">
+            <button id="copy" class="control-btn" title="クリップボードにコピー"><img src="image/copy.png" style="height: 100%;"></button>
             <button id="save" class="control-btn" title="ダウンロードして保存"><img src="image/download.png" style="height: 100%;"></button>
             <button id="post">☁️マストドンに投稿</button>
             <button id="getToken">🗝️トークンの取得</button>
@@ -161,6 +162,7 @@
         const reloadButton = document.getElementById('reload');
         const undoButton = document.getElementById('undo');
         const clearButton = document.getElementById('clear');
+        const copyButton = document.getElementById('copy');
         const saveButton = document.getElementById('save');
         const postButton = document.getElementById('post');
         const getTokenButton = document.getElementById('getToken');
@@ -388,6 +390,22 @@
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
         }
 
+        function copyImage() {
+            const combinedCanvas = document.createElement('canvas');
+            combinedCanvas.width = 720;
+            combinedCanvas.height = 720;
+            const ctx = combinedCanvas.getContext('2d');
+            ctx.drawImage(backgroundLayer, 0, 0);
+            ctx.drawImage(colorLayer, 0, 0);
+            ctx.drawImage(blackLayer, 0, 0);
+            
+            const dataURL = combinedCanvas.toDataURL('image/png');
+            combinedCanvas.toBlob(async (blob) => {
+                const item = new ClipboardItem({'image/png': blob});
+                await navigator.clipboard.write([item]);
+            })
+        }
+
         function saveImage() {
             const combinedCanvas = document.createElement('canvas');
             combinedCanvas.width = 720;
@@ -582,6 +600,7 @@
         reloadButton.addEventListener('click', () => {location.reload()});
         undoButton.addEventListener('click', undo);
         clearButton.addEventListener('click', clearCanvas);
+        copyButton.addEventListener('click', copyImage);
         saveButton.addEventListener('click', saveImage);
         postButton.addEventListener('click', postToMastodon);
         getTokenButton.addEventListener('click', getTokenRedirect);
