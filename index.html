@@ -129,8 +129,9 @@
         </div>
         
         <pre>
-         ・開いたらまず、「トークンを取得」を押してくださいませ。（トークンを取得してないとmistodonに投稿できませんの。）
-         ・未完成で作業進行中ですので、適宜仕様が変わりますわ。ご了承くださいまし！</pre>
+         ・マストドンに投稿するには、最初に「トークンを取得」を押してくださいね。
+         ・投稿がうまくいかないときは再度「トークンを取得」を押してくださいまし。
+         ・未完成で作業進行中ですので、適宜仕様が変わりますわ。ご了承くださいませ！</pre>
 
     </div>
     <script>
@@ -398,7 +399,7 @@
             
             const dataURL = combinedCanvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = 'drawing.png';
+            link.download = 'rakugaki_pao';
             link.href = dataURL;
             link.click();
         }
@@ -411,7 +412,7 @@
                     },
                     body: (() => {
                         const formData = new FormData();
-                        formData.append('file', dataURLToBlob(dataURL), 'drawing.png');
+                        formData.append('file', dataURLToBlob(dataURL), 'rakugaki_pao');
                         return formData;
                     })()
             })
