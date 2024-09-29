@@ -254,6 +254,11 @@
             } else {
                 toolSizeParamInput.value = currentLayer === ctxBlack ? toolSizesParam.blackPen : toolSizesParam.colorBrush;
             }
+            updateToolSizeToolTip();
+        }
+
+        function updateToolSizeToolTip() {
+            toolSizeParamInput.title = calcToolSize(toolSizeParamInput.value)+'px';
         }
 
         function startDrawing(x, y) {
@@ -542,20 +547,21 @@
         });
 
         toolSizeParamInput.addEventListener('change', () => {
-            const size = parseInt(toolSizeParamInput.value);
+            const sizeParam = parseInt(toolSizeParamInput.value);
             if (isEraser) {
                 if (currentLayer === ctxBlack) {
-                    toolSizesParam.blackEraser = size;
+                    toolSizesParam.blackEraser = sizeParam;
                 } else {
-                    toolSizesParam.colorEraser = size;
+                    toolSizesParam.colorEraser = sizeParam;
                 }
             } else {
                 if (currentLayer === ctxBlack) {
-                    toolSizesParam.blackPen = size;
+                    toolSizesParam.blackPen = sizeParam;
                 } else {
-                    toolSizesParam.colorBrush = size;
+                    toolSizesParam.colorBrush = sizeParam;
                 }
             }
+            updateToolSizeToolTip();
         });
 
         colorPalette.addEventListener('input', () => {
