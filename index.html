@@ -106,22 +106,22 @@
             <div id="cursor"></div>
         </div>
         <div id="controls1">  
-            <button id="undo" class="control-btn"><img src="image/undo.png" style="height: 100%;"></button>
-            <button id="clear" class="control-btn"><img src="image/new.png" style="height: 100%;"></button>
-            <button id="reload" class="control-btn"><img src="image/reload.png" style="height: 100%;"></button>
+            <button id="undo" class="control-btn" title="元に戻す"><img src="image/undo.png" style="height: 100%;"></button>
+            <button id="clear" class="control-btn" title="キャンバスのクリア"><img src="image/new.png" style="height: 100%;"></button>
+            <button id="reload" class="control-btn" title="ツールの再読み込み"><img src="image/reload.png" style="height: 100%;"></button>
             
-            <input type="range" id="tool-size" min="1" max="7">
+            <input type="range" id="tool-size" min="1" max="7" title="ペン/ブラシのサイズ">
             
-            <button id="blackPen" class="pen-btn"></button>
-            <button id="eraserBlack" class="eraser-btn"></button>
+            <button id="blackPen" class="pen-btn" title="黒ペン"></button>
+            <button id="eraserBlack" class="eraser-btn" title="黒ペン消し"></button>
             
-            <div id="colorButtons"></div>
-            <button id="changeableColorButton" class="color-btn" display: flex></button>
-            <input id="palette" type="color" value="#909090">
-            <button id="eraserColor" class="eraser-btn"></button>
+            <div id="colorButtons" title="色ブラシ"></div>
+            <button id="changeableColorButton" class="color-btn" display: flex title="選択色ブラシ"></button>
+            <input id="palette" type="color" value="#909090" title="色の選択">
+            <button id="eraserColor" class="eraser-btn" title="色ブラシ消し"></button>
         </div>
         <div id="controls2">
-            <button id="save" class="control-btn"><img src="image/download.png" style="height: 100%;"></button>
+            <button id="save" class="control-btn" title="ダウンロードして保存"><img src="image/download.png" style="height: 100%;"></button>
             <button id="post">☁️マストドンに投稿</button>
             <button id="getToken">🗝️トークンの取得</button>
         </div>
