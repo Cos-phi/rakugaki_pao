@@ -25,7 +25,7 @@
         }
         #canvas-container {
             
-            margin-top: 40px;
+            margin-top: 20px;
             position: relative;
             width: 720px;
             height: 720px;
@@ -34,19 +34,20 @@
             position: absolute;
             top: 0;
             left: 0;
-            border: 1px solid #000;
+            border: 1px solid #36364A;
         }
         #cursor {
             position: absolute;
             pointer-events: none;
-            border: 1px solid #000;
+            border: 2px solid #000;
             border-radius: 50%;
         }
         #controls1 {
-            margin-top: 12px;
+            margin-top: 15px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 5px;
+            height: 30px;
             max-width: 720px;
         }
         #controls2 {
@@ -61,7 +62,7 @@
             height: 30px;
             cursor: pointer;
             font-size: 14px;
-            border: 1px solid #000;
+            border: 1px solid #36364A;
             border-radius: 2px;
         }
         .color-btn {
@@ -80,20 +81,19 @@
         .control-btn {
             padding: 5px 5px 5px 5px;
             width: 30px;
-
         }
         #palette {
             width: 18px;
             height: 24px;
             cursor: pointer;
-            
         }
         .active {
             border: 3px solid #000;
-            vertical-align: 1px
+            position: relative;
+            top: -10px;
         }
         #tool-size {
-            width: 60px;
+            width: 80px;
         }
     </style>
 </head>
@@ -109,10 +109,12 @@
             <button id="undo" class="control-btn"><img src="image/undo.png" style="height: 100%;"></button>
             <button id="clear" class="control-btn"><img src="image/new.png" style="height: 100%;"></button>
             <button id="reload" class="control-btn"><img src="image/reload.png" style="height: 100%;"></button>
+            
             <input type="range" id="tool-size" min="1" max="7">
+            
             <button id="blackPen" class="pen-btn"></button>
             <button id="eraserBlack" class="eraser-btn"></button>
-           
+            
             <div id="colorButtons"></div>
             <button id="changeableColorButton" class="color-btn" display: flex></button>
             <input id="palette" type="color" value="#909090">
