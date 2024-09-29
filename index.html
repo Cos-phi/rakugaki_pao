@@ -62,7 +62,7 @@
             cursor: pointer;
             font-size: 14px;
             border: 1px solid #000;
-            border-radius: 1px;
+            border-radius: 2px;
         }
         .color-btn {
             width: 30px;
@@ -70,12 +70,17 @@
         .pen-btn {
             width: 40px;
             background-color: #36364A;
-            border: 1px solid #ffffff;
+            border: 1px solid #000;
         }
         .eraser-btn {
             width: 40px;
             background-color: #F2EEE6;
             border-radius: 15px;
+        }
+        .control-btn {
+            padding: 5px 5px 5px 5px;
+            width: 30px;
+
         }
         #palette {
             width: 18px;
@@ -101,7 +106,9 @@
             <div id="cursor"></div>
         </div>
         <div id="controls1">  
-            <button id="reload">🔄️</button>
+            <button id="undo" class="control-btn"><img src="image/undo.png" style="height: 100%;"></button>
+            <button id="clear" class="control-btn"><img src="image/new.png" style="height: 100%;"></button>
+            <button id="reload" class="control-btn"><img src="image/reload.png" style="height: 100%;"></button>
             <input type="range" id="tool-size" min="1" max="7">
             <button id="blackPen" class="pen-btn"></button>
             <button id="eraserBlack" class="eraser-btn"></button>
@@ -112,9 +119,7 @@
             <button id="eraserColor" class="eraser-btn"></button>
         </div>
         <div id="controls2">
-            <button id="undo">↩️</button>
-            <button id="clear">🧹</button>
-            <button id="save">⬇️</button>
+            <button id="save" class="control-btn"><img src="image/download.png" style="height: 100%;"></button>
             <button id="post">☁️マストドンに投稿</button>
             <button id="getToken">🗝️トークンの取得</button>
         </div>
