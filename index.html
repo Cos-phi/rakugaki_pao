@@ -108,7 +108,7 @@
         <div id="controls1">  
             <button id="undo" class="control-btn" title="元に戻す"><img src="image/undo.png" style="height: 100%;"></button>
             <button id="clear" class="control-btn" title="キャンバスのクリア"><img src="image/new.png" style="height: 100%;"></button>
-            <button id="reload" class="control-btn" title="ツールの再読み込み"><img src="image/reload.png" style="height: 100%;"></button>
+            <button id="reload" class="control-btn" title="ツールのリセット"><img src="image/reload.png" style="height: 100%;"></button>
             
             <input type="range" id="tool-size" min="1" max="7" title="ペン/ブラシのサイズ">
             
@@ -273,10 +273,15 @@
                 currentLayer.globalCompositeOperation = 'source-over';
                 currentLayer.strokeStyle = currentColor;
             }
-            currentLayer.lineWidth = 2**parseInt(toolSizeParamInput.value);
+            currentLayer.lineWidth = calcToolSize(toolSizeParamInput.value);
             currentLayer.lineCap = 'round';
             currentLayer.stroke();
             [lastX, lastY] = [x, y];
+        }
+
+        function calcToolSize(toolSizeParam) {
+            const size = 2**parseInt(toolSizeParam);
+            return size;
         }
 
         function stopDrawing() {
@@ -286,7 +291,7 @@
         }
 
         function updateCursor(x, y) {
-            const size = 2**parseInt(toolSizeParamInput.value);
+            const size = calcToolSize(toolSizeParamInput.value);
             cursor.style.width = `${size}px`;
             cursor.style.height = `${size}px`;
             cursor.style.left = `${x - size / 2}px`;
