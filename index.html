@@ -53,10 +53,10 @@
             max-width: 720px;
         }
         #controls2 {
-            margin-top: 10px;
+            margin-top: 15px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 5px;
             max-width: 720px;
         }
         button {
@@ -71,7 +71,7 @@
             width: 30px;
         }        
         .pen-btn {
-            width: 40px;
+            width: 30px;
             background-color: #36364A;
             border: 1px solid #000;
         }
@@ -81,6 +81,9 @@
             border-radius: 15px;
         }
         .control-btn {
+            display: flex;
+            justify-content: center; 
+            align-items: center;
             padding: 5px 5px 5px 5px;
             width: 30px;
         }
@@ -125,7 +128,7 @@
         <div id="controls2">
             <button id="copy" class="control-btn" title="クリップボードにコピー"><img src="image/copy.png" style="height: 100%;"></button>
             <button id="save" class="control-btn" title="ダウンロードして保存"><img src="image/download.png" style="height: 100%;"></button>
-            <button id="post">☁️マストドンに投稿</button>
+            <button id="post" class="control-btn" title="マストドンに投稿"><img src="image/post.png" style="height: 100%;"></button>
             <button id="getToken">🗝️トークンの取得</button>
         </div>
         
