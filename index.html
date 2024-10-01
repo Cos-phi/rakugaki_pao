@@ -128,7 +128,7 @@
         <div id="controls2">
             <button id="copy" class="control-btn" title="クリップボードにコピー"><img src="image/copy.png" style="height: 100%;"></button>
             <button id="save" class="control-btn" title="ダウンロードして保存"><img src="image/download.png" style="height: 100%;"></button>
-            <button id="post" class="control-btn" title="マストドンに投稿"><img src="image/post.png" style="height: 100%;"></button>
+            <button id="post" class="control-btn"><img src="image/post.png" style="height: 100%;"></button>
             <button id="getToken">🗝️トークンの取得</button>
         </div>
         
@@ -171,7 +171,7 @@
         const postButton = document.getElementById('post');
         const getTokenButton = document.getElementById('getToken');
 
-        
+        postButton.title = hostName + "に投稿";
 
         let PaletteColors = [
             "#F9C7C6", "#F7DFC5", "#F9F19A","#CEE06E", "#7BB07F", "#9DBEEA", "#E4D0E9"
