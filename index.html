@@ -36,7 +36,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            border: 1px solid #36364A;
+            border: 1px solid #505050;
         }
         #cursor {
             position: absolute;
@@ -45,15 +45,16 @@
             border-radius: 50%;
         }
         #controls1 {
-            margin-top: 15px;
+            margin-top: 20px;
             display: flex;
             flex-wrap: wrap;
+            align-items: center;
             gap: 0px;
-            height: 30px;
+            height: 32px;
             max-width: 720px;
         }
         #controls2 {
-            margin-top: 25px;
+            margin-top: 20px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
@@ -61,7 +62,8 @@
         #hashtag-line {
             margin-top: 5px;
             color: #A0A0A0;
-
+            letter-spacing: 2px;
+            text-align: center;
         }
         button {
             padding: 5px 10px;
@@ -83,7 +85,7 @@
             width: 40px;
             background-color: #F2EEE6;
             border-radius: 15px;
-            margin-right: 5px;
+            margin-right: 10px;
         }
         .control-btn {
             display: flex;
@@ -95,12 +97,17 @@
         }        
         .tool-reset-btn {
             position: relative;
-            top: 10px;
             padding: 0px 0px 0px 0px;
             width: 10px;
             height: 10px;
             border-radius: 5px;
-            margin-left: 10px;
+            margin-left: 12px;
+            margin-right: 4px;
+        }
+        #tool-size {
+            width: 80px;
+            margin-right: 10px;
+            vertical-align: middle;
         }
         .get-token-btn {
             position: relative;
@@ -116,14 +123,11 @@
             cursor: pointer;
         }
         .active {
-            border: 3px solid #000;
+            border: 2px solid #36364A;
             position: relative;
-            top: -10px;
+            top: -15px;
         }
-        #tool-size {
-            width: 100px;
-            margin-right: 5px;
-        }
+
     </style>
 </head>
 <body>
