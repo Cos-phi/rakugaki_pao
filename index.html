@@ -79,6 +79,7 @@
             width: 40px;
             background-color: #F2EEE6;
             border-radius: 15px;
+            margin-right: 5px;
         }
         .control-btn {
             display: flex;
@@ -86,6 +87,15 @@
             align-items: center;
             padding: 5px 5px 5px 5px;
             width: 30px;
+        }        
+        .tool-reset-btn {
+            position: relative;
+            top: 10px;
+            padding: 0px 0px 0px 0px;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            margin-left: 5px;
         }
         #palette {
             width: 18px;
@@ -113,8 +123,9 @@
         <div id="controls1">  
             <button id="undo" class="control-btn" title="元に戻す"><img src="image/undo.png" style="height: 100%;"></button>
             <button id="clear" class="control-btn" title="キャンバスのクリア"><img src="image/new.png" style="height: 100%;"></button>
-            <button id="reload" class="control-btn" title="ツールのリセット"><img src="image/reload.png" style="height: 100%;"></button>
             
+            
+            <button id="reload" class="tool-reset-btn" title="ツールのリセット"></button>
             <input type="range" id="tool-size" min="0" max="7" title="ペン/ブラシのサイズ">
             
             <button id="blackPen" class="pen-btn" title="黒ペン"></button>
