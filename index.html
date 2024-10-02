@@ -48,16 +48,15 @@
             margin-top: 15px;
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            gap: 0px;
             height: 30px;
             max-width: 720px;
         }
         #controls2 {
-            margin-top: 15px;
+            margin-top: 25px;
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            max-width: 720px;
+            gap: 0px;
         }
         button {
             padding: 5px 10px;
@@ -85,6 +84,7 @@
             display: flex;
             justify-content: center; 
             align-items: center;
+            margin-left: 5px;
             padding: 5px 5px 5px 5px;
             width: 30px;
         }        
@@ -95,7 +95,15 @@
             width: 10px;
             height: 10px;
             border-radius: 5px;
-            margin-left: 5px;
+            margin-left: 10px;
+        }
+        .get-token-btn {
+            position: relative;
+            top: 6px;
+            margin-left: 0px;
+            padding: 3px 3px 3px 3px;
+            height: 24px;
+            width: 24px;
         }
         #palette {
             width: 18px;
@@ -108,7 +116,8 @@
             top: -10px;
         }
         #tool-size {
-            width: 80px;
+            width: 100px;
+            margin-right: 5px;
         }
     </style>
 </head>
@@ -140,7 +149,7 @@
             <button id="copy" class="control-btn" title="クリップボードにコピー"><img src="image/copy.png" style="height: 100%;"></button>
             <button id="save" class="control-btn" title="ダウンロードして保存"><img src="image/download.png" style="height: 100%;"></button>
             <button id="post" class="control-btn"><img src="image/post.png" style="height: 100%;"></button>
-            <button id="getToken">🗝️トークンの取得</button>
+            <button id="getToken" class="get-token-btn" title="トークンの取得"><img src="image/reload.png" style="height: 100%;"></button>
         </div>
         
         <pre>
