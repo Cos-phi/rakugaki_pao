@@ -25,8 +25,7 @@
             flex-direction: column;
             align-items: center;
         }
-        #canvas-container {
-            
+        #canvas-container {      
             margin-top: 20px;
             position: relative;
             width: 720px;
@@ -104,11 +103,6 @@
             margin-left: 12px;
             margin-right: 4px;
         }
-        #tool-size {
-            width: 80px;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
         .get-token-btn {
             position: relative;
             top: 6px;
@@ -116,6 +110,18 @@
             padding: 3px 3px 3px 3px;
             height: 24px;
             width: 24px;
+        }
+        #tool-size {
+            width: 80px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        #opacity {
+            width: 10px;
+            height: 25px;
+            margin-right: 10px;
+            vertical-align: middle;
+            appearance: slider-vertical;
         }
         #palette {
             width: 18px;
@@ -135,6 +141,7 @@
         <div id="canvas-container">
             <canvas id="backgroundLayer" width="720" height="720"></canvas>
             <canvas id="colorLayer" width="720" height="720"></canvas>
+            <canvas id="activeStrokeLayer" width="720" height="720"></canvas>
             <canvas id="blackLayer" width="720" height="720"></canvas>
             <div id="cursor"></div>
         </div>
@@ -153,6 +160,8 @@
             <button id="changeableColorButton" class="color-btn" display: flex title="選択色ブラシ"></button>
             <input id="palette" type="color" value="#909090" title="色の選択">
             <button id="eraserColor" class="eraser-btn" title="色ブラシ消し"></button>
+             
+            <input type="range" id="opacity" min="0.5" max="1" step="0.5" title="ペン/ブラシの不透明度">
         </div>
         <div id="controls2">
             <button id="copy" class="control-btn" title="クリップボードにコピー"><img src="image/copy.png" style="height: 100%;"></button>
@@ -178,12 +187,15 @@
 
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
+        const activeStrokeLayer = document.getElementById('activeStrokeLayer');
         const backgroundLayer = document.getElementById('backgroundLayer');
         const ctxBlack = blackLayer.getContext('2d');
         const ctxColor = colorLayer.getContext('2d');
+        const ctxAactiveStroke = activeStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
         const toolSizeParamInput = document.getElementById('tool-size');
+        const opacityInput = document.getElementById('opacity');
         const colorButtons = document.getElementById('colorButtons');
         const changeableColorButton = document.getElementById('changeableColorButton')
         const colorPalette = document.getElementById('palette');
@@ -209,7 +221,7 @@
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
-        let currentLayer = ctxBlack;
+        let ctxCurrentLayer = ctxBlack;
         const blackPenColor = "#36364A";
         const backgroundColor = "#F2EEE6";
         let currentColor = blackPenColor;
@@ -226,6 +238,11 @@
             colorBrush: 5,
             blackEraser: 4,
             colorEraser: 6
+        };
+
+        const toolOpacity = {
+            blackPen: 1,
+            colorBrush: 1,
         };
 
         function createColorButtons() {
@@ -253,21 +270,22 @@
         function setColor(color) {
             currentColor = color;
             if(color == blackPenColor){
-                currentLayer = ctxBlack;
+                ctxCurrentLayer = ctxBlack;
             }else{
-                currentLayer = ctxColor;
+                ctxCurrentLayer = ctxColor;
                 colorPalette.value = color;
             }
             
             isEraser = false;
             updateActiveButton();
             updateToolSize();
+            updateToolOpacity();
         }
 
         function updateActiveButton() {
             document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#changeableColorButton').forEach(btn => btn.classList.remove('active'));
             if (isEraser) {
-                if (currentLayer === ctxBlack) {
+                if (ctxCurrentLayer === ctxBlack) {
                     eraserBlack.classList.add('active');
                 } else {
                     eraserColor.classList.add('active');
@@ -286,15 +304,20 @@
 
         function updateToolSize() {
             if (isEraser) {
-                toolSizeParamInput.value = currentLayer === ctxBlack ? toolSizesParam.blackEraser : toolSizesParam.colorEraser;
+                toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackEraser : toolSizesParam.colorEraser;
             } else {
-                toolSizeParamInput.value = currentLayer === ctxBlack ? toolSizesParam.blackPen : toolSizesParam.colorBrush;
+                toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackPen : toolSizesParam.colorBrush;
             }
             updateToolSizeToolTip();
         }
 
         function updateToolSizeToolTip() {
             toolSizeParamInput.title = calcToolSize(toolSizeParamInput.value)+'px';
+        }
+
+        function updateToolOpacity() {
+            opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
+            activeStrokeLayer.style.opacity = opacityInput.value;
         }
 
         function startDrawing(x, y) {
@@ -305,18 +328,25 @@
 
         function draw(x, y) {
             if (!isDrawing) return;
-            currentLayer.beginPath();
-            currentLayer.moveTo(lastX, lastY);
-            currentLayer.lineTo(x, y);
             if (isEraser) {
-                currentLayer.globalCompositeOperation = 'destination-out';
-            } else {
-                currentLayer.globalCompositeOperation = 'source-over';
-                currentLayer.strokeStyle = currentColor;
+                ctxCurrentLayer.beginPath();
+                ctxCurrentLayer.moveTo(lastX, lastY);
+                ctxCurrentLayer.lineTo(x, y);
+                ctxCurrentLayer.globalCompositeOperation = 'destination-out';
+                ctxCurrentLayer.strokeStyle = currentColor;
+                ctxCurrentLayer.lineWidth = calcToolSize(toolSizeParamInput.value);
+                ctxCurrentLayer.lineCap = 'round';
+                ctxCurrentLayer.stroke();
+            }else{    
+                ctxAactiveStroke.beginPath();
+                ctxAactiveStroke.moveTo(lastX, lastY);
+                ctxAactiveStroke.lineTo(x, y);
+                ctxAactiveStroke.globalCompositeOperation = 'source-over';
+                ctxAactiveStroke.strokeStyle = currentColor;
+                ctxAactiveStroke.lineWidth = calcToolSize(toolSizeParamInput.value);
+                ctxAactiveStroke.lineCap = 'round';
+                ctxAactiveStroke.stroke();
             }
-            currentLayer.lineWidth = calcToolSize(toolSizeParamInput.value);
-            currentLayer.lineCap = 'round';
-            currentLayer.stroke();
             [lastX, lastY] = [x, y];
         }
 
@@ -327,7 +357,11 @@
 
         function stopDrawing() {
             isDrawing = false;
-            currentLayer.globalCompositeOperation = 'source-over';
+            ctxCurrentLayer.globalCompositeOperation = 'source-over';
+            ctxCurrentLayer.globalAlpha = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
+            ctxCurrentLayer.drawImage(activeStrokeLayer,0,0);
+            ctxCurrentLayer.globalAlpha = 1.0;
+            ctxAactiveStroke.clearRect(0, 0, blackLayer.width, blackLayer.height);
             saveLocalstorage();
         }
 
@@ -570,30 +604,32 @@
         colorLayer.addEventListener('touchmove', updateCursorTouch);
 
         blackPenButton.addEventListener('click', () => {
-            currentLayer = ctxBlack;
+            ctxCurrentLayer = ctxBlack;
             setColor(blackPenColor);
             isEraser = false;
             updateActiveButton();
             updateToolSize();
+            updateToolOpacity();
         });
 
         changeableColorButton.addEventListener('click', () => {
-            currentLayer = ctxColor;
+            ctxCurrentLayer = ctxColor;
             setColor(curPaletteColor);
             isEraser = false;
             updateActiveButton();
             updateToolSize();
+            updateToolOpacity();
         });
 
         eraserBlack.addEventListener('click', () => {
-            currentLayer = ctxBlack;
+            ctxCurrentLayer = ctxBlack;
             isEraser = true;
             updateActiveButton();
             updateToolSize();
         });
 
         eraserColor.addEventListener('click', () => {
-            currentLayer = ctxColor;
+            ctxCurrentLayer = ctxColor;
             isEraser = true;
             updateActiveButton();
             updateToolSize();
@@ -602,13 +638,13 @@
         toolSizeParamInput.addEventListener('change', () => {
             const sizeParam = parseInt(toolSizeParamInput.value);
             if (isEraser) {
-                if (currentLayer === ctxBlack) {
+                if (ctxCurrentLayer === ctxBlack) {
                     toolSizesParam.blackEraser = sizeParam;
                 } else {
                     toolSizesParam.colorEraser = sizeParam;
                 }
             } else {
-                if (currentLayer === ctxBlack) {
+                if (ctxCurrentLayer === ctxBlack) {
                     toolSizesParam.blackPen = sizeParam;
                 } else {
                     toolSizesParam.colorBrush = sizeParam;
@@ -617,10 +653,19 @@
             updateToolSizeToolTip();
         });
 
+        opacityInput.addEventListener('change', () => {
+            activeStrokeLayer.style.opacity = opacityInput.value;
+            if (ctxCurrentLayer === ctxBlack) {
+                toolOpacity.blackPen = opacityInput.value;
+            } else {
+                toolOpacity.colorBrush = opacityInput.value;
+            }
+        });
+
         colorPalette.addEventListener('input', () => {
             inputColorVal = colorPalette.value;
             console.info("colorPaletteValue:",inputColorVal);
-            currentLayer = ctxColor;
+            ctxCurrentLayer = ctxColor;
             setColor(inputColorVal);
             curPaletteColor = inputColorVal;
             isEraser = false;
