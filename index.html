@@ -320,6 +320,12 @@
             activeStrokeLayer.style.opacity = opacityInput.value;
         }
 
+        function updateToolsState() {
+            updateActiveButton();
+            updateToolSize();
+            updateToolOpacity();
+        }
+
         function startDrawing(x, y) {
             isDrawing = true;
             [lastX, lastY] = [x, y];
@@ -607,18 +613,14 @@
             ctxCurrentLayer = ctxBlack;
             setColor(blackPenColor);
             isEraser = false;
-            updateActiveButton();
-            updateToolSize();
-            updateToolOpacity();
+            updateToolsState();
         });
 
         changeableColorButton.addEventListener('click', () => {
             ctxCurrentLayer = ctxColor;
             setColor(curPaletteColor);
             isEraser = false;
-            updateActiveButton();
-            updateToolSize();
-            updateToolOpacity();
+            updateToolsState();
         });
 
         eraserBlack.addEventListener('click', () => {
@@ -666,7 +668,6 @@
                 });
             }
             activeStrokeLayer.style.opacity = opacityInput.value;
- 
         });
 
         colorPalette.addEventListener('input', () => {
