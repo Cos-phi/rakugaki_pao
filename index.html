@@ -654,12 +654,19 @@
         });
 
         opacityInput.addEventListener('change', () => {
-            activeStrokeLayer.style.opacity = opacityInput.value;
             if (ctxCurrentLayer === ctxBlack) {
-                toolOpacity.blackPen = opacityInput.value;
+                toolOpacity.blackPen = opacityInput.value;          
+                const button = document.querySelector('.pen-btn');
+                button.style.opacity = opacityInput.value;
             } else {
                 toolOpacity.colorBrush = opacityInput.value;
+                const buttons = document.querySelectorAll('.color-btn');
+                buttons.forEach(button => {
+                    button.style.opacity = opacityInput.value;
+                });
             }
+            activeStrokeLayer.style.opacity = opacityInput.value;
+ 
         });
 
         colorPalette.addEventListener('input', () => {
