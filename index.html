@@ -110,7 +110,7 @@
 
         }
         #tool-size {
-            width: 80px;
+            width: 72px;
             margin-right: 10px;
             vertical-align: middle;
         }
@@ -121,9 +121,9 @@
             vertical-align: middle;
             appearance: slider-vertical;
         }
-        #palette {
-            width: 18px;
-            height: 24px;
+        .palette {
+            width: 16px;
+            height: 30px;
             cursor: pointer;
         }
         .active {
@@ -139,6 +139,7 @@
         <div id="canvas-container">
             <canvas id="backgroundLayer" width="720" height="720"></canvas>
             <canvas id="colorLayer" width="720" height="720"></canvas>
+            <canvas id="shadowLayer" width="720" height="720"></canvas>
             <canvas id="activeStrokeLayer" width="720" height="720"></canvas>
             <canvas id="blackLayer" width="720" height="720"></canvas>
             <div id="cursor"></div>
@@ -153,10 +154,14 @@
             
             <button id="blackPen" class="pen-btn" title="黒ペン"></button>
             <button id="eraserBlack" class="eraser-btn" title="黒ペン消し"></button>
+
+            <button id="shadowButton" class="color-btn" display: flex title="影ブラシ"></button>
+            <input id="shadowPalette" type="color" class="palette" value="#909090" title="影色の選択">
+            <button id="eraserShadow" class="eraser-btn" title="影色ブラシ消し"></button>
             
             <div id="colorButtons" title="色ブラシ"></div>
             <button id="changeableColorButton" class="color-btn" display: flex title="選択色ブラシ"></button>
-            <input id="palette" type="color" value="#909090" title="色の選択">
+            <input id="palette" type="color"  class="palette" value="#909090" title="色の選択">
             <button id="eraserColor" class="eraser-btn" title="色ブラシ消し"></button>
              
             <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="ペン/ブラシの不透明度">
@@ -185,10 +190,12 @@
 
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
+        const shadowLayer = document.getElementById('shadowLayer');
         const activeStrokeLayer = document.getElementById('activeStrokeLayer');
         const backgroundLayer = document.getElementById('backgroundLayer');
         const ctxBlack = blackLayer.getContext('2d');
         const ctxColor = colorLayer.getContext('2d');
+        const ctxShadow = shadowLayer.getContext('2d');
         const ctxAactiveStroke = activeStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
@@ -197,8 +204,11 @@
         const colorButtons = document.getElementById('colorButtons');
         const changeableColorButton = document.getElementById('changeableColorButton')
         const colorPalette = document.getElementById('palette');
+        const shadowButton = document.getElementById('shadowButton')
+        const shadowPalette = document.getElementById('shadowPalette');
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
+        const eraserShadow = document.getElementById('eraserShadow');
         const eraserColor = document.getElementById('eraserColor');
         const reloadButton = document.getElementById('reload');
         const undoButton = document.getElementById('undo');
@@ -215,6 +225,7 @@
         ];
 
         let curPaletteColor = "#A7A5A8";
+        let curShadowColor = "#284868";
 
         let isDrawing = false;
         let lastX = 0;
@@ -234,13 +245,16 @@
         const toolSizesParam = {
             blackPen: 2,
             colorBrush: 5,
+            shadowBrush: 5,
             blackEraser: 4,
-            colorEraser: 6
+            colorEraser: 6,
+            shadowBrush: 5
         };
 
         const toolOpacity = {
             blackPen: 1,
             colorBrush: 1,
+            shadowBrush: 1,
         };
 
         function createColorButtons() {
@@ -249,23 +263,38 @@
                 button.className = 'color-btn';
                 button.style.backgroundColor = color;
                 button.dataset.color = color;  // データ属性を追加
-                button.addEventListener('click', () => setColor(color));
+                button.addEventListener('click', () => colorButton(color));
                 colorButtons.appendChild(button);
             });
+        }
+
+        function colorButton(color) {
+            setDrawColor(color);
+            ctxCurrentLayer = ctxColor;
+            isEraser = false;
+            updateToolsState();
         }
 
         function createChangeableColorButton() {
             changeableColorButton.style.backgroundColor = curPaletteColor;
             colorButtons.appendChild(changeableColorButton);
-            colorButtons.appendChild(colorPalette);
+            //colorButtons.appendChild(colorPalette);
         }
 
         function updateColorButton(color){
             changeableColorButton.style.backgroundColor = color;
         }
 
+        function createShadowButton() {
+            shadowButton.style.backgroundColor = curShadowColor;
+            //shadowButton.appendChild(shadowPalette);
+        }
 
-        function setColor(color) {
+        function updateShadowButton(color){
+            shadowButton.style.backgroundColor = color;
+        }
+
+        function setDrawColor(color) {
             currentColor = color;
             if(color == blackPenColor){
                 ctxCurrentLayer = ctxBlack;
@@ -609,14 +638,14 @@
 
         blackPenButton.addEventListener('click', () => {
             ctxCurrentLayer = ctxBlack;
-            setColor(blackPenColor);
+            setDrawColor(blackPenColor);
             isEraser = false;
             updateToolsState();
         });
 
         changeableColorButton.addEventListener('click', () => {
             ctxCurrentLayer = ctxColor;
-            setColor(curPaletteColor);
+            setDrawColor(curPaletteColor);
             isEraser = false;
             updateToolsState();
         });
@@ -672,7 +701,7 @@
             inputColorVal = colorPalette.value;
             console.info("colorPaletteValue:",inputColorVal);
             ctxCurrentLayer = ctxColor;
-            setColor(inputColorVal);
+            setDrawColor(inputColorVal);
             curPaletteColor = inputColorVal;
             isEraser = false;
             updateActiveButton();
@@ -690,6 +719,7 @@
 
         createColorButtons();
         createChangeableColorButton();
+        createShadowButton();
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
