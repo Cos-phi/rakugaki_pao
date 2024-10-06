@@ -466,7 +466,6 @@
             ctx.drawImage(colorLayer, 0, 0);
             ctx.drawImage(blackLayer, 0, 0);
             
-            const dataURL = combinedCanvas.toDataURL('image/png');
             combinedCanvas.toBlob(async (blob) => {
                 const item = new ClipboardItem({'image/png': blob});
                 await navigator.clipboard.write([item]);
