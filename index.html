@@ -147,8 +147,8 @@
         <div id="canvas-container">
             <canvas id="backgroundLayer" width="720" height="720"></canvas>
             <canvas id="colorLayer" width="720" height="720"></canvas>
+            <canvas id="activeColorStrokeLayer" width="720" height="720"></canvas>
             <canvas id="shadowLayer" width="720" height="720" class="shadow-canvas"></canvas>
-            <canvas id="activeStrokeLayer" width="720" height="720"></canvas>
             <canvas id="blackLayer" width="720" height="720"></canvas>
             <div id="cursor"></div>
         </div>
@@ -200,12 +200,12 @@
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
         const shadowLayer = document.getElementById('shadowLayer');
-        const activeStrokeLayer = document.getElementById('activeStrokeLayer');
+        const activeColorStrokeLayer = document.getElementById('activeColorStrokeLayer');
         const backgroundLayer = document.getElementById('backgroundLayer');
         const ctxBlack = blackLayer.getContext('2d');
         const ctxColor = colorLayer.getContext('2d');
         const ctxShadow = shadowLayer.getContext('2d');
-        const ctxAactiveStroke = activeStrokeLayer.getContext('2d');
+        const ctxAactiveColorStroke = activeColorStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
         const toolSizeParamInput = document.getElementById('tool-size');
@@ -226,6 +226,11 @@
         const saveButton = document.getElementById('save');
         const postButton = document.getElementById('post');
         const getTokenButton = document.getElementById('getToken');
+
+        const combinedCanvas = document.createElement('canvas');
+        combinedCanvas.width = 720;
+        combinedCanvas.height = 720;
+        const ctxCombined = combinedCanvas.getContext('2d');
 
         postButton.title = hostName + "に投稿";
 
@@ -364,7 +369,7 @@
 
         function updateToolOpacity() {
             opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
-            activeStrokeLayer.style.opacity = opacityInput.value;
+            activeColorStrokeLayer.style.opacity = opacityInput.value;
         }
 
         function updateToolsState() {
@@ -390,15 +395,24 @@
                 ctxCurrentLayer.lineWidth = calcToolSize(toolSizeParamInput.value);
                 ctxCurrentLayer.lineCap = 'round';
                 ctxCurrentLayer.stroke();
+            }else if (ctxCurrentLayer === ctxColor){    
+                ctxAactiveColorStroke.beginPath();
+                ctxAactiveColorStroke.moveTo(lastX, lastY);
+                ctxAactiveColorStroke.lineTo(x, y);
+                ctxAactiveColorStroke.globalCompositeOperation = 'source-over';
+                ctxAactiveColorStroke.strokeStyle = currentColor;
+                ctxAactiveColorStroke.lineWidth = calcToolSize(toolSizeParamInput.value);
+                ctxAactiveColorStroke.lineCap = 'round';
+                ctxAactiveColorStroke.stroke();
             }else{    
-                ctxAactiveStroke.beginPath();
-                ctxAactiveStroke.moveTo(lastX, lastY);
-                ctxAactiveStroke.lineTo(x, y);
-                ctxAactiveStroke.globalCompositeOperation = 'source-over';
-                ctxAactiveStroke.strokeStyle = currentColor;
-                ctxAactiveStroke.lineWidth = calcToolSize(toolSizeParamInput.value);
-                ctxAactiveStroke.lineCap = 'round';
-                ctxAactiveStroke.stroke();
+                ctxCurrentLayer.beginPath();
+                ctxCurrentLayer.moveTo(lastX, lastY);
+                ctxCurrentLayer.lineTo(x, y);
+                ctxCurrentLayer.globalCompositeOperation = 'source-over';
+                ctxCurrentLayer.strokeStyle = currentColor;
+                ctxCurrentLayer.lineWidth = calcToolSize(toolSizeParamInput.value);
+                ctxCurrentLayer.lineCap = 'round';
+                ctxCurrentLayer.stroke();
             }
             [lastX, lastY] = [x, y];
         }
@@ -412,9 +426,9 @@
             isDrawing = false;
             ctxCurrentLayer.globalCompositeOperation = 'source-over';
             ctxCurrentLayer.globalAlpha = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
-            ctxCurrentLayer.drawImage(activeStrokeLayer,0,0);
+            ctxCurrentLayer.drawImage(activeColorStrokeLayer,0,0);
             ctxCurrentLayer.globalAlpha = 1.0;
-            ctxAactiveStroke.clearRect(0, 0, blackLayer.width, blackLayer.height);
+            ctxAactiveColorStroke.clearRect(0, 0, blackLayer.width, blackLayer.height);
             saveLocalstorage();
         }
 
@@ -513,17 +527,19 @@
             ctxShadow.clearRect(0, 0, shadowLayer.width, shadowLayer.height);
         }
 
+        function combineCanvas() {
+            ctxCombined.drawImage(backgroundLayer, 0, 0);
+            ctxCombined.drawImage(colorLayer, 0, 0);
+            ctxCombined.globalAlpha = 0.5;
+            ctxCombined.globalCompositeOperation = "multiply";
+            ctxCombined.drawImage(shadowLayer, 0, 0);
+            ctxCombined.globalAlpha = 1;
+            ctxCombined.globalCompositeOperation = "source-over";
+            ctxCombined.drawImage(blackLayer, 0, 0);
+        }
+
         function copyImage() {
-            const combinedCanvas = document.createElement('canvas');
-            combinedCanvas.width = 720;
-            combinedCanvas.height = 720;
-            const ctx = combinedCanvas.getContext('2d');
-            ctx.drawImage(backgroundLayer, 0, 0);
-            ctx.drawImage(colorLayer, 0, 0);
-            ctx.drawImage(shadowLayer, 0, 0);
-            ctx.drawImage(blackLayer, 0, 0);
-            
-            const dataURL = combinedCanvas.toDataURL('image/png');
+            combineCanvas();
             combinedCanvas.toBlob(async (blob) => {
                 const item = new ClipboardItem({'image/png': blob});
                 await navigator.clipboard.write([item]);
@@ -531,15 +547,7 @@
         }
 
         function saveImage() {
-            const combinedCanvas = document.createElement('canvas');
-            combinedCanvas.width = 720;
-            combinedCanvas.height = 720;
-            const ctx = combinedCanvas.getContext('2d');
-            ctx.drawImage(backgroundLayer, 0, 0);
-            ctx.drawImage(colorLayer, 0, 0);
-            ctx.drawImage(shadowLayer, 0, 0);
-            ctx.drawImage(blackLayer, 0, 0);
-            
+            combineCanvas();  
             const dataURL = combinedCanvas.toDataURL('image/png');
             const link = document.createElement('a');
             link.download = 'rakugaki_pao';
@@ -582,17 +590,8 @@
         }
 
         function postToMastodon() {
-            const combinedCanvas = document.createElement('canvas');
-            combinedCanvas.width = 720;
-            combinedCanvas.height = 720;
-            const ctx = combinedCanvas.getContext('2d');
-            ctx.drawImage(backgroundLayer, 0, 0);
-            ctx.drawImage(colorLayer, 0, 0);
-            ctx.drawImage(shadowLayer, 0, 0);
-            ctx.drawImage(blackLayer, 0, 0);
-            
+            combineCanvas();
             const dataURL = combinedCanvas.toDataURL('image/png');
-
 
             const params = new URLSearchParams(document.location.search);
             const code = params.get('code');
@@ -746,7 +745,7 @@
                     button.style.opacity = opacityInput.value;
                 });
             }
-            activeStrokeLayer.style.opacity = opacityInput.value;
+            activeColorStrokeLayer.style.opacity = opacityInput.value;
         });
 
         colorPalette.addEventListener('input', () => {
