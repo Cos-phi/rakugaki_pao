@@ -37,10 +37,6 @@
             left: 0;
             border: 1px solid #505050;
         }
-        .shadow-canvas {
-            mix-blend-mode: multiply;
-            opacity: 0.5;
-        }
         #cursor {
             position: absolute;
             pointer-events: none;
@@ -70,19 +66,13 @@
         }
         button {
             padding: 5px 10px;
+            width: 30px;
             height: 30px;
             cursor: pointer;
             font-size: 14px;
             border: 1px solid #36364A;
             border-radius: 2px;
-        }
-        .color-btn {
-            width: 30px;
-        }
-        .shadow-btn {
-            width: 30px;
-            opacity: 0.5;
-        }          
+        }        
         .pen-btn {
             width: 30px;
             background-color: #36364A;
@@ -92,7 +82,7 @@
             width: 40px;
             background-color: #F2EEE6;
             border-radius: 15px;
-            margin-right: 10px;
+            margin-right: 12px;
         }
         .control-btn {
             display: flex;
@@ -125,7 +115,7 @@
         #opacity {
             width: 10px;
             height: 28px;
-            margin-right: 10px;
+            margin-right: 5px;
             vertical-align: middle;
             appearance: slider-vertical;
         }
@@ -148,7 +138,7 @@
             <canvas id="backgroundLayer" width="720" height="720"></canvas>
             <canvas id="colorLayer" width="720" height="720"></canvas>
             <canvas id="activeColorStrokeLayer" width="720" height="720"></canvas>
-            <canvas id="shadowLayer" width="720" height="720" class="shadow-canvas"></canvas>
+            <canvas id="shadowLayer" width="720" height="720"></canvas>
             <canvas id="blackLayer" width="720" height="720"></canvas>
             <div id="cursor"></div>
         </div>
@@ -164,15 +154,15 @@
             <button id="eraserBlack" class="eraser-btn" title="黒ペン消し"></button>
 
             <button id="shadowButton" class="shadow-btn" display: flex title="影ブラシ"></button>
-            <input id="shadowPalette" type="color" class="palette" value="#284868" title="影色の選択">
-            <button id="eraserShadow" class="eraser-btn" title="影色ブラシ消し"></button>
+            <input id="shadowPalette" type="color" class="palette" title="影色の選択">
+            <button id="eraserShadow" class="eraser-btn" title="影ブラシ消し"></button>
             
+            <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="色ブラシの不透明度">
             <div id="colorButtons" title="色ブラシ"></div>
             <button id="changeableColorButton" class="color-btn" display: flex title="選択色ブラシ"></button>
-            <input id="palette" type="color"  class="palette" value="#909090" title="色の選択">
+            <input id="palette" type="color"  class="palette" title="色の選択">
             <button id="eraserColor" class="eraser-btn" title="色ブラシ消し"></button>
              
-            <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="ペン/ブラシの不透明度">
         </div>
         <div id="controls2">
             <button id="save" class="control-btn" title="ダウンロードして保存"><img src="image/download.png" style="height: 100%;"></button>
@@ -237,9 +227,17 @@
         let PaletteColors = [
             "#FBA9A7", "#FAC48D", "#F9F19A","#CEE06E", "#7BB07F", "#9DBEEA", "#D4C8F4","#F4D4F4"
         ];
-
         let curPaletteColor = "#A7A5A8";
         let curShadowColor = "#284868";
+
+        colorPalette.value = curPaletteColor;
+        shadowPalette.value = curShadowColor;
+
+        const shadowOpacity = 0.4;
+        shadowLayer.style.mixBlendMode =  "multiply";
+        shadowLayer.style.opacity = shadowOpacity;
+        shadowButton.style.opacity = shadowOpacity;
+        shadowPalette.style.opacity = shadowOpacity;
 
         let isDrawing = false;
         let lastX = 0;
@@ -266,9 +264,7 @@
         };
 
         const toolOpacity = {
-            //blackPen: 1,
             colorBrush: 1,
-            //shadowBrush: 1,
         };
 
         function createColorButtons() {
