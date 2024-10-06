@@ -612,15 +612,13 @@
         eraserBlack.addEventListener('click', () => {
             ctxCurrentLayer = ctxBlack;
             isEraser = true;
-            updateActiveButton();
-            updateToolSize();
+            updateToolsState();
         });
 
         eraserColor.addEventListener('click', () => {
             ctxCurrentLayer = ctxColor;
             isEraser = true;
-            updateActiveButton();
-            updateToolSize();
+            updateToolsState();
         });
 
         toolSizeParamInput.addEventListener('change', () => {
@@ -663,8 +661,7 @@
             setColor(inputColorVal);
             curPaletteColor = inputColorVal;
             isEraser = false;
-            updateActiveButton();
-            updateToolSize();
+            updateToolsState();
             updateColorButton(curPaletteColor);
         }, false);
 
