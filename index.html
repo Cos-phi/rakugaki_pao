@@ -266,9 +266,9 @@
         };
 
         const toolOpacity = {
-            blackPen: 1,
+            //blackPen: 1,
             colorBrush: 1,
-            shadowBrush: 1,
+            //shadowBrush: 1,
         };
 
         function createColorButtons() {
@@ -311,9 +311,7 @@
         function setDrawColor(color) {
             currentColor = color; 
             isEraser = false;
-            updateActiveButton();
-            updateToolSize();
-            updateToolOpacity();
+            updateToolsState();
         }
 
         function updateActiveButton() {
@@ -368,7 +366,7 @@
         }
 
         function updateToolOpacity() {
-            opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
+            opacityInput.value = toolOpacity.colorBrush;
             activeColorStrokeLayer.style.opacity = opacityInput.value;
         }
 
@@ -728,23 +726,11 @@
         });
 
         opacityInput.addEventListener('change', () => {
-            if (ctxCurrentLayer === ctxBlack) {
-                toolOpacity.blackPen = opacityInput.value;          
-                const button = document.querySelector('.pen-btn');
+            toolOpacity.colorBrush = opacityInput.value;
+            const buttons = document.querySelectorAll('.color-btn');
+            buttons.forEach(button => {
                 button.style.opacity = opacityInput.value;
-            } else if(ctxCurrentLayer == ctxColor) {
-                toolOpacity.colorBrush = opacityInput.value;
-                const buttons = document.querySelectorAll('.color-btn');
-                buttons.forEach(button => {
-                    button.style.opacity = opacityInput.value;
-                });
-            } else {
-                toolOpacity.shadowBrush = opacityInput.value;
-                const buttons = document.querySelectorAll('.shadow-btn');
-                buttons.forEach(button => {
-                    button.style.opacity = opacityInput.value;
-                });
-            }
+            });
             activeColorStrokeLayer.style.opacity = opacityInput.value;
         });
 
