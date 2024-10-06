@@ -363,12 +363,16 @@
 
         function stopDrawing() {
             isDrawing = false;
+            dryStroke();
+            saveLocalstorage();
+        }
+
+        function dryStroke() {
             ctxCurrentLayer.globalCompositeOperation = 'source-over';
             ctxCurrentLayer.globalAlpha = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
             ctxCurrentLayer.drawImage(activeStrokeLayer,0,0);
             ctxCurrentLayer.globalAlpha = 1.0;
             ctxAactiveStroke.clearRect(0, 0, blackLayer.width, blackLayer.height);
-            saveLocalstorage();
         }
 
         function updateCursor(x, y) {
