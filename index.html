@@ -74,7 +74,10 @@
         }
         .color-btn {
             width: 30px;
-        }        
+        }
+        .shadow-btn {
+            width: 30px;
+        }          
         .pen-btn {
             width: 30px;
             background-color: #36364A;
@@ -155,8 +158,8 @@
             <button id="blackPen" class="pen-btn" title="黒ペン"></button>
             <button id="eraserBlack" class="eraser-btn" title="黒ペン消し"></button>
 
-            <button id="shadowButton" class="color-btn" display: flex title="影ブラシ"></button>
-            <input id="shadowPalette" type="color" class="palette" value="#909090" title="影色の選択">
+            <button id="shadowButton" class="shadow-btn" display: flex title="影ブラシ"></button>
+            <input id="shadowPalette" type="color" class="palette" value="#284868" title="影色の選択">
             <button id="eraserShadow" class="eraser-btn" title="影色ブラシ消し"></button>
             
             <div id="colorButtons" title="色ブラシ"></div>
@@ -187,6 +190,7 @@
         const serverUrl = "https://" + hostName; 
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
+        const localstorageKeyShadow = 'shadowlayeslskey';
 
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
@@ -295,14 +299,7 @@
         }
 
         function setDrawColor(color) {
-            currentColor = color;
-            if(color == blackPenColor){
-                ctxCurrentLayer = ctxBlack;
-            }else{
-                ctxCurrentLayer = ctxColor;
-                colorPalette.value = color;
-            }
-            
+            currentColor = color; 
             isEraser = false;
             updateActiveButton();
             updateToolSize();
@@ -310,21 +307,27 @@
         }
 
         function updateActiveButton() {
-            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#changeableColorButton').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.color-btn, .shadow-btn, #blackPen, #eraserBlack, #eraserShadow, #eraserColor,#changeableColorButton').forEach(btn => btn.classList.remove('active'));
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
                     eraserBlack.classList.add('active');
-                } else {
+                } else if(ctxCurrentLayer === ctxColor) {
                     eraserColor.classList.add('active');
+                } else{
+                    eraserShadow.classList.add('active');
                 }
-            } else if (currentColor === blackPenColor) {
-                blackPenButton.classList.add('active');
-            } else {
-                const activeColorBtn = document.querySelector(`.color-btn[data-color="${currentColor}"]`);
-                if (activeColorBtn) {
-                    activeColorBtn.classList.add('active');
-                }else{
-                    changeableColorButton.classList.add('active');
+            }else{
+                if (ctxCurrentLayer === ctxBlack) {
+                    blackPenButton.classList.add('active');
+                } else if(ctxCurrentLayer === ctxColor) {
+                    const activeColorBtn = document.querySelector(`.color-btn[data-color="${currentColor}"]`);
+                    if (activeColorBtn) {
+                        activeColorBtn.classList.add('active');
+                    }else{
+                        changeableColorButton.classList.add('active');
+                    }
+                } else {
+                    shadowButton.classList.add('active');
                 }
             }
         }
@@ -409,7 +412,8 @@
         function saveState() {
             undoStack.push({
                 black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
-                color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
+                color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height),
+                shadow: ctxShadow.getImageData(0, 0, shadowLayer.width, shadowLayer.height)
             });
             if (undoStack.length > undoLimit) {
                 undoStack.shift();
@@ -422,7 +426,8 @@
 
         function saveLocalstorage() {
             saveLayeronlocalstorage(localstorageKeyBlack,blackLayer);    
-            saveLayeronlocalstorage(localstorageKeyColor,colorLayer);    
+            saveLayeronlocalstorage(localstorageKeyColor,colorLayer);   
+            saveLayeronlocalstorage(localstorageKeyShadow,shadowLayer);    
         }
 
         function restoreLayeronlocalstorage(localstoragekey,layer) {
@@ -439,6 +444,7 @@
         function restoreLocalstorage() {
             restoreLayeronlocalstorage(localstorageKeyBlack,blackLayer);
             restoreLayeronlocalstorage(localstorageKeyColor,colorLayer);
+            restoreLayeronlocalstorage(localstorageKeyShadow,shadowLayer);   
         }
 
         function startDrawingMouse(e) {
@@ -479,6 +485,7 @@
             const state = undoStack.pop();
             ctxBlack.putImageData(state.black, 0, 0);
             ctxColor.putImageData(state.color, 0, 0);
+            ctxShadow.putImageData(state.shadow, 0, 0);
         }
 
         function clearCanvas() {
@@ -486,6 +493,7 @@
             saveLocalstorage();
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
+            ctxShadow.clearRect(0, 0, shadowLayer.width, shadowLayer.height);
         }
 
         function copyImage() {
@@ -495,6 +503,7 @@
             const ctx = combinedCanvas.getContext('2d');
             ctx.drawImage(backgroundLayer, 0, 0);
             ctx.drawImage(colorLayer, 0, 0);
+            ctx.drawImage(shadowLayer, 0, 0);
             ctx.drawImage(blackLayer, 0, 0);
             
             const dataURL = combinedCanvas.toDataURL('image/png');
@@ -511,6 +520,7 @@
             const ctx = combinedCanvas.getContext('2d');
             ctx.drawImage(backgroundLayer, 0, 0);
             ctx.drawImage(colorLayer, 0, 0);
+            ctx.drawImage(shadowLayer, 0, 0);
             ctx.drawImage(blackLayer, 0, 0);
             
             const dataURL = combinedCanvas.toDataURL('image/png');
@@ -561,6 +571,7 @@
             const ctx = combinedCanvas.getContext('2d');
             ctx.drawImage(backgroundLayer, 0, 0);
             ctx.drawImage(colorLayer, 0, 0);
+            ctx.drawImage(shadowLayer, 0, 0);
             ctx.drawImage(blackLayer, 0, 0);
             
             const dataURL = combinedCanvas.toDataURL('image/png');
@@ -642,6 +653,13 @@
             isEraser = false;
             updateToolsState();
         });
+        
+        shadowButton.addEventListener('click', () => {
+            ctxCurrentLayer = ctxShadow;
+            setDrawColor(curShadowColor);
+            isEraser = false;
+            updateToolsState();
+        });
 
         changeableColorButton.addEventListener('click', () => {
             ctxCurrentLayer = ctxColor;
@@ -659,6 +677,13 @@
 
         eraserColor.addEventListener('click', () => {
             ctxCurrentLayer = ctxColor;
+            isEraser = true;
+            updateActiveButton();
+            updateToolSize();
+        });
+
+        eraserShadow.addEventListener('click', () => {
+            ctxCurrentLayer = ctxShadow;
             isEraser = true;
             updateActiveButton();
             updateToolSize();
@@ -707,6 +732,18 @@
             updateActiveButton();
             updateToolSize();
             updateColorButton(curPaletteColor);
+        }, false);
+
+        shadowPalette.addEventListener('input', () => {
+            inputColorVal = shadowPalette.value;
+            console.info("shadowPaletteValue:",inputColorVal);
+            ctxCurrentLayer = ctxShadow;
+            setDrawColor(inputColorVal);
+            curShadowColor = inputColorVal;
+            isEraser = false;
+            updateActiveButton();
+            updateToolSize();
+            updateShadowButton(curShadowColor);
         }, false);
 
         reloadButton.addEventListener('click', () => {location.reload()});
