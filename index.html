@@ -213,8 +213,12 @@
         let PaletteColors = [
             "#FBA9A7", "#FAC48D", "#F9F19A","#CEE06E", "#7BB07F", "#9DBEEA", "#D4C8F4","#F4D4F4"
         ];
-
         let curPaletteColor = "#A7A5A8";
+
+        const combinedCanvas = document.createElement('canvas');
+        combinedCanvas.width = 720;
+        combinedCanvas.height = 720;
+        const ctxCombined = combinedCanvas.getContext('2d');
 
         let isDrawing = false;
         let lastX = 0;
@@ -457,15 +461,14 @@
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
         }
 
+        function combineCanvas() {
+            ctxCombined.drawImage(backgroundLayer, 0, 0);
+            ctxCombined.drawImage(colorLayer, 0, 0);
+            ctxCombined.drawImage(blackLayer, 0, 0);
+        }
+
         function copyImage() {
-            const combinedCanvas = document.createElement('canvas');
-            combinedCanvas.width = 720;
-            combinedCanvas.height = 720;
-            const ctx = combinedCanvas.getContext('2d');
-            ctx.drawImage(backgroundLayer, 0, 0);
-            ctx.drawImage(colorLayer, 0, 0);
-            ctx.drawImage(blackLayer, 0, 0);
-            
+            combineCanvas();
             combinedCanvas.toBlob(async (blob) => {
                 const item = new ClipboardItem({'image/png': blob});
                 await navigator.clipboard.write([item]);
@@ -473,14 +476,7 @@
         }
 
         function saveImage() {
-            const combinedCanvas = document.createElement('canvas');
-            combinedCanvas.width = 720;
-            combinedCanvas.height = 720;
-            const ctx = combinedCanvas.getContext('2d');
-            ctx.drawImage(backgroundLayer, 0, 0);
-            ctx.drawImage(colorLayer, 0, 0);
-            ctx.drawImage(blackLayer, 0, 0);
-            
+            combineCanvas();            
             const dataURL = combinedCanvas.toDataURL('image/png');
             const link = document.createElement('a');
             link.download = 'rakugaki_pao';
@@ -523,17 +519,8 @@
         }
 
         function postToMastodon() {
-            const combinedCanvas = document.createElement('canvas');
-            combinedCanvas.width = 720;
-            combinedCanvas.height = 720;
-            const ctx = combinedCanvas.getContext('2d');
-            ctx.drawImage(backgroundLayer, 0, 0);
-            ctx.drawImage(colorLayer, 0, 0);
-            ctx.drawImage(blackLayer, 0, 0);
-            
+            combineCanvas();
             const dataURL = combinedCanvas.toDataURL('image/png');
-
-
             const params = new URLSearchParams(document.location.search);
             const code = params.get('code');
 
