@@ -599,14 +599,12 @@
         blackPenButton.addEventListener('click', () => {
             ctxCurrentLayer = ctxBlack;
             setColor(blackPenColor);
-            isEraser = false;
             updateToolsState();
         });
 
         changeableColorButton.addEventListener('click', () => {
             ctxCurrentLayer = ctxColor;
             setColor(curPaletteColor);
-            isEraser = false;
             updateToolsState();
         });
 
@@ -656,14 +654,11 @@
         });
 
         colorPalette.addEventListener('input', () => {
-            inputColorVal = colorPalette.value;
-            console.info("colorPaletteValue:",inputColorVal);
+            curPaletteColor = colorPalette.value;
             ctxCurrentLayer = ctxColor;
-            setColor(inputColorVal);
-            curPaletteColor = inputColorVal;
-            isEraser = false;
-            updateToolsState();
+            setColor(curPaletteColor);
             updateColorButton(curPaletteColor);
+            updateToolsState();
         }, false);
 
         reloadButton.addEventListener('click', () => {location.reload()});
