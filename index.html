@@ -253,7 +253,10 @@
                 button.className = 'color-btn';
                 button.style.backgroundColor = color;
                 button.dataset.color = color;  // データ属性を追加
-                button.addEventListener('click', () => setColor(color));
+                button.addEventListener('click', () => {
+                    setColor(color);
+                    updateToolsState();
+                });
                 colorButtons.appendChild(button);
             });
         }
@@ -277,9 +280,7 @@
                 ctxCurrentLayer = ctxColor;
                 colorPalette.value = color;
             }
-            
             isEraser = false;
-            updateToolsState();
         }
 
         function updateActiveButton() {
