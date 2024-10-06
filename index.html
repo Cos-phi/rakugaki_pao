@@ -37,6 +37,10 @@
             left: 0;
             border: 1px solid #505050;
         }
+        .shadow-canvas {
+            mix-blend-mode: multiply;
+            opacity: 0.5;
+        }
         #cursor {
             position: absolute;
             pointer-events: none;
@@ -77,6 +81,7 @@
         }
         .shadow-btn {
             width: 30px;
+            opacity: 0.5;
         }          
         .pen-btn {
             width: 30px;
@@ -142,7 +147,7 @@
         <div id="canvas-container">
             <canvas id="backgroundLayer" width="720" height="720"></canvas>
             <canvas id="colorLayer" width="720" height="720"></canvas>
-            <canvas id="shadowLayer" width="720" height="720"></canvas>
+            <canvas id="shadowLayer" width="720" height="720" class="shadow-canvas"></canvas>
             <canvas id="activeStrokeLayer" width="720" height="720"></canvas>
             <canvas id="blackLayer" width="720" height="720"></canvas>
             <div id="cursor"></div>
@@ -249,10 +254,10 @@
         const toolSizesParam = {
             blackPen: 2,
             colorBrush: 5,
-            shadowBrush: 5,
+            shadowBrush: 6,
             blackEraser: 4,
             colorEraser: 6,
-            shadowBrush: 5
+            shadowEraser: 6
         };
 
         const toolOpacity = {
@@ -334,9 +339,21 @@
 
         function updateToolSize() {
             if (isEraser) {
-                toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackEraser : toolSizesParam.colorEraser;
+                if(ctxCurrentLayer === ctxBlack){
+                    toolSizeParamInput.value = toolSizesParam.blackEraser;
+                }else if(ctxCurrentLayer == ctxColor){
+                    toolSizeParamInput.value = toolSizesParam.colorEraser;
+                }else{
+                    toolSizeParamInput.value = toolSizesParam.shadowEraser;
+                }
             } else {
-                toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackPen : toolSizesParam.colorBrush;
+                if(ctxCurrentLayer === ctxBlack){
+                    toolSizeParamInput.value = toolSizesParam.blackPen;
+                }else if(ctxCurrentLayer == ctxColor){
+                    toolSizeParamInput.value = toolSizesParam.colorBrush;
+                }else{
+                    toolSizeParamInput.value = toolSizesParam.shadowBrush;
+                }
             }
             updateToolSizeToolTip();
         }
@@ -694,14 +711,18 @@
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
                     toolSizesParam.blackEraser = sizeParam;
-                } else {
+                } else if (ctxCurrentLayer === ctxColor){
                     toolSizesParam.colorEraser = sizeParam;
+                } else{
+                    toolSizesParam.shadowEraser = sizeParam;
                 }
             } else {
                 if (ctxCurrentLayer === ctxBlack) {
                     toolSizesParam.blackPen = sizeParam;
-                } else {
+                } else if (ctxCurrentLayer === ctxColor){
                     toolSizesParam.colorBrush = sizeParam;
+                }else{
+                    toolSizesParam.shadowBrush = sizeParam;
                 }
             }
             updateToolSizeToolTip();
@@ -712,9 +733,15 @@
                 toolOpacity.blackPen = opacityInput.value;          
                 const button = document.querySelector('.pen-btn');
                 button.style.opacity = opacityInput.value;
-            } else {
+            } else if(ctxCurrentLayer == ctxColor) {
                 toolOpacity.colorBrush = opacityInput.value;
                 const buttons = document.querySelectorAll('.color-btn');
+                buttons.forEach(button => {
+                    button.style.opacity = opacityInput.value;
+                });
+            } else {
+                toolOpacity.shadowBrush = opacityInput.value;
+                const buttons = document.querySelectorAll('.shadow-btn');
                 buttons.forEach(button => {
                     button.style.opacity = opacityInput.value;
                 });
