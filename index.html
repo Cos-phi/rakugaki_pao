@@ -182,7 +182,6 @@
         const serverUrl = "https://" + hostName; 
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
-        const localstorageKeyActiveStroke = 'activelayerlskey';
 
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
@@ -402,8 +401,7 @@
 
         function saveLocalstorage() {
             saveLayeronlocalstorage(localstorageKeyBlack,blackLayer);    
-            saveLayeronlocalstorage(localstorageKeyColor,colorLayer);    
-            saveLayeronlocalstorage(localstorageKeyActiveStroke,activeStrokeLayer);    
+            saveLayeronlocalstorage(localstorageKeyColor,colorLayer);      
         }
 
         function restoreLayeronlocalstorage(localstoragekey,layer) {
@@ -419,8 +417,7 @@
 
         function restoreLocalstorage() {
             restoreLayeronlocalstorage(localstorageKeyBlack,blackLayer);
-            restoreLayeronlocalstorage(localstorageKeyColor,colorLayer);
-            restoreLayeronlocalstorage(localstorageKeyActiveStroke,activeStrokeLayer);    
+            restoreLayeronlocalstorage(localstorageKeyColor,colorLayer);  
         }
 
         function startDrawingMouse(e) {
@@ -565,6 +562,7 @@
 
         function getTokenRedirect() {
             dryStroke();
+            saveLocalstorage();
             document.location = `${serverUrl}/oauth/authorize?response_type=code&redirect_uri=https://kurajo.ivory.ne.jp/rakugaki_pao/index.html&scope=write%20read&client_id=${app_info.client_id}`;
         }
 
