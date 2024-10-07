@@ -620,7 +620,7 @@
             updateToolsState();
         });
 
-        toolSizeParamInput.addEventListener('change', () => {
+        toolSizeParamInput.addEventListener('input', () => {
             const sizeParam = parseInt(toolSizeParamInput.value);
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
@@ -635,10 +635,11 @@
                     toolSizesParam.colorBrush = sizeParam;
                 }
             }
+            updateCursor(180, 650);
             updateToolSizeToolTip();
         });
 
-        opacityInput.addEventListener('change', () => {
+        opacityInput.addEventListener('input', () => {
             if (ctxCurrentLayer === ctxBlack) {
                 toolOpacity.blackPen = opacityInput.value;          
                 const button = document.querySelector('.pen-btn');
