@@ -159,7 +159,6 @@
         </div>
         <div id="controls2">
             <button id="save" class="control-btn" title="ダウンロードして保存"><img src="image/download.png" style="height: 100%;"></button>
-            <button id="copy" class="control-btn" title="クリップボードにコピー"><img src="image/copytoclipboard.png" style="height: 100%;"></button>
             <button id="post" class="control-btn"><img src="image/post.png" style="height: 100%;"></button>
             <button id="getToken" class="control-btn" title="トークンの再取得"><img src="image/reload.png" style="height: 100%;"></button>
         </div>
@@ -468,14 +467,6 @@
             ctxCombined.drawImage(blackLayer, 0, 0);
         }
 
-        function copyImage() {
-            combineCanvas();
-            combinedCanvas.toBlob(async (blob) => {
-                const item = new ClipboardItem({'image/png': blob});
-                await navigator.clipboard.write([item]);
-            })
-        }
-
         function saveImage() {
             combineCanvas();            
             const dataURL = combinedCanvas.toDataURL('image/png');
@@ -661,7 +652,6 @@
         reloadButton.addEventListener('click', () => {location.reload()});
         undoButton.addEventListener('click', undo);
         clearButton.addEventListener('click', clearCanvas);
-        copyButton.addEventListener('click', copyImage);
         saveButton.addEventListener('click', saveImage);
         postButton.addEventListener('click', postToMastodon);
         getTokenButton.addEventListener('click', getTokenRedirect);
