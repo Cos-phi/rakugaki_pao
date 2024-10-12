@@ -153,7 +153,7 @@
             
             <div id="colorButtons" title="色ブラシ"></div>
             <button id="changeableColorButton" class="color-btn" display: flex title="選択色ブラシ"></button>
-            <input id="palette" type="color" value="#C3C3C3" title="色の選択">
+            <input id="palette" type="color" title="色の選択">
             <button id="eraserColor" class="eraser-btn" title="色ブラシ消し"></button>
              
             <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="ペン/ブラシの不透明度">
@@ -209,7 +209,8 @@
         let PaletteColors = [
             "#FBA9A7", "#FAC48D", "#F9F19A","#CEE06E", "#7BB07F", "#9DBEEA", "#D4C8F4","#F4D4F4"
         ];
-        let curPaletteColor = "#A7A5A8";
+        let curPaletteColor = "#C3C3C3";
+        colorPalette.value = curPaletteColor;
 
         const combinedCanvas = document.createElement('canvas');
         combinedCanvas.width = 720;
