@@ -47,61 +47,57 @@
             margin-top: 24px;
             display: flex;
             flex-wrap: wrap;
-            align-items: center;
             gap: 0px;
-            height: 32px;
             max-width: 720px;
         }
         #controls2 {
-            margin-top: 20px;
+            margin-top: 24px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
         }
         #hashtag-line {
             margin-top: 8px;
-            color: #A0A0A0;
-            letter-spacing: 2px;
+            font-size: large;
+            color: #AAAAAA;
+            letter-spacing: 3px;
             text-align: center;
         }
         button {
-            padding: 5px 10px;
-            height: 30px;
+            height: 36px;
+            width: 36px;
             cursor: pointer;
-            font-size: 14px;
             border: 1px solid #36364A;
-            border-radius: 2px;
-        }
-        .color-btn {
-            width: 30px;
-        }        
+            border-radius: 2.4px;
+        }      
         .pen-btn {
-            width: 30px;
             background-color: #36364A;
             border: 1px solid #000;
+            margin-left: 8px;
         }
         .eraser-btn {
-            width: 36px;
+            width: 48px;
             background-color: #F2EEE6;
-            margin-left: 5px;
-            margin-right: 15px;
+            margin-left: 8px;
+            margin-right: 20px;
+            border-radius: 18px;
         }
         .control-btn {
             display: flex;
             justify-content: center; 
             align-items: center;
-            margin-left: 3px;
-            margin-right: 3px;
-            padding: 5px 5px 5px 5px;
-            width: 30px;
+            margin-left: 4px;
+            margin-right: 4px;
+            padding: 6px 6px 6px 6px;
         }        
         .tool-reset-btn {
             position: relative;
+            top: 14px;
             padding: 0px 0px 0px 0px;
-            width: 10px;
-            height: 10px;
-            border-radius: 5px;
-            margin-left: 12px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
             margin-right: 4px;
         }
         #tool-size {
@@ -111,21 +107,23 @@
         }
         #opacity {
             width: 10px;
-            height: 28px;
-            margin-right: 10px;
+            height: 32px;
             vertical-align: middle;
             writing-mode: vertical-lr;
             direction: rtl;
         }
         #palette {
+            position: relative;
+            top: 12px;
             width: 18px;
             height: 24px;
             cursor: pointer;
+            border-radius: 3px;
         }
         .active {
-            border: 2px solid #36364A;
+            border: 3px solid #36364A;
             position: relative;
-            top: -15px;
+            top: -18px;
         }
 
     </style>
@@ -158,6 +156,7 @@
              
             <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="ペン/ブラシの不透明度">
         </div>
+        
         <div id="controls2">
             <button id="save" class="control-btn" title="ダウンロードして保存"><img src="image/download.png" style="height: 100%;"></button>
             <button id="post" class="control-btn"><img src="image/post.png" style="height: 100%;"></button>
@@ -261,7 +260,6 @@
         function createChangeableColorButton() {
             changeableColorButton.style.backgroundColor = curPaletteColor;
             colorButtons.appendChild(changeableColorButton);
-            colorButtons.appendChild(colorPalette);
         }
 
         function updateColorButton(color){
