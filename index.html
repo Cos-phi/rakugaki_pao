@@ -383,13 +383,21 @@
         }
 
         function saveState() {
+            pushStateUndoStack();
+            while (undoStack.length > undoLimit) {
+                undoStack.shift();
+            }
+        }
+
+        function saveStateUnlimited() {
+            pushStateUndoStack();
+        }
+
+        function pushStateUndoStack() {
             undoStack.push({
                 black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
                 color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
             });
-            if (undoStack.length > undoLimit) {
-                undoStack.shift();
-            }
         }
 
         function saveLayeronlocalstorage(localstoragekey,layer){
@@ -458,7 +466,7 @@
         }
 
         function clearCanvas() {
-            saveState();
+            saveStateUnlimited();
             saveLocalstorage();
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
