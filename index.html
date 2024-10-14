@@ -203,8 +203,13 @@
         };
         const hostName = "mistodon.cloud"; // 霧鯖だけですわ
         const serverUrl = "https://" + hostName; 
-        const localstorageKeyBlack = 'blacklayerlskey';
-        const localstorageKeyColor = 'colorlayerlskey';
+
+        const blackPenColor = "#36364A";
+        const backgroundColor = "#F2EEE6";        
+        const PaletteColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"];
+        const initialChangeableColor = "#C3C3C3";
+        
+        const undoLimit = 1;
 
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
@@ -212,50 +217,45 @@
         const backgroundLayer = document.getElementById('backgroundLayer');
         const ctxBlack = blackLayer.getContext('2d');
         const ctxColor = colorLayer.getContext('2d');
+        const localstorageKeyBlack = 'blacklayerlskey';
+        const localstorageKeyColor = 'colorlayerlskey';
         const ctxAactiveStroke = activeStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
-        const toolSizeParamInput = document.getElementById('tool-size');
-        const opacityInput = document.getElementById('opacity');
-        const colorButtons = document.getElementById('colorButtons');
-        const changeableColorButton = document.getElementById('changeableColorButton')
-        const colorPalette = document.getElementById('palette');
-        const blackPenButton = document.getElementById('blackPen');
-        const eraserBlack = document.getElementById('eraserBlack');
-        const eraserColor = document.getElementById('eraserColor');
-        const reloadButton = document.getElementById('reload');
-        const undoButton = document.getElementById('undo');
-        const clearButton = document.getElementById('clear');
-        const copyTextButton = document.getElementById('copyText');
-        const saveButton = document.getElementById('save');
-        const postButton = document.getElementById('post');
-        const getTokenButton = document.getElementById('getToken');
-
-        postButton.title = hostName + "に投稿";
-
-        const shareText = "https://kurajo.ivory.ne.jp/rakugaki_pao\n\n#rakugaki_pao";
-
-        let PaletteColors = [
-            "#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"
-        ];
-        let curPaletteColor = "#C3C3C3";
-        colorPalette.value = curPaletteColor;
-
         const combinedCanvas = document.createElement('canvas');
         combinedCanvas.width = 720;
         combinedCanvas.height = 720;
         const ctxCombined = combinedCanvas.getContext('2d');
 
+        const undoButton = document.getElementById('undo');
+        const clearButton = document.getElementById('clear');
+        const reloadButton = document.getElementById('reload');
+        const toolSizeParamInput = document.getElementById('tool-size');
+        const blackPenButton = document.getElementById('blackPen');
+        const eraserBlack = document.getElementById('eraserBlack');
+        const colorButtons = document.getElementById('colorButtons');
+        const changeableColorButton = document.getElementById('changeableColorButton')
+        const colorPalette = document.getElementById('palette');
+        const eraserColor = document.getElementById('eraserColor');
+        const opacityInput = document.getElementById('opacity');
+
+        const saveButton = document.getElementById('save');
+        const postButton = document.getElementById('post');
+        postButton.title = hostName + "に投稿";
+        const getTokenButton = document.getElementById('getToken');
+
+        const copyTextButton = document.getElementById('copyText');
+        const shareText = "https://kurajo.ivory.ne.jp/rakugaki_pao\n\n#rakugaki_pao";
+
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
         let ctxCurrentLayer = ctxBlack;
-        const blackPenColor = "#36364A";
-        const backgroundColor = "#F2EEE6";
         let currentColor = blackPenColor;
+        let curPaletteColor = initialChangeableColor;
+        colorPalette.value = curPaletteColor;
         let isEraser = false;
         let undoStack = [];
-        const undoLimit = 1;
         let accessToken = null;
 
         ctxBg.fillStyle = backgroundColor;
