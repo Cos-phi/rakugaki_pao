@@ -169,7 +169,7 @@
             <button id="eraserBlack" class="eraser-btn" title="黒ペン消し"></button>
             
             <div id="colorButtons" title="色ブラシ"></div>
-            <button id="changeableColorButton" class="color-btn" display: flex title="選択色ブラシ"></button>
+            <button id="changeableColorButton" class="color-btn" title="選択色ブラシ"></button>
             <input id="palette" type="color" title="色の選択">
             <button id="eraserColor" class="eraser-btn" title="色ブラシ消し"></button>
              
@@ -374,7 +374,7 @@
             updateCursor(...touchToOffsetXY(e));
         }
 
-        
+
         function saveState() {
             saveStateUnlimited();
             while (undoStack.length > undoLimit) {
