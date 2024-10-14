@@ -261,41 +261,17 @@
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
 
-        const toolSizesParam = {
+        let toolSizesParam = {
             blackPen: 2,
             colorBrush: 5,
             blackEraser: 4,
             colorEraser: 6
         };
 
-        const toolOpacity = {
+        let toolOpacity = {
             blackPen: 1,
             colorBrush: 1,
         };
-
-        function createColorButtons() {
-            PaletteColors.forEach(color => {
-                const button = document.createElement('button');
-                button.className = 'color-btn';
-                button.style.backgroundColor = color;
-                button.dataset.color = color;  // データ属性を追加
-                button.addEventListener('click', () => {
-                    setColor(color);
-                    updateToolsState();
-                });
-                colorButtons.appendChild(button);
-            });
-        }
-
-        function createChangeableColorButton() {
-            changeableColorButton.style.backgroundColor = curPaletteColor;
-            colorButtons.appendChild(changeableColorButton);
-        }
-
-        function updateColorButton(color){
-            changeableColorButton.style.backgroundColor = color;
-        }
-
 
         function setColor(color) {
             currentColor = color;
@@ -306,50 +282,6 @@
                 colorPalette.value = color;
             }
             isEraser = false;
-        }
-
-        function updateActiveButton() {
-            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#changeableColorButton').forEach(btn => btn.classList.remove('active'));
-            if (isEraser) {
-                if (ctxCurrentLayer === ctxBlack) {
-                    eraserBlack.classList.add('active');
-                } else {
-                    eraserColor.classList.add('active');
-                }
-            } else if (currentColor === blackPenColor) {
-                blackPenButton.classList.add('active');
-            } else {
-                const activeColorBtn = document.querySelector(`.color-btn[data-color="${currentColor}"]`);
-                if (activeColorBtn) {
-                    activeColorBtn.classList.add('active');
-                }else{
-                    changeableColorButton.classList.add('active');
-                }
-            }
-        }
-
-        function updateToolSize() {
-            if (isEraser) {
-                toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackEraser : toolSizesParam.colorEraser;
-            } else {
-                toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackPen : toolSizesParam.colorBrush;
-            }
-            updateToolSizeToolTip();
-        }
-
-        function updateToolSizeToolTip() {
-            toolSizeParamInput.title = calcToolSize(toolSizeParamInput.value)+'px';
-        }
-
-        function updateToolOpacity() {
-            opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
-            activeStrokeLayer.style.opacity = opacityInput.value;
-        }
-
-        function updateToolsState() {
-            updateActiveButton();
-            updateToolSize();
-            updateToolOpacity();
         }
 
         function startDrawing(x, y) {
@@ -392,7 +324,7 @@
             dryStroke();
             saveLocalstorage();
         }
-
+        
         function dryStroke() {
             ctxCurrentLayer.globalCompositeOperation = 'source-over';
             ctxCurrentLayer.globalAlpha = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
@@ -407,45 +339,6 @@
             cursor.style.height = `${size}px`;
             cursor.style.left = `${x - size / 2}px`;
             cursor.style.top = `${y - size / 2}px`;
-        }
-
-        function saveState() {
-            saveStateUnlimited();
-            while (undoStack.length > undoLimit) {
-                undoStack.shift();
-            }
-        }
-
-        function saveStateUnlimited() {
-            undoStack.push({
-                black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
-                color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
-            });
-        }
-
-        function saveLayeronlocalstorage(localstoragekey,layer){
-            window.localStorage.setItem(localstoragekey,layer.toDataURL());
-        }
-
-        function saveLocalstorage() {
-            saveLayeronlocalstorage(localstorageKeyBlack,blackLayer);    
-            saveLayeronlocalstorage(localstorageKeyColor,colorLayer);    
-        }
-
-        function restoreLayeronlocalstorage(localstoragekey,layer) {
-            let base64blacklayer = window.localStorage.getItem(localstoragekey);
-            if ( base64blacklayer != null) {
-                let image = new Image();
-                image.src = base64blacklayer;
-                image.onload = function(){
-                    layer.getContext('2d').drawImage(image,0,0);
-                }
-            }
-        }
-
-        function restoreLocalstorage() {
-            restoreLayeronlocalstorage(localstorageKeyBlack,blackLayer);
-            restoreLayeronlocalstorage(localstorageKeyColor,colorLayer);
         }
 
         function startDrawingMouse(e) {
@@ -481,6 +374,21 @@
             updateCursor(...touchToOffsetXY(e));
         }
 
+        
+        function saveState() {
+            saveStateUnlimited();
+            while (undoStack.length > undoLimit) {
+                undoStack.shift();
+            }
+        }
+
+        function saveStateUnlimited() {
+            undoStack.push({
+                black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
+                color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
+            });
+        }
+
         function undo() {
             if (undoStack.length === 0) return;
             const state = undoStack.pop();
@@ -493,6 +401,31 @@
             saveLocalstorage();
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
+        }
+
+        function saveLocalstorage() {
+            saveLayeronlocalstorage(localstorageKeyBlack,blackLayer);    
+            saveLayeronlocalstorage(localstorageKeyColor,colorLayer);    
+        }
+        
+        function saveLayeronlocalstorage(localstoragekey,layer){
+            window.localStorage.setItem(localstoragekey,layer.toDataURL());
+        }
+
+        function restoreLocalstorage() {
+            restoreLayeronlocalstorage(localstorageKeyBlack,blackLayer);
+            restoreLayeronlocalstorage(localstorageKeyColor,colorLayer);
+        }
+
+        function restoreLayeronlocalstorage(localstoragekey,layer) {
+            let base64blacklayer = window.localStorage.getItem(localstoragekey);
+            if ( base64blacklayer != null) {
+                let image = new Image();
+                image.src = base64blacklayer;
+                image.onload = function(){
+                    layer.getContext('2d').drawImage(image,0,0);
+                }
+            }
         }
 
         function combineCanvas() {
@@ -593,6 +526,73 @@
             return new Blob([uInt8Array], { type: contentType });
         }
 
+        function createColorButtons() {
+            PaletteColors.forEach(color => {
+                const button = document.createElement('button');
+                button.className = 'color-btn';
+                button.style.backgroundColor = color;
+                button.dataset.color = color;  // データ属性を追加
+                button.addEventListener('click', () => {
+                    setColor(color);
+                    updateToolsState();
+                });
+                colorButtons.appendChild(button);
+            });
+        }
+
+        function createChangeableColorButton() {
+            changeableColorButton.style.backgroundColor = curPaletteColor;
+            colorButtons.appendChild(changeableColorButton);
+        }
+
+        function updateColorButton(color){
+            changeableColorButton.style.backgroundColor = color;
+        }
+
+        function updateActiveButton() {
+            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#changeableColorButton').forEach(btn => btn.classList.remove('active'));
+            if (isEraser) {
+                if (ctxCurrentLayer === ctxBlack) {
+                    eraserBlack.classList.add('active');
+                } else {
+                    eraserColor.classList.add('active');
+                }
+            } else if (currentColor === blackPenColor) {
+                blackPenButton.classList.add('active');
+            } else {
+                const activeColorBtn = document.querySelector(`.color-btn[data-color="${currentColor}"]`);
+                if (activeColorBtn) {
+                    activeColorBtn.classList.add('active');
+                }else{
+                    changeableColorButton.classList.add('active');
+                }
+            }
+        }
+
+        function updateToolSize() {
+            if (isEraser) {
+                toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackEraser : toolSizesParam.colorEraser;
+            } else {
+                toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackPen : toolSizesParam.colorBrush;
+            }
+            updateToolSizeToolTip();
+        }
+
+        function updateToolSizeToolTip() {
+            toolSizeParamInput.title = calcToolSize(toolSizeParamInput.value)+'px';
+        }
+
+        function updateToolOpacity() {
+            opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
+            activeStrokeLayer.style.opacity = opacityInput.value;
+        }
+
+        function updateToolsState() {
+            updateActiveButton();
+            updateToolSize();
+            updateToolOpacity();
+        }
+
         blackLayer.addEventListener('mousedown', startDrawingMouse);
         blackLayer.addEventListener('mousemove', drawMouse);
         blackLayer.addEventListener('mouseup', stopDrawing);
@@ -617,30 +617,10 @@
         colorLayer.addEventListener('touchcancel', stopDrawing);
         colorLayer.addEventListener('touchmove', updateCursorTouch);
 
-        blackPenButton.addEventListener('click', () => {
-            ctxCurrentLayer = ctxBlack;
-            setColor(blackPenColor);
-            updateToolsState();
-        });
+        undoButton.addEventListener('click', undo);
+        clearButton.addEventListener('click', clearCanvas);
 
-        changeableColorButton.addEventListener('click', () => {
-            ctxCurrentLayer = ctxColor;
-            setColor(curPaletteColor);
-            updateToolsState();
-        });
-
-        eraserBlack.addEventListener('click', () => {
-            ctxCurrentLayer = ctxBlack;
-            isEraser = true;
-            updateToolsState();
-        });
-
-        eraserColor.addEventListener('click', () => {
-            ctxCurrentLayer = ctxColor;
-            isEraser = true;
-            updateToolsState();
-        });
-
+        reloadButton.addEventListener('click', () => {location.reload()});
         toolSizeParamInput.addEventListener('input', () => {
             const sizeParam = parseInt(toolSizeParamInput.value);
             if (isEraser) {
@@ -660,6 +640,38 @@
             updateToolSizeToolTip();
         });
 
+        blackPenButton.addEventListener('click', () => {
+            ctxCurrentLayer = ctxBlack;
+            setColor(blackPenColor);
+            updateToolsState();
+        });
+        eraserBlack.addEventListener('click', () => {
+            ctxCurrentLayer = ctxBlack;
+            isEraser = true;
+            updateToolsState();
+        });
+
+        createColorButtons();
+        createChangeableColorButton();
+
+        changeableColorButton.addEventListener('click', () => {
+            ctxCurrentLayer = ctxColor;
+            setColor(curPaletteColor);
+            updateToolsState();
+        });
+        colorPalette.addEventListener('input', () => {
+            curPaletteColor = colorPalette.value;
+            ctxCurrentLayer = ctxColor;
+            setColor(curPaletteColor);
+            updateColorButton(curPaletteColor);
+            updateToolsState();
+        }, false);
+        eraserColor.addEventListener('click', () => {
+            ctxCurrentLayer = ctxColor;
+            isEraser = true;
+            updateToolsState();
+        });
+
         opacityInput.addEventListener('input', () => {
             if (ctxCurrentLayer === ctxBlack) {
                 toolOpacity.blackPen = opacityInput.value;          
@@ -675,20 +687,11 @@
             activeStrokeLayer.style.opacity = opacityInput.value;
         });
 
-        colorPalette.addEventListener('input', () => {
-            curPaletteColor = colorPalette.value;
-            ctxCurrentLayer = ctxColor;
-            setColor(curPaletteColor);
-            updateColorButton(curPaletteColor);
-            updateToolsState();
-        }, false);
 
-        reloadButton.addEventListener('click', () => {location.reload()});
-        undoButton.addEventListener('click', undo);
-        clearButton.addEventListener('click', clearCanvas);
         saveButton.addEventListener('click', saveImage);
         postButton.addEventListener('click', postToMastodon);
         getTokenButton.addEventListener('click', getTokenRedirect);
+
         copyTextButton.addEventListener('click', () => {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareText).then(function () {
@@ -699,8 +702,6 @@
             }
         });
 
-        createColorButtons();
-        createChangeableColorButton();
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
