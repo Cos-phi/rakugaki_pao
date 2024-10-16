@@ -339,6 +339,7 @@
             cursor.style.height = `${size}px`;
             cursor.style.left = `${x - size / 2}px`;
             cursor.style.top = `${y - size / 2}px`;
+            cursor.style.border = '2px solid #000'
         }
 
         function startDrawingMouse(e) {
@@ -367,6 +368,11 @@
         function drawTouch(e) {
             e.preventDefault();
             draw(...touchToOffsetXY(e));
+        }
+        
+        function stopDrawingTouch() {
+            stopDrawing();
+            cursor.style.border = '0px solid #FFF'
         }
             
         function updateCursorTouch(e) {
@@ -607,14 +613,14 @@
 
         blackLayer.addEventListener('touchstart', startDrawingTouch);
         blackLayer.addEventListener('touchmove', drawTouch);
-        blackLayer.addEventListener('touchend', stopDrawing);
-        blackLayer.addEventListener('touchcancel', stopDrawing);
+        blackLayer.addEventListener('touchend', stopDrawingTouch);
+        blackLayer.addEventListener('touchcancel', stopDrawingTouch);
         blackLayer.addEventListener('touchmove', updateCursorTouch);
 
         colorLayer.addEventListener('touchstart', startDrawingTouch);
         colorLayer.addEventListener('touchmove', drawTouch);
-        colorLayer.addEventListener('touchend', stopDrawing);
-        colorLayer.addEventListener('touchcancel', stopDrawing);
+        colorLayer.addEventListener('touchend', stopDrawingTouch);
+        colorLayer.addEventListener('touchcancel', stopDrawingTouch);
         colorLayer.addEventListener('touchmove', updateCursorTouch);
 
         undoButton.addEventListener('click', undo);
