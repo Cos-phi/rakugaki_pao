@@ -121,8 +121,10 @@
             vertical-align: middle;
         }
         #opacity {
+            position: relative;
+            top: -2px;
             width: 10px;
-            height: 32px;
+            height: 36px;
             vertical-align: middle;
             writing-mode: vertical-lr;
             direction: rtl;
@@ -551,11 +553,13 @@
 
         function createChangeableColorButton() {
             changeableColorButton.style.backgroundColor = curPaletteColor;
+            changeableColorButton.dataset.color = curPaletteColor;
             colorButtons.appendChild(changeableColorButton);
         }
 
         function updateChangeableColorButton(color){
             changeableColorButton.style.backgroundColor = color;
+            changeableColorButton.dataset.color = color;
         }
 
         function updateActiveButton() {
@@ -690,7 +694,7 @@
                 toolOpacity.colorBrush = opacityInput.value;
                 const buttons = document.querySelectorAll('.color-btn');
                 buttons.forEach(button => {
-                    button.style.opacity = opacityInput.value;
+                    button.style.backgroundColor = `rgb(${hexToRgba(button.dataset.color,toolOpacity.colorBrush)})`;
                 });
             }
             activeStrokeLayer.style.opacity = opacityInput.value;
