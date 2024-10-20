@@ -554,7 +554,7 @@
             colorButtons.appendChild(changeableColorButton);
         }
 
-        function updateColorButton(color){
+        function updateChangeableColorButton(color){
             changeableColorButton.style.backgroundColor = color;
         }
 
@@ -672,7 +672,7 @@
             curPaletteColor = colorPalette.value;
             ctxCurrentLayer = ctxColor;
             setColor(curPaletteColor);
-            updateColorButton(curPaletteColor);
+            updateChangeableColorButton(curPaletteColor);
             updateToolsState();
         }, false);
         eraserColor.addEventListener('click', () => {
