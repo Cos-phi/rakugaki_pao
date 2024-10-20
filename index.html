@@ -57,7 +57,7 @@
             gap: 0px;
         }
         #controls3 {
-            margin-top: 10px;
+            margin-top: 0px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
@@ -142,6 +142,10 @@
             position: relative;
             top: -18px;
         }
+        #remainingTimeBar{
+            width: 80px;
+            visibility: hidden;
+        }
 
     </style>
 </head>
@@ -182,12 +186,18 @@
                 <img src="image/download.png" style="height: 100%;" alt="Download">
             </button>
             <button id="getToken" class="control-btn" title="トークンの再取得">
-                <img src="image/reload.png" style="height: 100%;" alt="Reload">
+                <img src="image/mistodon.png" style="height: 100%;" alt="Reload">
             </button>
-            <button id="post" class="control-btn">
-                <img src="image/post.png" style="height: 100%;" alt="Post">
+            <button id="post" class="control-btn" style="display: none;">
+                <img src="image/mistodon_active.png" style="height: 100%;" alt="Post">
             </button>
+
         </div>
+
+        <div>
+            <progress id="remainingTimeBar" max="50"></progress>
+        </div>
+    
         
         <div id="controls3">
             <span id="hashtag-line">#rakugaki_pao</span>
@@ -195,6 +205,9 @@
                 <img src="image/copytext.png" style="height: 100%;" alt="Copy">
             </button>
         </div>    
+
+
+
     </div>
     <script>
         const app_info = {
@@ -204,6 +217,7 @@
         };
         const hostName = "mistodon.cloud"; // 霧鯖だけですわ
         const serverUrl = "https://" + hostName; 
+        const currentPageUrl = "https://kurajo.ivory.ne.jp/rakugaki_pao/";
 
         const blackPenColor = "#36364A";
         const backgroundColor = "#F2EEE6";        
@@ -244,9 +258,13 @@
         const postButton = document.getElementById('post');
         postButton.title = hostName + "に投稿";
         const getTokenButton = document.getElementById('getToken');
+        const remainingTimeBar = document.getElementById('remainingTimeBar');
+
+        const params = new URLSearchParams(document.location.search);
+        const code = params.get('code');
 
         const copyTextButton = document.getElementById('copyText');
-        const shareText = "https://kurajo.ivory.ne.jp/rakugaki_pao\n\n#rakugaki_pao";
+        const shareText = `${currentPageUrl}\n\n#rakugaki_pao`;
 
         let isDrawing = false;
         let lastX = 0;
@@ -491,8 +509,6 @@
         function postToMastodon() {
             combineCanvas();
             const dataURL = combinedCanvas.toDataURL('image/png');
-            const params = new URLSearchParams(document.location.search);
-            const code = params.get('code');
 
             if (!code) { 
                 alert(`初回のみ認証が必要ですの。\n[OK]を押すと ${hostName} の認証画面に移動しますので、承認をお願いいたします。その後 rakugaki_pao の画面に戻りますので、もう一度投稿ボタンを押してくださいませ。\n\n次回以降は投稿ボタンを押すだけで投稿できますわ。\n\n認証から時間がたつと、投稿ボタンを押しても投稿されないことがありますの。\nそのときは、投稿ボタン右側のトークン再取得ボタン🔄️を押してから、もう投稿ボタンを押してくださいませ。`);
@@ -724,6 +740,34 @@
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
+
+
+
+        if(code){
+            let count = 50;
+            let timeoutId = null;
+            
+            remainingTimeBar.style.visibility = 'visible';
+            getTokenButton.style.display = 'none';
+            postButton.style.display = '';
+            postButton.style.backgroundColor = '#0E6AE4';
+            function countdown() {
+                remainingTimeBar.value = count;
+                
+                
+                if (count < 0) {
+                    clearTimeout(timeoutId);
+                    document.location = currentPageUrl;
+                    
+                }
+                //console.log(count);
+                count--;
+            }
+
+            timeoutId = setInterval(countdown, 200);
+            countdown();
+        }
+
     </script>
 </body>
 </html>
