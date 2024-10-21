@@ -181,7 +181,7 @@
             <button id="save" class="control-btn" title="ダウンロードして保存">
                 <img src="image/download.png" style="height: 100%;" alt="Download">
             </button>
-            <button id="getToken" class="control-btn" title="mistodon.cloud で認証">
+            <button id="getToken" class="control-btn" title="mistodon.cloudで認証">
                 <img src="image/mistodon.png" style="height: 100%;" alt="Reload">
             </button>
             <button id="post" class="control-btn" style="display: none;">
@@ -504,13 +504,13 @@
             .catch(error => {
                 if (error == "PostError")
                 {
-                    alert("ポストエラー、トークンが駄目っぽいのでもう一度codeを取り直します。もう一度ポストしてみてね。");
+                    alert("ポストエラーですの。トークンが駄目みたいですのでcodeを取り直しますわ。もう一度ポストしてみてくださいね。");
                     getAuthCodeRedirect();
                 }
                 else
                 {
                     console.error('Error:', error);
-                    alert('投稿中に良くわからないエラーが発生しましたの‥‥');
+                    alert('投稿中によくわからないエラーが発生しましたの‥‥');
                 }
             });
 
@@ -747,7 +747,7 @@
                 )
                 .then(response => {
                     if (!response.ok) {
-                        alert("トークンエラー、codeが駄目っぽいのでもう一度codeの取り直しをします。");
+                        alert("トークンエラーですの。codeが駄目みたいですのでもう一度codeの取り直しをしますの。");
                         getAuthCodeRedirect()
                         throw "TokenError";
                     }
