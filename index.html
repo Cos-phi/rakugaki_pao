@@ -199,7 +199,7 @@
         
         <div id="controls3">
             <span id="hashtag-line">#rakugaki_pao</span>
-            <button id="copyText" class="copy-sharetext-btn" title="ハッシュタグとURLをコピー">
+            <button id="copyText" class="copy-sharetext-btn" title="ハッシュタグをコピー">
                 <img src="image/copytext.png" style="height: 100%;" alt="Copy">
             </button>
         </div>    
@@ -262,7 +262,7 @@
         const code = params.get('code');
 
         const copyTextButton = document.getElementById('copyText');
-        const shareText = `${currentPageUrl}\n\n#rakugaki_pao`;
+        const shareText = '#rakugaki_pao';
 
         let isDrawing = false;
         let lastX = 0;
