@@ -194,7 +194,6 @@
             <button id="post" class="control-btn" style="display: none;">
                 <img src="image/post.png" style="height: 100%;" alt="Post">
             </button>
-
         </div>
         
         <div id="controls3">
@@ -215,7 +214,6 @@
         };
         const hostName = "mistodon.cloud"; // 霧鯖だけですわ
         const serverUrl = "https://" + hostName; 
-        const currentPageUrl = "https://kurajo.ivory.ne.jp/rakugaki_pao/";
 
         const blackPenColor = "#36364A";
         const backgroundColor = "#F2EEE6";        
@@ -506,7 +504,6 @@
             })
             .then(() => {
                 alert('投稿しましたわ！')
-                // document.location = currentPageUrl;
             })
             .catch(error => {
                 if (error == "PostError")
