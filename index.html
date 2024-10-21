@@ -142,10 +142,6 @@
             position: relative;
             top: -18px;
         }
-        #remainingTimeBar{
-            width: 80px;
-            visibility: hidden;
-        }
 
     </style>
 </head>
@@ -193,11 +189,6 @@
             </button>
 
         </div>
-
-        <div>
-            <progress id="remainingTimeBar" max="50"></progress>
-        </div>
-    
         
         <div id="controls3">
             <span id="hashtag-line">#rakugaki_pao</span>
@@ -259,7 +250,6 @@
         const postButton = document.getElementById('post');
         postButton.title = hostName + "に投稿";
         const getTokenButton = document.getElementById('getToken');
-        const remainingTimeBar = document.getElementById('remainingTimeBar');
 
         const params = new URLSearchParams(document.location.search);
         const code = params.get('code');
