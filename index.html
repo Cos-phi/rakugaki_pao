@@ -77,13 +77,11 @@
             border-radius: 3px;
         }      
         .pen-btn {
-            background-color: #36364A;
-            border: 1px solid #36364A;          
             display: flex;
             justify-content: center; 
             align-items: center;
             padding: 6px 6px 6px 6px;
-        }        
+        }     
         .pen-eraser-btn {            
             display: flex;
             justify-content: center; 
@@ -154,7 +152,7 @@
             border-radius: 3px;
         }
         .active {
-            border: 3px solid #36364A;
+            outline: 3px solid #36364A;
             position: relative;
             top: -18px;
         }
@@ -183,7 +181,7 @@
             <input type="range" id="tool-size" min="0" max="7" title="ペン/ブラシのサイズ">
             
             <button id="blackPen" class="pen-btn" title="黒ペン">
-                <img src="image/pen.png" style="height: 100%;" alt="Pen"> 
+                <img src="image/pen.png" style="height: 100%;" alt="Pen" class="pen-btn-img">
             </button>
             <button id="eraserBlack" class="pen-eraser-btn" title="黒ペン消し">
                 <img src="image/eraser.png" style="height: 100%;" alt="Eraser">    
@@ -711,8 +709,9 @@
         opacityInput.addEventListener('input', () => {
             if (ctxCurrentLayer === ctxBlack) {
                 toolOpacity.blackPen = opacityInput.value;          
-                const button = document.querySelector('.pen-btn');
-                button.style.backgroundColor = `rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
+                const button = document.querySelector('.pen-btn-img');
+                button.style.opacity = opacityInput.value;
+                //button.style.backgroundColor = `rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
             } else {
                 toolOpacity.colorBrush = opacityInput.value;
                 const buttons = document.querySelectorAll('.color-btn');
