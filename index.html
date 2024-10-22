@@ -44,42 +44,43 @@
             border-radius: 50%;
         }
         #controls1 {
-            margin-top: 24px;
+            margin-top: 28px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
             max-width: 720px;
         }
         #controls2 {
-            margin-top: 24px;
+            margin-top: 28px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
         }
         #controls3 {
-            margin-top: 10px;
+            margin-top: 11px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
         }
         #hashtag-line {
-            font-size: 18px;
+            font-size: 20px;
             color: #AAAAAA;
-            letter-spacing: 4px;
+            letter-spacing: 0.4rem;
             margin-left: 12px;
             text-align: center;
         }        
         button {
-            height: 36px;
-            width: 36px;
+            height: 40px;
+            width: 40px;
             cursor: pointer;
             border: 1px solid #36364A;
             border-radius: 3px;
-        }      
+        }   
         .pen-btn {
             display: flex;
             justify-content: center; 
             align-items: center;
+            margin-right: 4px;
             padding: 6px 6px 6px 6px;
         }     
         .pen-eraser-btn {            
@@ -87,28 +88,33 @@
             justify-content: center; 
             align-items: center;
             padding: 6px 6px 6px 6px;
-            margin-left: 8px;
-            margin-right: 20px;
+            margin-right: 16px;
         }
         .color-eraser-btn {
             background-color: #F2EEE6;
             margin-left: 8px;
-            margin-right: 20px;
+            margin-right: 16px;
         }
         .control-btn {
             display: flex;
             justify-content: center; 
             align-items: center;
-            margin-left: 4px;
+            margin-left: 0px;
             margin-right: 4px;
             padding: 6px 6px 6px 6px;
         }
+        .control-btn:active{
+            outline: 3px solid #36364A;
+        }
+        .control-btn:disabled{
+            outline: 0px solid #36364A;
+        }
         .copy-sharetext-btn {
             position: relative;
-            top: 4px;
+            top: 5px;
             left:-3px;
-            height: 18px;
-            width: 18px;
+            height: 20px;
+            width: 20px;
             padding: 4px 4px 4px 4px;
             border:0px;
         } 
@@ -121,7 +127,7 @@
         }       
         .tool-reset-btn {
             position: relative;
-            top: 14px;
+            top: 16px;
             padding: 0px 0px 0px 0px;
             width: 12px;
             height: 12px;
@@ -138,23 +144,23 @@
             position: relative;
             top: -2px;
             width: 10px;
-            height: 36px;
+            height: 40px;
             vertical-align: middle;
             writing-mode: vertical-lr;
             direction: rtl;
         }
         #palette {
             position: relative;
-            top: 12px;
+            top: 10px;
             width: 18px;
-            height: 24px;
+            height: 30px;
             cursor: pointer;
             border-radius: 3px;
         }
         .active {
             outline: 3px solid #36364A;
             position: relative;
-            top: -18px;
+            top: -20px;
         }
 
     </style>
@@ -170,7 +176,7 @@
         </div>
 
         <div id="controls1">  
-            <button id="undo" class="control-btn" title="元に戻す" style="opacity: 0.3;">
+            <button id="undo" class="control-btn" title="元に戻す" style="opacity: 0.3;" disabled="true">
                 <img src="image/undo.png" style="height: 100%;" alt="Undo">
             </button>
             <button id="clear" class="control-btn" title="キャンバスのクリア">
@@ -420,6 +426,7 @@
                 color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
             });
             undoButton.style.opacity = 1.0;
+            undoButton.disabled = false;
         }
 
         function undo() {
@@ -429,6 +436,7 @@
             ctxColor.putImageData(state.color, 0, 0);
             if (undoStack.length === 0) {
                 undoButton.style.opacity = 0.3;
+                undoButton.disabled = true;
             }
         }
 
@@ -711,7 +719,6 @@
                 toolOpacity.blackPen = opacityInput.value;          
                 const button = document.querySelector('.pen-btn-img');
                 button.style.opacity = opacityInput.value;
-                //button.style.backgroundColor = `rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
             } else {
                 toolOpacity.colorBrush = opacityInput.value;
                 const buttons = document.querySelectorAll('.color-btn');
