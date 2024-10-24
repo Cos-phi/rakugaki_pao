@@ -580,7 +580,7 @@
         }
 
         function updateChangeableColorButton(color){
-            changeableColorButton.style.backgroundColor = color;
+            changeableColorButton.style.backgroundColor = `rgb(${hexToRgba(color,toolOpacity.colorBrush)})`;
             changeableColorButton.dataset.color = color;
         }
 
