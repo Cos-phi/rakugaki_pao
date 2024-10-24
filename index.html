@@ -570,7 +570,7 @@
                 button.className = 'color-btn';
                 button.style.backgroundColor = color;
                 button.dataset.color = color;  // データ属性を追加
-                button.addEventListener('click', () => {
+                button.addEventListener('mousedown', () => {
                     setColor(color);
                     updateToolsState();
                 });
@@ -662,10 +662,10 @@
         colorLayer.addEventListener('touchcancel', stopDrawingTouch);
         colorLayer.addEventListener('touchmove', updateCursorTouch);
 
-        undoButton.addEventListener('click', undo);
+        undoButton.addEventListener('mousedown', undo);
         clearButton.addEventListener('click', clearCanvas);
 
-        reloadButton.addEventListener('click', () => {location.reload()});
+        reloadButton.addEventListener('mousedown', () => {location.reload()});
         toolSizeParamInput.addEventListener('input', () => {
             const sizeParam = parseInt(toolSizeParamInput.value);
             if (isEraser) {
@@ -685,12 +685,12 @@
             updateToolSizeToolTip();
         });
 
-        blackPenButton.addEventListener('click', () => {
+        blackPenButton.addEventListener('mousedown', () => {
             ctxCurrentLayer = ctxBlack;
             setColor(blackPenColor);
             updateToolsState();
         });
-        eraserBlack.addEventListener('click', () => {
+        eraserBlack.addEventListener('mousedown', () => {
             ctxCurrentLayer = ctxBlack;
             isEraser = true;
             updateToolsState();
@@ -699,7 +699,7 @@
         createColorButtons();
         createChangeableColorButton();
 
-        changeableColorButton.addEventListener('click', () => {
+        changeableColorButton.addEventListener('mousedown', () => {
             ctxCurrentLayer = ctxColor;
             setColor(curPaletteColor);
             updateToolsState();
@@ -711,7 +711,7 @@
             updateChangeableColorButton(curPaletteColor);
             updateToolsState();
         }, false);
-        eraserColor.addEventListener('click', () => {
+        eraserColor.addEventListener('mousedown', () => {
             ctxCurrentLayer = ctxColor;
             isEraser = true;
             updateToolsState();
