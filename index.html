@@ -538,7 +538,10 @@
             })
             .then(() => {
                 progressBar.style.visibility = 'hidden';
-                alert('投稿しましたわ！')
+                setTimeout(() => {
+                    alert('投稿しましたわ！')
+                }, 100);
+                
             })
             .catch(error => {
                 if (error == "PostError")
