@@ -49,20 +49,20 @@
             border-radius: 50%;
         }
         #controls1 {
-            margin-top: 28px;
+            margin-top: 24px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
             max-width: 720px;
         }
         #controls2 {
-            margin-top: 28px;
+            margin-top: 24px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
         }
         #controls3 {
-            margin-top: 11px;
+            margin-top: 0px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
@@ -116,7 +116,7 @@
         }
         .copy-sharetext-btn {
             position: relative;
-            top: 5px;
+            top: 8px;
             left:-3px;
             height: 20px;
             width: 20px;
@@ -124,10 +124,10 @@
             border:0px;
         } 
         .copy-sharetext-btn:hover{
-            top: 2px;
+            top: 6px;
         }
         .copy-sharetext-btn:active{
-            top: 4px;
+            top: 8px;
             background-color: #FEFEFE;
             opacity: 1.0;
         }       
@@ -164,10 +164,14 @@
             border: 1px solid #36364A;
             border-radius: 4px;
         }
+        #progress-bar{
+            width: 80px;
+            visibility: hidden;
+        }
         .active {
             outline: 2px solid #36364A;
             position: relative;
-            top: -20px;
+            top: -16px;
         }
 
     </style>
@@ -219,7 +223,9 @@
                 <img src="image/post.png" style="height: 100%;" alt="Post">
             </button>
         </div>
-        
+
+        <progress id="progress-bar"></progress>
+
         <div id="controls3">
             <span id="hashtag-line">#rakugaki_pao</span>
             <button id="copyText" class="copy-sharetext-btn" title="ハッシュタグをコピー">
@@ -279,6 +285,7 @@
         const postButton = document.getElementById('post');
         postButton.title = hostName + "に投稿";
         const getTokenButton = document.getElementById('getToken');
+        const progressBar = document.getElementById('progress-bar');
 
         const params = new URLSearchParams(document.location.search);
         const code = params.get('code');
@@ -496,6 +503,7 @@
         }
 
         function postImage(dataURL, accessToken) {
+            progressBar.style.visibility = 'visible';
             fetch(`${serverUrl}/api/v1/media`, {
                     method: 'POST',
                     headers: {
@@ -543,6 +551,7 @@
                     alert('投稿中によくわからないエラーが発生しましたの‥‥');
                 }
             });
+            progressBar.style.visibility = 'hidden';
 
         }
 
