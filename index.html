@@ -537,22 +537,23 @@
                 });
             })
             .then(() => {
+                progressBar.style.visibility = 'hidden';
                 alert('投稿しましたわ！')
             })
             .catch(error => {
                 if (error == "PostError")
                 {
+                    progressBar.style.visibility = 'hidden';
                     alert("ポストエラーですの。トークンが駄目みたいですのでcodeを取り直しますわ。もう一度ポストしてみてくださいね。");
                     getAuthCodeRedirect();
                 }
                 else
                 {
+                    progressBar.style.visibility = 'hidden';
                     console.error('Error:', error);
                     alert('投稿中によくわからないエラーが発生しましたの‥‥');
                 }
             });
-            progressBar.style.visibility = 'hidden';
-
         }
 
         function postToMastodon() {
