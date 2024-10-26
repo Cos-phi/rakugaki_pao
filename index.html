@@ -111,6 +111,9 @@
         .control-btn:disabled{
             outline: 0px solid #36364A;
         }
+        .control-btn:active{
+            outline: 2px solid #36364A;
+        }
         .copy-sharetext-btn {
             position: relative;
             top: 5px;
@@ -126,6 +129,7 @@
         .copy-sharetext-btn:active{
             top: 4px;
             background-color: #FEFEFE;
+            opacity: 1.0;
         }       
         .tool-reset-btn {
             position: relative;
@@ -179,7 +183,7 @@
         </div>
 
         <div id="controls1">  
-            <button id="undo" class="control-btn" title="元に戻す" style="opacity: 0.3;" disabled="true">
+            <button id="undo" class="control-btn" title="元に戻す"  style="opacity: 0.3; pointer-events: none;">
                 <img src="image/undo.png" style="height: 100%;" alt="Undo">
             </button>
             <button id="clear" class="control-btn" title="キャンバスのクリア">
@@ -429,7 +433,7 @@
                 color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
             });
             undoButton.style.opacity = 1.0;
-            undoButton.disabled = false;
+            undoButton.style.pointerEvents = '';
         }
 
         function undo() {
@@ -439,7 +443,7 @@
             ctxColor.putImageData(state.color, 0, 0);
             if (undoStack.length === 0) {
                 undoButton.style.opacity = 0.3;
-                undoButton.disabled = true;
+                undoButton.style.pointerEvents = 'none';
             }
         }
 
