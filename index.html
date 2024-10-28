@@ -61,17 +61,27 @@
             flex-wrap: wrap;
             gap: 0px;
         }
-        #controls3 {
+        #hashtag-line {
+            height: 24px;
             margin-top: 0px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
         }
-        #hashtag-line {
+        #hashtag-text {
             font-size: 20px;
             color: #AAAAAA;
             letter-spacing: 0.4rem;
             margin-left: 12px;
+            text-align: center;
+        } 
+        #message-line {
+            display: none;
+            height: 24px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #AAAAAA;
+            letter-spacing: 0.1rem;
             text-align: center;
         }        
         button {
@@ -226,12 +236,14 @@
 
         <progress id="progress-bar"></progress>
 
-        <div id="controls3">
-            <span id="hashtag-line">#rakugaki_pao</span>
+        <div id="hashtag-line">
+            <span id="hashtag-text">#rakugaki_pao</span>
             <button id="copyText" class="copy-sharetext-btn" title="ハッシュタグをコピー">
                 <img src="image/copytext.png" style="height: 100%;" alt="Copy">
             </button>
-        </div>    
+        </div>   
+        
+        <div id="message-line"></div>
 
 
 
@@ -286,6 +298,8 @@
         postButton.title = hostName + "に投稿";
         const getTokenButton = document.getElementById('getToken');
         const progressBar = document.getElementById('progress-bar');
+        const hashtagLine = document.getElementById('hashtag-line');
+        const messageLine = document.getElementById('message-line');
 
         const params = new URLSearchParams(document.location.search);
         const code = params.get('code');
@@ -539,7 +553,7 @@
             .then(() => {
                 progressBar.style.visibility = 'hidden';
                 setTimeout(() => {
-                    alert('投稿しましたわ！')
+                    showMessage('　投稿しましたわ！')
                 }, 100);
                 
             })
@@ -579,6 +593,17 @@
                 uInt8Array[i] = raw.charCodeAt(i);
             }
             return new Blob([uInt8Array], { type: contentType });
+        }
+
+        function showMessage(text){
+            messageLine.style.display = 'flex';
+            hashtagLine.style.display = 'none';
+            messageLine.textContent = text; 
+            setTimeout(() => {
+                messageLine.style.display = 'none';
+                hashtagLine.style.display = 'flex';
+
+            }, 2000);
         }
 
         function createColorButtons() {
@@ -763,7 +788,7 @@
         copyTextButton.addEventListener('click', () => {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(shareText).then(function () {
-                //messageActive()
+                showMessage('ハッシュタグをコピーしました')
                 })
             } else {
                 alert('コピーできませんの');
