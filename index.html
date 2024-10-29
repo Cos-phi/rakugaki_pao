@@ -56,7 +56,7 @@
             max-width: 720px;
         }
         #controls2 {
-            margin-top: 24px;
+            margin-top: 16px;
             display: flex;
             flex-wrap: wrap;
             gap: 0px;
@@ -176,7 +176,7 @@
             border-radius: 4px;
         }
         #progress-bar{
-            width: 84px;
+            width: 200px;
             visibility: hidden;
         }
         .active {
@@ -222,7 +222,8 @@
              
             <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="ペン/ブラシの不透明度">
         </div>
-        
+
+
         <div id="controls2">
             <button id="save" class="control-btn" title="ダウンロードして保存">
                 <img src="image/download.png" style="height: 100%;" alt="Download">
@@ -235,8 +236,6 @@
             </button>
         </div>
 
-        <progress id="progress-bar"></progress>
-
         <div id="hashtag-line">
             <span id="hashtag-text">#rakugaki_pao</span>
             <button id="copyText" class="copy-sharetext-btn" title="ハッシュタグをコピー">
@@ -246,6 +245,7 @@
         
         <div id="message-line"></div>
 
+        <progress id="progress-bar"></progress>
 
 
     </div>
