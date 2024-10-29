@@ -273,7 +273,7 @@
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
-        const ctxAactiveStroke = activeStrokeLayer.getContext('2d');
+        const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
         const combinedCanvas = document.createElement('canvas');
@@ -348,6 +348,7 @@
             isDrawing = true;
             [lastX, lastY] = [x, y];
             saveState();
+            stipple(x,y);
         }
 
         function draw(x, y) {
@@ -362,16 +363,38 @@
                 ctxCurrentLayer.lineCap = 'round';
                 ctxCurrentLayer.stroke();
             }else{    
-                ctxAactiveStroke.beginPath();
-                ctxAactiveStroke.moveTo(lastX, lastY);
-                ctxAactiveStroke.lineTo(x, y);
-                ctxAactiveStroke.globalCompositeOperation = 'source-over';
-                ctxAactiveStroke.strokeStyle = currentColor;
-                ctxAactiveStroke.lineWidth = calcToolSize(toolSizeParamInput.value);
-                ctxAactiveStroke.lineCap = 'round';
-                ctxAactiveStroke.stroke();
+                ctxActiveStroke.beginPath();
+                ctxActiveStroke.moveTo(lastX, lastY);
+                ctxActiveStroke.lineTo(x, y);
+                ctxActiveStroke.globalCompositeOperation = 'source-over';
+                ctxActiveStroke.strokeStyle = currentColor;
+                ctxActiveStroke.lineWidth = calcToolSize(toolSizeParamInput.value);
+                ctxActiveStroke.lineCap = 'round';
+                ctxActiveStroke.stroke();
             }
             [lastX, lastY] = [x, y];
+        }
+
+        function stipple(x,y){
+            if (isEraser) {
+                ctxCurrentLayer.beginPath();
+                ctxCurrentLayer.moveTo(x, y);
+                ctxCurrentLayer.globalCompositeOperation = 'destination-out';
+                ctxCurrentLayer.strokeStyle = currentColor;
+                ctxCurrentLayer.fillStyle = currentColor;
+                ctxCurrentLayer.arc(x,y, calcToolSize(toolSizeParamInput.value)/2, 0, 2*Math.PI, true);
+                ctxCurrentLayer.closePath();
+                ctxCurrentLayer.fill();
+            }else{    
+                ctxActiveStroke.beginPath();
+                ctxActiveStroke.moveTo(x, y);
+                ctxActiveStroke.globalCompositeOperation = 'source-over';
+                ctxActiveStroke.strokeStyle = currentColor;
+                ctxActiveStroke.fillStyle = currentColor;
+                ctxActiveStroke.arc(x,y, calcToolSize(toolSizeParamInput.value)/2, 0, 2*Math.PI, true);
+                ctxActiveStroke.closePath();
+                ctxActiveStroke.fill();
+            }
         }
 
         function calcToolSize(toolSizeParam) {
@@ -390,7 +413,7 @@
             ctxCurrentLayer.globalAlpha = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
             ctxCurrentLayer.drawImage(activeStrokeLayer,0,0);
             ctxCurrentLayer.globalAlpha = 1.0;
-            ctxAactiveStroke.clearRect(0, 0, blackLayer.width, blackLayer.height);
+            ctxActiveStroke.clearRect(0, 0, blackLayer.width, blackLayer.height);
         }
 
         function updateCursor(x, y) {
