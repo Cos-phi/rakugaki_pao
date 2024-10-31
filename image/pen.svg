@@ -8,13 +8,14 @@ viewBox="0 0 254 254"
   <style type="text/css">
    <![CDATA[
     .str0 {stroke:#36364A;stroke-width:20;stroke-miterlimit:22.9256}
+    .str1 {stroke:#36364A;stroke-width:20;stroke-linejoin:bevel;stroke-miterlimit:22.9256}
     .fil0 {fill:none}
    ]]>
   </style>
  </defs>
  <g id="レイヤ_x0020_1">
   <metadata id="CorelCorpID_0Corel-Layer"/>
-  <polygon class="fil0 str0" points="165.35,49.64 204.23,88.52 87.16,205.59 67.53,185.95 48.28,166.71 "/>
-  <polygon class="fil0 str0" points="185.49,29.5 224.37,68.38 87.12,205.63 33.74,220.13 48.24,166.75 "/>
+  <polygon class="fil0 str0" points="165.35,49.77 204.23,88.65 87.16,205.72 67.53,186.08 48.28,166.84 "/>
+  <polygon class="fil0 str1" points="185.49,29.63 224.37,68.51 87.12,205.76 33.74,220.26 48.24,166.88 "/>
  </g>
 </svg>
