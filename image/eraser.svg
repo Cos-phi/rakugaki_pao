@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="2.54mm" height="2.54mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 254 254"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str1 {stroke:#36364A;stroke-width:20;stroke-miterlimit:22.9256}
+    .str0 {stroke:#36364A;stroke-width:20;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .fil0 {fill:none}
+   ]]>
+  </style>
+ </defs>
+ <g id="レイヤ_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_2497625757760">
+   <path class="fil0 str0" d="M192.11 143.55l-0.55 0.55 -72.41 72.41c-11.68,11.69 -31.3,11.18 -43.6,-1.12l-36.35 -36.35c-12.3,-12.3 -12.81,-31.92 -1.12,-43.61l12.56 -12.56 59.85 -59.85 33.39 -33.39 81.08 81.07 -32.85 32.85z"/>
+   <line class="fil0 str1" x1="58.75" y1="114.76" x2="139.83" y2= "195.84" />
+   <line class="fil0 str1" x1="105.8" y1="224.96" x2="214.4" y2= "224.96" />
+  </g>
+ </g>
+</svg>
