@@ -260,6 +260,9 @@
             <button id="post" class="mistodon-btn" style="display: none;">
                 <img src="image/mistodon.svg" style="height: 100%;" alt="Post">
             </button>
+            <button id="posting" class="mistodon-btn" style="display: none;">
+                <img src="image/mistodon_active.svg" style="height: 100%;" alt="Post">
+            </button>
 
             <button id="share" class="output-btn">
                 <img src="image/share.svg" style="height: 100%;" alt="Share">
@@ -329,6 +332,7 @@
         postButton.title = hostName + "に投稿";
         const getTokenButton = document.getElementById('getToken');
         const shareButton = document.getElementById('share');
+        const postingDummyButton = document.getElementById('posting');
         const progressBar = document.getElementById('progress-bar');
         const hashtagLine = document.getElementById('hashtag-line');
         const messageLine = document.getElementById('message-line');
@@ -573,7 +577,7 @@
         }
 
         function postImage(dataURL, accessToken) {
-            progressBar.style.visibility = 'visible';
+            activatePostingProgressBar();
             fetch(`${serverUrl}/api/v1/media`, {
                     method: 'POST',
                     headers: {
@@ -607,7 +611,7 @@
                 });
             })
             .then(() => {
-                progressBar.style.visibility = 'hidden';
+                deactivatePostingProgressBar();
                 setTimeout(() => {
                     showMessage('　投稿しましたわ！')
                 }, 100);
@@ -616,17 +620,29 @@
             .catch(error => {
                 if (error == "PostError")
                 {
-                    progressBar.style.visibility = 'hidden';
+                    deactivatePostingProgressBar();
                     alert("ポストエラーですの。トークンが駄目みたいですのでcodeを取り直しますわ。もう一度ポストしてみてくださいね。");
                     getAuthCodeRedirect();
                 }
                 else
                 {
-                    progressBar.style.visibility = 'hidden';
+                    deactivatePostingProgressBar();
                     console.error('Error:', error);
                     alert('投稿中によくわからないエラーが発生しましたの‥‥');
                 }
             });
+        }
+
+        function activatePostingProgressBar(){
+            progressBar.style.visibility = 'visible';
+            postButton.style.display = 'none';
+            postingDummyButton.style.display = '';
+        }
+        
+        function deactivatePostingProgressBar(){
+            progressBar.style.visibility = 'hidden';
+            postButton.style.display = '';
+            postingDummyButton.style.display = 'none';
         }
 
         function postToMastodon() {
