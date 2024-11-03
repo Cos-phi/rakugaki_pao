@@ -668,7 +668,6 @@
         }
 
         function shareImage() {
-            progressBar.style.visibility = 'visible';
             combineCanvas();            
             const dataURL = combinedCanvas.toDataURL('image/png');
             const blob = dataURLToBlob(dataURL);
@@ -680,7 +679,6 @@
                 files: [imageFile],
             }).then(() => {
                 console.log("共有しましたの");
-                progressBar.style.visibility = 'hidden';
             }).catch((error) => {
                 console.log('共有できませんでしたの‥‥');
             });
