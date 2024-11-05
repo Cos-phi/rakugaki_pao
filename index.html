@@ -190,24 +190,23 @@
             direction: rtl;
         }
         #palette {
-            position: relative;
-            top: 16px;
-            left: -24px;
-            width: 24px;
+            position: absolute;
+            top: 15px;
+            left: 19px;
+            width: 20px;
             height: 24px;
             cursor: pointer;
             border: 1px solid #36364A;
             border-radius: 4px;
-            margin-right: -24px;
         }
         #progress-bar{
             width: 200px;
             visibility: hidden;
         }
         .active {
-            outline: 2px solid #36364A;
+            outline: 3px solid #36364A;
             position: relative;
-            top: -16px;
+            top: -8px;
         }
 
     </style>
@@ -241,8 +240,8 @@
             </button>
             
             <div id="colorButtons" title="色ブラシ"></div>
-            <button id="changeableColorButton" class="color-btn" title="選択色ブラシ"></button>
-            <input id="palette" type="color" title="色の選択">
+            <button id="changeableColorButton" class="color-btn" title="選択色ブラシ">
+            <input id="palette" type="color" title="色の選択"></button>
             <button id="eraserColor" class="color-eraser-btn" title="色ブラシ消し"></button>
              
             <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="ペン/ブラシの不透明度">
@@ -322,7 +321,7 @@
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
         const colorButtons = document.getElementById('colorButtons');
-        const changeableColorButton = document.getElementById('changeableColorButton')
+        const changeableColorButton = document.getElementById('changeableColorButton');
         const colorPalette = document.getElementById('palette');
         const eraserColor = document.getElementById('eraserColor');
         const opacityInput = document.getElementById('opacity');
@@ -712,6 +711,7 @@
         function createChangeableColorButton() {
             changeableColorButton.style.backgroundColor = curPaletteColor;
             changeableColorButton.dataset.color = curPaletteColor;
+            changeableColorButton.style.position = 'relative';
             colorButtons.appendChild(changeableColorButton);
         }
 
