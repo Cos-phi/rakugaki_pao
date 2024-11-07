@@ -48,6 +48,14 @@
             pointer-events: none;
             border-radius: 50%;
         }
+        #controls-top {
+            margin-top: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 0 0 auto;
+            gap: 0px;
+            max-width: 720px;
+        }
         #controls1 {
             margin-top: 24px;
             display: flex;
@@ -56,7 +64,7 @@
             max-width: 720px;
         }
         #controls2 {
-            margin-top: 24px;
+            margin-top: 32px;
             display: flex;
             align-items: flex-end;
             flex-wrap: wrap;
@@ -70,7 +78,7 @@
             gap: 0px;
         }
         #hashtag-text {
-            font-size: 24px;
+            font-size: 20px;
             color: #AAAAAA;
             letter-spacing: 0.4rem;
             margin-left: 12px;
@@ -135,8 +143,6 @@
             width: 32px;
             border: 0px solid #36364A;
             background-color: #f0f0f0;
-            margin-left: 2px;
-            margin-right: 2px;
             padding: 6px 6px 6px 6px;
         }
         .output-btn:active{
@@ -148,8 +154,8 @@
             border: 0px solid #36364A;
             border-radius: 50%;
             background-color: #f0f0f0;
-            height: 48px;
-            width: 48px;
+            height: 40px;
+            width: 40px;
             margin-left: 4px;
             margin-right: 4px;
             padding: 0px 0px 1px 0px;
@@ -218,6 +224,17 @@
 </head>
 <body>
     <div id="app">
+        <div id="controls-top">
+            <button id="save" class="output-btn" title="ダウンロードして保存">
+                <img src="image/download.svg" style="height: 100%;" alt="Download">
+            </button>
+            
+            <button id="share" class="output-btn" title="共有">
+                <img src="image/share.svg" style="height: 100%;" alt="Share">
+            </button>
+
+        </div>
+
         <div id="canvas-container">
             <canvas id="backgroundLayer" width="720" height="720"></canvas>
             <canvas id="colorLayer" width="720" height="720"></canvas>
@@ -254,9 +271,7 @@
 
 
         <div id="controls2">
-            <button id="save" class="output-btn" title="ダウンロードして保存">
-                <img src="image/download.svg" style="height: 100%;" alt="Download">
-            </button>
+
 
             <button id="getToken" class="mistodon-btn" title="mistodon.cloudで認証">
                 <img src="image/mistodon_disable.svg" style="height: 100%;" alt="Reload">
@@ -268,9 +283,6 @@
                 <img src="image/mistodon_active.svg" style="height: 100%;" alt="Post">
             </button>
 
-            <button id="share" class="output-btn" title="共有">
-                <img src="image/share.svg" style="height: 100%;" alt="Share">
-            </button>
         </div>
 
         <div id="hashtag-line">
