@@ -15,10 +15,10 @@ viewBox="0 0 254 254"
  </defs>
  <g id="レイヤ_x0020_1">
   <metadata id="CorelCorpID_0Corel-Layer"/>
-  <circle class="fil0" cx="64.69" cy="129.77" r="33.87"/>
-  <line class="fil1 str0" x1="189.32" y1="58.94" x2="64.69" y2= "129.77" />
-  <line class="fil1 str0" x1="189.31" y1="190.51" x2="64.69" y2= "129.77" />
-  <circle class="fil0" cx="189.31" cy="58.94" r="33.87"/>
-  <circle class="fil0" cx="189.31" cy="190.51" r="33.87"/>
+  <ellipse class="fil0" cx="60.85" cy="132.53" rx="36.52" ry="37.39"/>
+  <line class="fil1 str0" x1="192.09" y1="54.33" x2="57.69" y2= "132.53" />
+  <line class="fil1 str0" x1="192.08" y1="202.43" x2="57.69" y2= "135.36" />
+  <ellipse class="fil0" cx="192.08" cy="54.33" rx="36.52" ry="37.39"/>
+  <ellipse class="fil0" cx="192.08" cy="203.91" rx="36.52" ry="37.39"/>
  </g>
 </svg>
