@@ -81,7 +81,7 @@
             font-size: 20px;
             color: #AAAAAA;
             letter-spacing: 0.4rem;
-            margin-left: 12px;
+            margin-left: 20px;
             text-align: center;
         } 
         #message-line {
@@ -172,14 +172,14 @@
             justify-content: center; 
             align-items: center;
             background-color: #f0f0f0;
-            height: 12px;
-            width: 12px;
-            
+            height: 16px;
+            width: 16px;
             margin-left: -2px;
             border:0px;
+            opacity: 0;
         } 
-        .copy-sharetext-btn:hover{
-            top: -1px;
+        .copy-sharetext-btn:hover{    
+            opacity: 0.4;
         }
         .copy-sharetext-btn:active{
             top: 0px;
@@ -236,7 +236,7 @@
     <div id="app">
         <div id="controls-top">
             <button id="copy" class="output-btn" title="クリップボードにコピー">
-                <img src="image/copytoclipboard.svg" style="height: 100%;">
+                <img src="image/copytoclipboard.svg" style="height: 100%;" alt="Copy">
             </button>
             <button id="save" class="output-btn" title="ダウンロードして保存">
                 <img src="image/download.svg" style="height: 100%;" alt="Download">
@@ -296,7 +296,7 @@
         <div id="hashtag-line">
             <span id="hashtag-text">#rakugaki_pao</span>
             <button id="copyText" class="copy-sharetext-btn" title="ハッシュタグをコピー">
-                <img src="image/copytext.svg" style="height: 100%;" alt="Copy">
+                <img src="image/copytoclipboard.svg" style="height: 100%;" alt="">
             </button>
         </div>   
         
