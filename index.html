@@ -139,16 +139,21 @@
             display: flex;
             justify-content: center; 
             align-items: center;
-            height: 24px;
-            width: 24px;
+            height: 32px;
+            width: 32px;
             border: 0px solid #36364A;
             background-color: #f0f0f0;
-            margin-left: 3px;
-            margin-bottom: 3px;
+            margin-left: 4px;
+            margin-bottom: 4px;
             padding: 2px;
+            opacity: 0.3;
+        }
+        .output-btn:hover{
+            opacity: 1.0;
         }
         .output-btn:active{
             outline: 3px solid #36364A;
+            opacity: 1.0;
         }
         .mistodon-btn {
             justify-content: center; 
@@ -163,11 +168,14 @@
             padding: 0px 0px 1px 0px;
         }
         .copy-sharetext-btn {
-            position: relative;
-            left:-3px;
-            height: 16px;
-            width: 16px;
-            padding: 2px 2px 2px 2px;
+            display: flex;
+            justify-content: center; 
+            align-items: center;
+            background-color: #f0f0f0;
+            height: 12px;
+            width: 12px;
+            
+            margin-left: -2px;
             border:0px;
         } 
         .copy-sharetext-btn:hover{
@@ -273,8 +281,6 @@
 
 
         <div id="controls2">
-
-
             <button id="getToken" class="mistodon-btn" title="mistodon.cloudで認証">
                 <img src="image/mistodon_disable.svg" style="height: 100%;" alt="Reload">
             </button>
@@ -284,7 +290,6 @@
             <button id="posting" class="mistodon-btn" style="display: none;">
                 <img src="image/mistodon_active.svg" style="height: 100%;" alt="Post">
             </button>
-
         </div>
 
         <div id="hashtag-line">
