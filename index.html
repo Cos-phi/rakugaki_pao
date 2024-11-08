@@ -139,8 +139,8 @@
             display: flex;
             justify-content: center; 
             align-items: center;
-            height: 32px;
-            width: 32px;
+            height: 24px;
+            width: 24px;
             border: 0px solid #36364A;
             background-color: #f0f0f0;
             margin-left: 4px;
@@ -235,14 +235,15 @@
 <body>
     <div id="app">
         <div id="controls-top">
+            <button id="copy" class="output-btn" title="クリップボードにコピー">
+                <img src="image/copytoclipboard.svg" style="height: 100%;">
+            </button>
             <button id="save" class="output-btn" title="ダウンロードして保存">
                 <img src="image/download.svg" style="height: 100%;" alt="Download">
             </button>
-            
             <button id="share" class="output-btn" title="共有">
                 <img src="image/share.svg" style="height: 100%;" alt="Share">
             </button>
-
         </div>
 
         <div id="canvas-container">
@@ -350,6 +351,7 @@
         const eraserColor = document.getElementById('eraserColor');
         const opacityInput = document.getElementById('opacity');
 
+        const copyButton = document.getElementById('copy');
         const saveButton = document.getElementById('save');
         const postButton = document.getElementById('post');
         postButton.title = hostName + "に投稿";
@@ -588,6 +590,15 @@
             ctxCombined.drawImage(backgroundLayer, 0, 0);
             ctxCombined.drawImage(colorLayer, 0, 0);
             ctxCombined.drawImage(blackLayer, 0, 0);
+        }
+
+        function copyImage() {
+            combineCanvas();
+            combinedCanvas.toBlob(async (blob) => {
+                const item = new ClipboardItem({'image/png': blob});
+                await navigator.clipboard.write([item]);
+            })
+            showMessage('画像をクリップボードにコピーしました')
         }
 
         function saveImage() {
@@ -893,6 +904,7 @@
             return `${r} ${g} ${b} / ${opacity}`;
         }
 
+        copyButton.addEventListener('click', copyImage);
         saveButton.addEventListener('click', saveImage);
         postButton.addEventListener('click', postToMastodon);
         getTokenButton.addEventListener('click', getAuthCodeRedirect);      
