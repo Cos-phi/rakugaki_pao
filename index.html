@@ -64,7 +64,7 @@
             max-width: 720px;
         }
         #controls2 {
-            margin-top: 32px;
+            margin-top: 40px;
             display: flex;
             align-items: flex-end;
             flex-wrap: wrap;
@@ -92,6 +92,7 @@
             color: #AAAAAA;
             letter-spacing: 0.1rem;
             text-align: center;
+            margin-left: 16px;
         }        
         button {
             height: 40px;
@@ -159,10 +160,10 @@
             justify-content: center; 
             align-items: center;
             border: 0px solid #36364A;
-            border-radius: 50%;
+            border-radius: 4px;
             background-color: #f0f0f0;
-            height: 40px;
-            width: 40px;
+            height: 48px;
+            width: 48px;
             margin-left: 4px;
             margin-right: 4px;
             padding: 0px 0px 1px 0px;
@@ -170,22 +171,19 @@
         .copy-sharetext-btn {
             display: flex;
             justify-content: center; 
-            align-items: center;
+            align-items: flex-end;
             background-color: #f0f0f0;
             height: 16px;
             width: 16px;
-            margin-left: -2px;
             border:0px;
-            opacity: 0;
         } 
-        .copy-sharetext-btn:hover{    
-            opacity: 0.4;
-        }
-        .copy-sharetext-btn:active{
-            top: 0px;
-            background-color: #FEFEFE;
-            opacity: 1.0;
-        }       
+        .copy-sharetext-btn .icon{
+            opacity: 0;
+            height: 100%
+        } 
+        .copy-sharetext-btn:hover .icon{    
+            opacity: 0.3;
+        } 
         .tool-reset-btn {
             position: relative;
             top: 16px;
@@ -294,9 +292,9 @@
         </div>
 
         <div id="hashtag-line">
-            <span id="hashtag-text">#rakugaki_pao</span>
             <button id="copyText" class="copy-sharetext-btn" title="ハッシュタグをコピー">
-                <img src="image/copytoclipboard.svg" style="height: 100%;" alt="">
+                <span id="hashtag-text">#rakugaki_pao</span>
+                <img src="image/copytoclipboard.svg" class="icon" alt="">
             </button>
         </div>   
         
