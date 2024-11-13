@@ -201,6 +201,12 @@
             margin-left: 8px;
             margin-right: 4px;
         }
+        .active {
+            outline: 3px solid #36364A;
+            position: relative;
+            top: -8px;
+            z-index: 10;
+        }
         #tool-size {
             width: 80px;
             margin-right: 10px;
@@ -224,16 +230,14 @@
             border: 1px solid #36364A;
             border-radius: 4px;
         }
-        #progress-bar{
-            width: 200px;
+        #progress-bar-line{
+            margin-top: 2px;
+            display: flex;
+            justify-content: center; 
             visibility: hidden;
-            justify-content: center;
         }
-        .active {
-            outline: 3px solid #36364A;
-            position: relative;
-            top: -8px;
-            z-index: 10;
+        .progress-bar{
+            width: 200px; 
         }
 
     </style>
@@ -313,8 +317,11 @@
         </div>   
         
         <div id="message-line"></div>
+        
+        <div id="progress-bar-line">
+            <progress class="progress-bar"></progress>
+        </div>
 
-        <progress id="progress-bar"></progress>
 
 
     </div>
@@ -370,7 +377,7 @@
         const getTokenButton = document.getElementById('getToken');
         const shareButton = document.getElementById('share');
         const postingDummyButton = document.getElementById('posting');
-        const progressBar = document.getElementById('progress-bar');
+        const progressBar = document.getElementById('progress-bar-line');
         const hashtagLine = document.getElementById('hashtag-line');
         const messageLine = document.getElementById('message-line');
 
