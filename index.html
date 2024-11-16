@@ -822,17 +822,18 @@
         }
 
         function previewCursorSize(){
+            const previewY = 630;
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
-                    updateCursor(270, 630);
+                    updateCursor(270, previewY);
                 } else {
-                    updateCursor(630, 630);
+                    updateCursor(630, previewY);
                 }
             } else {
                 if (ctxCurrentLayer === ctxBlack) {
-                    updateCursor(90, 630);
+                    updateCursor(90, previewY);
                 } else {
-                    updateCursor(450, 630);
+                    updateCursor(450, previewY);
                 }
             }
         }
