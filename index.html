@@ -858,17 +858,20 @@
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
                     toolSizesParam.blackEraser = sizeParam;
+                    updateCursor(270, 630);
                 } else {
                     toolSizesParam.colorEraser = sizeParam;
+                    updateCursor(630, 630);
                 }
             } else {
                 if (ctxCurrentLayer === ctxBlack) {
                     toolSizesParam.blackPen = sizeParam;
+                    updateCursor(90, 630);
                 } else {
                     toolSizesParam.colorBrush = sizeParam;
+                    updateCursor(450, 630);
                 }
             }
-            updateCursor(180, 650);
             updateToolSizeToolTip();
         });
 
