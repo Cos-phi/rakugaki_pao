@@ -411,6 +411,7 @@
             blackEraser: 4,
             colorEraser: 6
         };
+        let toolDiameter = calcToolSize(toolSizesParam.blackPen);
 
         let toolOpacity = {
             blackPen: 1,
@@ -443,7 +444,7 @@
                 ctxCurrentLayer.lineTo(x, y);
                 ctxCurrentLayer.globalCompositeOperation = 'destination-out';
                 ctxCurrentLayer.strokeStyle = currentColor;
-                ctxCurrentLayer.lineWidth = calcToolSize(toolSizeParamInput.value);
+                ctxCurrentLayer.lineWidth = toolDiameter;
                 ctxCurrentLayer.lineCap = 'round';
                 ctxCurrentLayer.stroke();
             }else{    
@@ -452,7 +453,7 @@
                 ctxActiveStroke.lineTo(x, y);
                 ctxActiveStroke.globalCompositeOperation = 'source-over';
                 ctxActiveStroke.strokeStyle = currentColor;
-                ctxActiveStroke.lineWidth = calcToolSize(toolSizeParamInput.value);
+                ctxActiveStroke.lineWidth = toolDiameter;
                 ctxActiveStroke.lineCap = 'round';
                 ctxActiveStroke.stroke();
             }
@@ -466,7 +467,7 @@
                 ctxCurrentLayer.globalCompositeOperation = 'destination-out';
                 ctxCurrentLayer.strokeStyle = currentColor;
                 ctxCurrentLayer.fillStyle = currentColor;
-                ctxCurrentLayer.arc(x,y, calcToolSize(toolSizeParamInput.value)/2, 0, 2*Math.PI, true);
+                ctxCurrentLayer.arc(x,y, toolDiameter*0.5, 0, 2*Math.PI, true);
                 ctxCurrentLayer.closePath();
                 ctxCurrentLayer.fill();
             }else{    
@@ -475,7 +476,7 @@
                 ctxActiveStroke.globalCompositeOperation = 'source-over';
                 ctxActiveStroke.strokeStyle = currentColor;
                 ctxActiveStroke.fillStyle = currentColor;
-                ctxActiveStroke.arc(x,y, calcToolSize(toolSizeParamInput.value)/2, 0, 2*Math.PI, true);
+                ctxActiveStroke.arc(x,y, toolDiameter*0.5, 0, 2*Math.PI, true);
                 ctxActiveStroke.closePath();
                 ctxActiveStroke.fill();
             }
@@ -501,11 +502,10 @@
         }
 
         function updateCursor(x, y) {
-            const size = calcToolSize(toolSizeParamInput.value);
-            cursor.style.width = `${size}px`;
-            cursor.style.height = `${size}px`;
-            cursor.style.left = `${x - size / 2}px`;
-            cursor.style.top = `${y - size / 2}px`;
+            cursor.style.width = `${toolDiameter}px`;
+            cursor.style.height = `${toolDiameter}px`;
+            cursor.style.left = `${x - toolDiameter * 0.5}px`;
+            cursor.style.top = `${y - toolDiameter * 0.5}px`;
             cursor.style.border = '2px solid #000'
         }
 
@@ -802,11 +802,12 @@
             } else {
                 toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackPen : toolSizesParam.colorBrush;
             }
+            toolDiameter = calcToolSize(toolSizeParamInput.value);
             updateToolSizeToolTip();
         }
 
         function updateToolSizeToolTip() {
-            toolSizeParamInput.title = calcToolSize(toolSizeParamInput.value)+'px';
+            toolSizeParamInput.title = toolDiameter+'px';
         }
 
         function updateToolOpacity() {
@@ -886,6 +887,7 @@
                     toolSizesParam.colorBrush = sizeParam;
                 }
             }
+            toolDiameter = calcToolSize(sizeParam);
             previewCursorSize();
             updateToolSizeToolTip();
         });
