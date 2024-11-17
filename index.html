@@ -497,6 +497,11 @@
             dryStroke();
             saveLocalstorage();
         }
+
+        function stopDrawingMouseOut(){
+            stopDrawing();
+            setCursorInvisible();
+        }
         
         function dryStroke() {
             ctxCurrentLayer.globalCompositeOperation = 'source-over';
@@ -506,12 +511,12 @@
             ctxActiveStroke.clearRect(0, 0, blackLayer.width, blackLayer.height);
         }
 
-        function updateCursor(x, y) {
+        function updateCursor(x, y) {            
+            setCursorVisible();
             cursor.style.width = `${toolDiameter}px`;
             cursor.style.height = `${toolDiameter}px`;
             cursor.style.left = `${x - toolDiameter * 0.5}px`;
             cursor.style.top = `${y - toolDiameter * 0.5}px`;
-            cursor.style.borderWidth = '2px';
         }
 
         function startDrawingMouse(e) {
@@ -544,7 +549,7 @@
         
         function stopDrawingTouch() {
             stopDrawing();
-            cursor.style.borderWidth = '0px';
+            setCursorInvisible();
         }
             
         function updateCursorTouch(e) {
@@ -857,6 +862,13 @@
             }
         }
         
+        function setCursorVisible(){
+            cursor.style.borderWidth = '2px';
+        }
+
+        function setCursorInvisible(){
+            cursor.style.borderWidth = '0px';
+        }
 
         function enablePostButton() {
             getTokenButton.style.display = 'none';
@@ -866,13 +878,13 @@
         blackLayer.addEventListener('mousedown', startDrawingMouse);
         blackLayer.addEventListener('mousemove', drawMouse);
         blackLayer.addEventListener('mouseup', stopDrawing);
-        blackLayer.addEventListener('mouseout', stopDrawing);
+        blackLayer.addEventListener('mouseout', stopDrawingMouseOut);
         blackLayer.addEventListener('mousemove', updateCursorMouse);
 
         colorLayer.addEventListener('mousedown', startDrawingMouse);
         colorLayer.addEventListener('mousemove', drawMouse);
         colorLayer.addEventListener('mouseup', stopDrawing);
-        colorLayer.addEventListener('mouseout', stopDrawing);
+        colorLayer.addEventListener('mouseout', stopDrawingMouseOut);
         colorLayer.addEventListener('mousemove', updateCursorMouse);
 
         blackLayer.addEventListener('touchstart', startDrawingTouch);
