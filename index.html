@@ -821,6 +821,7 @@
 
         function updateToolsState() {
             updateActiveButton();
+            setCursorBorderStyle();
             updateToolSize();
             updateToolOpacity();
             previewCursorSize();
@@ -842,6 +843,19 @@
                 }
             }
         }
+
+        function setCursorBorderStyle(){
+            if (isEraser) {
+                if (ctxCurrentLayer === ctxBlack) {
+                    cursor.style.borderStyle = 'dashed';
+                } else {
+                    cursor.style.borderStyle = 'dotted';
+                }
+            } else {
+                cursor.style.borderStyle = 'solid';
+            }
+        }
+        
 
         function enablePostButton() {
             getTokenButton.style.display = 'none';
