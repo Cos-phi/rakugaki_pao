@@ -50,7 +50,11 @@
         #cursor {
             position: absolute;
             pointer-events: none;
+            border-width: 2px;
+            border-style: solid;
+            border-color: #FFF;
             border-radius: 50%;
+            mix-blend-mode: exclusion;
         }
         #controls-top {
             margin-top: 24px;
@@ -506,7 +510,7 @@
             cursor.style.height = `${toolDiameter}px`;
             cursor.style.left = `${x - toolDiameter * 0.5}px`;
             cursor.style.top = `${y - toolDiameter * 0.5}px`;
-            cursor.style.border = '2px solid #000'
+            cursor.style.borderWidth = '2px';
         }
 
         function startDrawingMouse(e) {
@@ -539,7 +543,7 @@
         
         function stopDrawingTouch() {
             stopDrawing();
-            cursor.style.border = '0px solid #FFF'
+            cursor.style.borderWidth = '0px';
         }
             
         function updateCursorTouch(e) {
