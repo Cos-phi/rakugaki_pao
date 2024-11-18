@@ -422,6 +422,8 @@
             blackPen: 1,
             colorBrush: 1,
         };
+        
+        let movingAvgParam = 0.2;
 
         function setColor(color) {
             currentColor = color;
@@ -443,6 +445,17 @@
 
         function draw(x, y) {
             if (!isDrawing) return;
+            const dx = x - lastX;
+            const dy = y - lastY;
+            if( dx*dx+dy*dy <= 64 ){
+                movingAvgParam = 0.6;
+            }else{
+                movingAvgParam = 0.1;
+            }
+
+            x = x*(1-movingAvgParam) + lastX*movingAvgParam;
+            y = y*(1-movingAvgParam) + lastY*movingAvgParam;
+            
             if (isEraser) {
                 ctxCurrentLayer.beginPath();
                 ctxCurrentLayer.moveTo(lastX, lastY);
