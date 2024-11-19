@@ -445,17 +445,7 @@
 
         function draw(x, y) {
             if (!isDrawing) return;
-            const dx = x - lastX;
-            const dy = y - lastY;
-            if( dx*dx+dy*dy <= 64 ){
-                movingAvgParam = 0.6;
-            }else{
-                movingAvgParam = 0.1;
-            }
 
-            x = x*(1-movingAvgParam) + lastX*movingAvgParam;
-            y = y*(1-movingAvgParam) + lastY*movingAvgParam;
-            
             if (isEraser) {
                 ctxCurrentLayer.beginPath();
                 ctxCurrentLayer.moveTo(lastX, lastY);
@@ -466,6 +456,17 @@
                 ctxCurrentLayer.lineCap = 'round';
                 ctxCurrentLayer.stroke();
             }else{    
+                const dx = x - lastX;
+                const dy = y - lastY;
+                if( dx*dx+dy*dy <= 36 ){
+                    movingAvgParam = 0.6;
+                    cursor.style.borderColor = '#FFFFFF';
+                }else{
+                    movingAvgParam = 0.1;
+                    cursor.style.borderColor = '#FFFF00';
+                }
+                x = x*(1-movingAvgParam) + lastX*movingAvgParam;
+                y = y*(1-movingAvgParam) + lastY*movingAvgParam;
                 ctxActiveStroke.beginPath();
                 ctxActiveStroke.moveTo(lastX, lastY);
                 ctxActiveStroke.lineTo(x, y);
