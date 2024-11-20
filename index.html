@@ -399,6 +399,7 @@
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
+        let [olderX,olderY]= [0,0];
         let ctxCurrentLayer = ctxBlack;
         let currentColor = blackPenColor;
         let curPaletteColor = initialChangeableColor;
@@ -444,7 +445,10 @@
         }
 
         function draw(x, y) {
-            if (!isDrawing) return;
+            if (!isDrawing){
+                movingAvgParam = 0;
+                return;
+            }
 
             if (isEraser) {
                 ctxCurrentLayer.beginPath();
@@ -456,17 +460,25 @@
                 ctxCurrentLayer.lineCap = 'round';
                 ctxCurrentLayer.stroke();
             }else{    
-                const dx = x - lastX;
-                const dy = y - lastY;
-                if( dx*dx+dy*dy <= 36 ){
-                    movingAvgParam = 0.6;
-                    cursor.style.borderColor = '#FFFFFF';
-                }else{
-                    movingAvgParam = 0.1;
-                    cursor.style.borderColor = '#FFFF00';
+                const dx = x - olderX;
+                const dy = y - olderY;
+                const d = dx*dx+dy*dy; 
+                console.log(movingAvgParam);
+                if( d <= 16 && movingAvgParam < 0.8){
+                    movingAvgParam += 0.0625;   
+                }else if (movingAvgParam > 0.01){
+                    movingAvgParam *= 0.5;
                 }
+
+                if( movingAvgParam > 0.5 ){
+                    cursor.style.borderColor = '#00FFFF';
+                }else{
+                    cursor.style.borderColor = '#FFFFFF';
+                }
+
                 x = x*(1-movingAvgParam) + lastX*movingAvgParam;
                 y = y*(1-movingAvgParam) + lastY*movingAvgParam;
+
                 ctxActiveStroke.beginPath();
                 ctxActiveStroke.moveTo(lastX, lastY);
                 ctxActiveStroke.lineTo(x, y);
@@ -476,6 +488,7 @@
                 ctxActiveStroke.lineCap = 'round';
                 ctxActiveStroke.stroke();
             }
+            [olderX,olderY] = [lastX, lastY];
             [lastX, lastY] = [x, y];
         }
 
