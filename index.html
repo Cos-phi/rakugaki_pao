@@ -422,8 +422,8 @@
             blackPen: 1,
             colorBrush: 1,
         };
-        
-        let movingAvgParam = 0.2;
+    
+        let movingAvgParam = 0.4;
 
         function setColor(color) {
             currentColor = color;
@@ -445,7 +445,6 @@
 
         function draw(x, y) {
             if (!isDrawing){
-                movingAvgParam = 0;
                 return;
             }
 
@@ -459,27 +458,11 @@
                 ctxCurrentLayer.lineCap = 'round';
                 ctxCurrentLayer.stroke();
             }else{    
-                const dx = x - lastX;
-                const dy = y - lastY;
-                const d = dx*dx+dy*dy; 
-                if( d <= 4 && movingAvgParam < 0.8){
-                    movingAvgParam += 0.02;   
-                }else if (movingAvgParam < 0.2){
-                    movingAvgParam = 0;
-                }else{
-                    movingAvgParam *= 0.9;
-                }
-
-                if( d <= 4 ){
-                    cursor.style.borderColor = '#00FFFF';
-                }else{
-                    cursor.style.borderColor = '#FFFFFF';
-                }
-                console.log(movingAvgParam);
-
-                x = x*(1-movingAvgParam) + lastX*movingAvgParam;
-                y = y*(1-movingAvgParam) + lastY*movingAvgParam;
-
+                if (ctxCurrentLayer === ctxBlack) {
+                    x = x*(1-movingAvgParam) + lastX*movingAvgParam;
+                    y = y*(1-movingAvgParam) + lastY*movingAvgParam;
+                } 
+                
                 ctxActiveStroke.beginPath();
                 ctxActiveStroke.moveTo(lastX, lastY);
                 ctxActiveStroke.lineTo(x, y);
