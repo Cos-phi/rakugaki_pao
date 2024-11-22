@@ -422,8 +422,6 @@
             blackPen: 1,
             colorBrush: 1,
         };
-    
-        const movingAvgParam = 0.4;
 
         function setColor(color) {
             currentColor = color;
@@ -465,9 +463,6 @@
                     const [xM,yM] = [lastX + (x - beforeLastX)/4, lastY + (y - beforeLastY)/4]; 
                     ctxActiveStroke.lineTo(xM, yM); //移動量が多いとき、補間点を作って経由します
                     [lastX,lastY] = [xM,yM];
-                }else if( ctxCurrentLayer === ctxBlack ){
-                    x = x*(1-movingAvgParam) + lastX*movingAvgParam;
-                    y = y*(1-movingAvgParam) + lastY*movingAvgParam;
                 }
 
                 ctxActiveStroke.lineTo(x, y);
