@@ -397,8 +397,8 @@
         const shareUrl = 'https://kurajo.ivory.ne.jp/rakugaki_pao/';
 
         let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
+        let [lastX,lastY] =[0,0];
+        let [beforeLastX,beforeLastY] = [0,0];
         let ctxCurrentLayer = ctxBlack;
         let currentColor = blackPenColor;
         let curPaletteColor = initialChangeableColor;
@@ -423,7 +423,7 @@
             colorBrush: 1,
         };
     
-        let movingAvgParam = 0.4;
+        const movingAvgParam = 0.4;
 
         function setColor(color) {
             currentColor = color;
@@ -445,13 +445,7 @@
         }
 
         function draw(x, y) {
-            if (!isDrawing){
-                return;
-            }
-
-            const dx = x-lastX;
-            const dy = y-lastY;
-            const d2 =(dx*dx+dy*dy);
+            if (!isDrawing) return;
 
             if (isEraser) {
                 ctxCurrentLayer.beginPath();
@@ -462,35 +456,20 @@
                 ctxCurrentLayer.lineWidth = toolDiameter;
                 ctxCurrentLayer.lineCap = 'round';
                 ctxCurrentLayer.stroke();
-            }else if(ctxCurrentLayer === ctxBlack) { 
-                if(d2 < 100){
-                    x = x*(1-movingAvgParam) + lastX*movingAvgParam;
-                    y = y*(1-movingAvgParam) + lastY*movingAvgParam;
-                    ctxActiveStroke.beginPath();
-                    ctxActiveStroke.moveTo(lastX, lastY);
-                    ctxActiveStroke.lineTo(x, y);
-                    ctxActiveStroke.globalCompositeOperation = 'source-over';
-                    ctxActiveStroke.strokeStyle = currentColor;
-                    ctxActiveStroke.lineWidth = toolDiameter;
-                    ctxActiveStroke.lineCap = 'round';
-                    ctxActiveStroke.stroke();
-                }else{
-                    xM = lastX + (x - beforeLastX)/4;
-                    yM = lastY + (y - beforeLastY)/4; 
-                    ctxActiveStroke.beginPath();
-                    ctxActiveStroke.moveTo(lastX, lastY);
-                    ctxActiveStroke.lineTo(xM, yM);
-                    ctxActiveStroke.lineTo(x,y);
-                    ctxActiveStroke.globalCompositeOperation = 'source-over';
-                    ctxActiveStroke.strokeStyle = currentColor;
-                    ctxActiveStroke.lineWidth = toolDiameter;
-                    ctxActiveStroke.lineCap = 'round';
-                    ctxActiveStroke.stroke();
-                    [lastX,lastY] = [xM,yM];
-                }
-            }else{
+            }else { 
                 ctxActiveStroke.beginPath();
                 ctxActiveStroke.moveTo(lastX, lastY);
+
+                const travelSquared = (x-lastX)**2 + (y-lastY)**2;
+                if(64 < travelSquared){
+                    const [xM,yM] = [lastX + (x - beforeLastX)/4, lastY + (y - beforeLastY)/4]; 
+                    ctxActiveStroke.lineTo(xM, yM); //移動量が多いとき、補間点を作って経由します
+                    [lastX,lastY] = [xM,yM];
+                }else if( ctxCurrentLayer === ctxBlack ){
+                    x = x*(1-movingAvgParam) + lastX*movingAvgParam;
+                    y = y*(1-movingAvgParam) + lastY*movingAvgParam;
+                }
+
                 ctxActiveStroke.lineTo(x, y);
                 ctxActiveStroke.globalCompositeOperation = 'source-over';
                 ctxActiveStroke.strokeStyle = currentColor;
