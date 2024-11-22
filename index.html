@@ -439,6 +439,7 @@
         function startDrawing(x, y) {
             isDrawing = true;
             [lastX, lastY] = [x, y];
+            [beforeLastX,beforeLastY] = [x,y]
             saveState();
             stipple(x,y);
         }
@@ -447,6 +448,10 @@
             if (!isDrawing){
                 return;
             }
+
+            const dx = x-lastX;
+            const dy = y-lastY;
+            const d2 =(dx*dx+dy*dy);
 
             if (isEraser) {
                 ctxCurrentLayer.beginPath();
@@ -457,12 +462,33 @@
                 ctxCurrentLayer.lineWidth = toolDiameter;
                 ctxCurrentLayer.lineCap = 'round';
                 ctxCurrentLayer.stroke();
-            }else{    
-                if (ctxCurrentLayer === ctxBlack) {
+            }else if(ctxCurrentLayer === ctxBlack) { 
+                if(d2 < 100){
                     x = x*(1-movingAvgParam) + lastX*movingAvgParam;
                     y = y*(1-movingAvgParam) + lastY*movingAvgParam;
-                } 
-                
+                    ctxActiveStroke.beginPath();
+                    ctxActiveStroke.moveTo(lastX, lastY);
+                    ctxActiveStroke.lineTo(x, y);
+                    ctxActiveStroke.globalCompositeOperation = 'source-over';
+                    ctxActiveStroke.strokeStyle = currentColor;
+                    ctxActiveStroke.lineWidth = toolDiameter;
+                    ctxActiveStroke.lineCap = 'round';
+                    ctxActiveStroke.stroke();
+                }else{
+                    xM = lastX + (x - beforeLastX)/4;
+                    yM = lastY + (y - beforeLastY)/4; 
+                    ctxActiveStroke.beginPath();
+                    ctxActiveStroke.moveTo(lastX, lastY);
+                    ctxActiveStroke.lineTo(xM, yM);
+                    ctxActiveStroke.lineTo(x,y);
+                    ctxActiveStroke.globalCompositeOperation = 'source-over';
+                    ctxActiveStroke.strokeStyle = currentColor;
+                    ctxActiveStroke.lineWidth = toolDiameter;
+                    ctxActiveStroke.lineCap = 'round';
+                    ctxActiveStroke.stroke();
+                    [lastX,lastY] = [xM,yM];
+                }
+            }else{
                 ctxActiveStroke.beginPath();
                 ctxActiveStroke.moveTo(lastX, lastY);
                 ctxActiveStroke.lineTo(x, y);
@@ -472,6 +498,7 @@
                 ctxActiveStroke.lineCap = 'round';
                 ctxActiveStroke.stroke();
             }
+            [beforeLastX,beforeLastY] = [lastX,lastY];
             [lastX, lastY] = [x, y];
         }
 
