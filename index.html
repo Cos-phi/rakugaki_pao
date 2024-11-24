@@ -40,13 +40,14 @@
             position: relative;
             width: 720px;
             height: 720px;
+            cursor: none !important;
         }
         canvas {
             position: absolute;
             top: 0;
             left: 0;
             border: 1px solid #505050;
-            cursor: none;
+            
         }
         #cursor {
             position: absolute;
@@ -442,6 +443,8 @@
             stipple(x,y);
         }
 
+        const movingAvgParam = 0.375;
+
         function draw(x, y) {
             if (!isDrawing) return;
 
@@ -463,6 +466,11 @@
                     const [xM,yM] = [lastX + (x - beforeLastX)/4, lastY + (y - beforeLastY)/4]; 
                     ctxActiveStroke.lineTo(xM, yM); //移動量が多いとき、補間点を作って経由します
                     [lastX,lastY] = [xM,yM];
+                    cursor.style.borderColor = '#FFF';
+                }else if( ctxCurrentLayer === ctxBlack ){
+                    x = x*(1-movingAvgParam) + lastX*movingAvgParam;
+                    y = y*(1-movingAvgParam) + lastY*movingAvgParam;
+                    cursor.style.borderColor = '#F00';
                 }
 
                 ctxActiveStroke.lineTo(x, y);
@@ -470,6 +478,7 @@
                 ctxActiveStroke.strokeStyle = currentColor;
                 ctxActiveStroke.lineWidth = toolDiameter;
                 ctxActiveStroke.lineCap = 'round';
+                ctxActiveStroke.lineJoin = 'round';
                 ctxActiveStroke.stroke();
             }
             [beforeLastX,beforeLastY] = [lastX,lastY];
