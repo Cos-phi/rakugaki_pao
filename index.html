@@ -79,7 +79,7 @@
             flex-wrap: wrap;
             justify-content: space-between;
             gap: 0px;
-            max-width: 720px;
+            max-width: 750px;
         }
         #controls2 {
             margin-top: 40px;
@@ -120,14 +120,15 @@
             width: 42px;
             cursor: pointer;
             border: 1px solid #36364A;
-            border-radius: 4px;
+            border-radius: 50%;
         }   
         .pen-btn {
             display: flex;
             justify-content: center; 
             align-items: center;
-            margin-right: 8px;
+            /*margin-right: 8px;*/
             padding: 6px 6px 6px 6px;
+            background-color: #36364A;
         }     
         .pen-eraser-btn {            
             display: flex;
@@ -137,8 +138,12 @@
             margin-right: 16px;
         }
         .color-eraser-btn {
-            background-color: #F2EEE6;
-            margin-left: 8px;
+            /*background-color: #F2EEE6;*/
+            display: flex;
+            justify-content: center; 
+            align-items: center;
+            padding: 6px 6px 6px 6px;
+            /*margin-left: 8px;*/
             margin-right: 16px;
         }
         .control-btn {
@@ -212,9 +217,9 @@
             margin-right: 4px;
         }
         .active {
-            outline: 3px solid #36364A;
+            outline: 3px solid #000000;
             position: relative;
-            top: -10px;
+            top: -16px;
             z-index: 10;
         }
         #tool-size {
@@ -229,15 +234,16 @@
             vertical-align: middle;
             writing-mode: vertical-lr;
             direction: rtl;
+            margin-right: 4px;
         }
         #palette {
             position: relative;
-            top: 12px;
-            width: 20px;
-            height: 30px;
+            top: 18px;
+            width: 24px;
+            height: 24px;
             cursor: pointer;
             border: 1px solid #36364A;
-            border-radius: 4px;
+            border-radius: 50%;
         }
         #progress-bar-line{
             margin-top: 2px;
@@ -290,9 +296,7 @@
             <button id="reload" class="tool-reset-btn" title="ツールのリセット"></button>
             <input type="range" id="tool-size" min="0" max="7" title="ペン/ブラシのサイズ">
             
-            <button id="blackPen" class="pen-btn" title="黒ペン">
-                <img src="image/pen.svg" style="height: 100%;" alt="Pen" class="pen-btn-img">
-            </button>
+            <button id="blackPen" class="pen-btn" title="黒ペン"></button>
             <button id="eraserBlack" class="pen-eraser-btn" title="黒ペン消し">
                 <img src="image/eraser.svg" style="height: 100%;" alt="Eraser">    
             </button>
@@ -300,7 +304,9 @@
             <div id="colorButtons" title="色ブラシ"></div>
             <button id="changeableColorButton" class="color-btn" title="選択色ブラシ"></button>
             <input id="palette" type="color" title="色の選択">
-            <button id="eraserColor" class="color-eraser-btn" title="色ブラシ消し"></button>
+            <button id="eraserColor" class="color-eraser-btn" title="色ブラシ消し">
+                <img src="image/eraser.svg" style="height: 100%;" alt="Eraser">
+            </button>
              
             <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="ペン/ブラシの不透明度">
         </div>
@@ -976,8 +982,7 @@
         opacityInput.addEventListener('input', () => {
             if (ctxCurrentLayer === ctxBlack) {
                 toolOpacity.blackPen = opacityInput.value;          
-                const button = document.querySelector('.pen-btn-img');
-                button.style.opacity = opacityInput.value;
+                blackPenButton.style.backgroundColor =`rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
             } else {
                 toolOpacity.colorBrush = opacityInput.value;
                 const buttons = document.querySelectorAll('.color-btn');
