@@ -466,11 +466,9 @@
                     const [xM,yM] = [lastX + (x - beforeLastX)/4, lastY + (y - beforeLastY)/4]; 
                     ctxActiveStroke.lineTo(xM, yM); //移動量が多いとき、補間点を作って経由します
                     [lastX,lastY] = [xM,yM];
-                    cursor.style.borderColor = '#FFF';
                 }else if( ctxCurrentLayer === ctxBlack ){
                     x = x*(1-movingAvgParam) + lastX*movingAvgParam;
                     y = y*(1-movingAvgParam) + lastY*movingAvgParam;
-                    cursor.style.borderColor = '#F00';
                 }
 
                 ctxActiveStroke.lineTo(x, y);
