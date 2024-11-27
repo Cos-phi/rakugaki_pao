@@ -1024,6 +1024,53 @@
             }
         });
 
+        document.addEventListener('keydown', event => {
+            if (event.code === 'KeyZ') {
+                undo();
+            }else if(event.code === 'KeyX'){
+                if(isEraser){
+                    isEraser = false;
+                }else{
+                    isEraser = true;
+                }
+                updateToolsState();
+            }else if(event.code === 'KeyA'){
+                if (isEraser) {
+                    if (ctxCurrentLayer === ctxBlack && toolSizesParam.blackEraser > 0) {
+                        toolSizesParam.blackEraser--;
+                    } else if( toolSizesParam.colorEraser > 0) {
+                        toolSizesParam.colorEraser--;
+                    }
+                } else {
+                    if (ctxCurrentLayer === ctxBlack && toolSizesParam.blackPen > 0) {
+                        toolSizesParam.blackPen--;
+                    } else if( toolSizesParam.colorBrush > 0)  {
+                        toolSizesParam.colorBrush--;
+                    }
+                }
+                updateToolSize();
+                previewCursorSize();
+                updateToolSizeToolTip();
+            }else if(event.code === 'KeyD'){
+                if (isEraser) {
+                    if (ctxCurrentLayer === ctxBlack && toolSizesParam.blackEraser < 7) {
+                        toolSizesParam.blackEraser++;
+                    } else if( toolSizesParam.colorEraser < 7) {
+                        toolSizesParam.colorEraser++;
+                    }
+                } else {
+                    if (ctxCurrentLayer === ctxBlack && toolSizesParam.blackPen < 7) {
+                        toolSizesParam.blackPen++;
+                    } else if( toolSizesParam.colorBrush < 7)  {
+                        toolSizesParam.colorBrush++;
+                    }
+                }
+                updateToolSize();
+                previewCursorSize();
+                updateToolSizeToolTip();
+            }
+        });
+
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
