@@ -438,6 +438,8 @@
             blackPen: 1,
             colorBrush: 1,
         };
+        
+        const movingAvgParam = 0.375;
 
         function setColor(color) {
             if(color != blackPenColor){
@@ -458,8 +460,6 @@
             saveState();
             stipple(x,y);
         }
-
-        const movingAvgParam = 0.375;
 
         function draw(x, y) {
             if (!isDrawing) return;
@@ -1107,7 +1107,13 @@
         });
 
         document.addEventListener('keydown', event => {
-            if (event.code === 'KeyZ') {
+            if (event.code === 'KeyQ') {
+                isEraser = false;
+                updateToolsState();
+            }else if (event.code === 'KeyE') {
+                isEraser = true;
+                updateToolsState();
+            }else if (event.code === 'KeyZ') {
                 undo();
             }else if(event.code === 'KeyX'){
                 isEraser = !isEraser;
@@ -1122,14 +1128,14 @@
                 increaseToolOpacity();
             }else if(event.code === 'KeyS'){
                 decreaseToolOpacity();
+            }else if(event.code === 'KeyR'){
+                location.reload();
             }
         });
 
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
-
-
 
         if (accessToken) {
             enablePostButton();            
