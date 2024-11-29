@@ -892,36 +892,42 @@
             previewCursorSize();
             updateToolSizeToolTip();
         }
-
-        function updateToolOpacity() {
-            opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
-            activeStrokeLayer.style.opacity = opacityInput.value;
-       
+        
+        function updateButtonOpacity(){
             blackPenButton.style.backgroundColor =`rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
-
             const buttons = document.querySelectorAll('.color-btn');
             buttons.forEach(button => {
                 button.style.backgroundColor = `rgb(${hexToRgba(button.dataset.color,toolOpacity.colorBrush)})`;
             });
+        }
+
+        function updateToolOpacity(){
+            opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
+            updateButtonOpacity();
+            activeStrokeLayer.style.opacity = opacityInput.value;
             
         }
 
         function increaseToolOpacity(){
             if (ctxCurrentLayer === ctxBlack && toolOpacity.blackPen < 1){
                 toolOpacity.blackPen += 0.4;
-            }else if(toolOpacity.colorBrush < 1){
-                toolOpacity.colorBrush += 0.4;
+                updateToolsState();
             }
-            updateToolsState();
+            if (ctxCurrentLayer === ctxColor && toolOpacity.colorBrush < 1){
+                toolOpacity.colorBrush += 0.4;
+                updateToolsState();
+            }
         }
 
         function decreaseToolOpacity(){
             if (ctxCurrentLayer === ctxBlack && toolOpacity.blackPen > 0.2){
                 toolOpacity.blackPen -= 0.4;
-            }else if(toolOpacity.colorBrush > 0.2){
-                toolOpacity.colorBrush -= 0.4;
+                updateToolsState();
             }
-            updateToolsState();
+            if (ctxCurrentLayer === ctxColor && toolOpacity.colorBrush > 0.2){
+                toolOpacity.colorBrush -= 0.4;
+                updateToolsState();
+            }
         }
 
         function updateToolsState() {
