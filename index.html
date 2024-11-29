@@ -866,14 +866,15 @@
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
                     toolSizesParam.blackEraser = clampToolSizeParam(toolSizesParam.blackEraser + variation);
-                } else if( toolSizesParam.colorEraser > 0) {
+                }else{
                     toolSizesParam.colorEraser = clampToolSizeParam(toolSizesParam.colorEraser + variation);
                 }
-            } else {
+            }else{
                 if (ctxCurrentLayer === ctxBlack) {
                     toolSizesParam.blackPen = clampToolSizeParam(toolSizesParam.blackPen + variation);
-                } else if( toolSizesParam.colorBrush > 0)  {
+                } else {
                     toolSizesParam.colorBrush = clampToolSizeParam(toolSizesParam.colorBrush + variation);
+                    console.log(toolSizesParam.colorBrush);
                 }
             }
         }
@@ -895,6 +896,32 @@
         function updateToolOpacity() {
             opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
             activeStrokeLayer.style.opacity = opacityInput.value;
+       
+            blackPenButton.style.backgroundColor =`rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
+
+            const buttons = document.querySelectorAll('.color-btn');
+            buttons.forEach(button => {
+                button.style.backgroundColor = `rgb(${hexToRgba(button.dataset.color,toolOpacity.colorBrush)})`;
+            });
+            
+        }
+
+        function increaseToolOpacity(){
+            if (ctxCurrentLayer === ctxBlack && toolOpacity.blackPen < 1){
+                toolOpacity.blackPen += 0.4;
+            }else if(toolOpacity.colorBrush < 1){
+                toolOpacity.colorBrush += 0.4;
+            }
+            updateToolsState();
+        }
+
+        function decreaseToolOpacity(){
+            if (ctxCurrentLayer === ctxBlack && toolOpacity.blackPen > 0.2){
+                toolOpacity.blackPen -= 0.4;
+            }else if(toolOpacity.colorBrush > 0.2){
+                toolOpacity.colorBrush -= 0.4;
+            }
+            updateToolsState();
         }
 
         function updateToolsState() {
@@ -1030,15 +1057,10 @@
         opacityInput.addEventListener('input', () => {
             if (ctxCurrentLayer === ctxBlack) {
                 toolOpacity.blackPen = opacityInput.value;          
-                blackPenButton.style.backgroundColor =`rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
             } else {
                 toolOpacity.colorBrush = opacityInput.value;
-                const buttons = document.querySelectorAll('.color-btn');
-                buttons.forEach(button => {
-                    button.style.backgroundColor = `rgb(${hexToRgba(button.dataset.color,toolOpacity.colorBrush)})`;
-                });
             }
-            activeStrokeLayer.style.opacity = opacityInput.value;
+            updateToolOpacity();
         });
         
         function hexToRgba(inputColor, opacity) {
@@ -1074,6 +1096,10 @@
                 decreaseToolSize();
             }else if(event.code === 'KeyD'){
                 increaseToolSize();
+            }else if(event.code === 'KeyW'){
+                increaseToolOpacity();
+            }else if(event.code === 'KeyS'){
+                decreaseToolOpacity();
             }
         });
 
