@@ -852,6 +852,46 @@
             toolSizeParamInput.title = toolDiameter+'px';
         }
 
+        function clampToolSizeParam(toolSizeParam){
+            if( toolSizeParam < 0 ){
+                return 0;
+            }else if( toolSizeParam > 7){
+                return 7;
+            }else{
+                return toolSizeParam;
+            }
+        }
+
+        function varyToolSizeParam(variation){
+            if (isEraser) {
+                if (ctxCurrentLayer === ctxBlack) {
+                    toolSizesParam.blackEraser = clampToolSizeParam(toolSizesParam.blackEraser + variation);
+                } else if( toolSizesParam.colorEraser > 0) {
+                    toolSizesParam.colorEraser = clampToolSizeParam(toolSizesParam.colorEraser + variation);
+                }
+            } else {
+                if (ctxCurrentLayer === ctxBlack) {
+                    toolSizesParam.blackPen = clampToolSizeParam(toolSizesParam.blackPen + variation);
+                } else if( toolSizesParam.colorBrush > 0)  {
+                    toolSizesParam.colorBrush = clampToolSizeParam(toolSizesParam.colorBrush + variation);
+                }
+            }
+        }
+
+        function increaseToolSize(){
+            varyToolSizeParam(1);               
+            updateToolSize();
+            previewCursorSize();
+            updateToolSizeToolTip();
+        }
+
+        function decreaseToolSize(){
+            varyToolSizeParam(-1);
+            updateToolSize();
+            previewCursorSize();
+            updateToolSizeToolTip();
+        }
+
         function updateToolOpacity() {
             opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
             activeStrokeLayer.style.opacity = opacityInput.value;
@@ -1028,46 +1068,12 @@
             if (event.code === 'KeyZ') {
                 undo();
             }else if(event.code === 'KeyX'){
-                if(isEraser){
-                    isEraser = false;
-                }else{
-                    isEraser = true;
-                }
+                isEraser = !isEraser;
                 updateToolsState();
             }else if(event.code === 'KeyA'){
-                if (isEraser) {
-                    if (ctxCurrentLayer === ctxBlack && toolSizesParam.blackEraser > 0) {
-                        toolSizesParam.blackEraser--;
-                    } else if( toolSizesParam.colorEraser > 0) {
-                        toolSizesParam.colorEraser--;
-                    }
-                } else {
-                    if (ctxCurrentLayer === ctxBlack && toolSizesParam.blackPen > 0) {
-                        toolSizesParam.blackPen--;
-                    } else if( toolSizesParam.colorBrush > 0)  {
-                        toolSizesParam.colorBrush--;
-                    }
-                }
-                updateToolSize();
-                previewCursorSize();
-                updateToolSizeToolTip();
+                decreaseToolSize();
             }else if(event.code === 'KeyD'){
-                if (isEraser) {
-                    if (ctxCurrentLayer === ctxBlack && toolSizesParam.blackEraser < 7) {
-                        toolSizesParam.blackEraser++;
-                    } else if( toolSizesParam.colorEraser < 7) {
-                        toolSizesParam.colorEraser++;
-                    }
-                } else {
-                    if (ctxCurrentLayer === ctxBlack && toolSizesParam.blackPen < 7) {
-                        toolSizesParam.blackPen++;
-                    } else if( toolSizesParam.colorBrush < 7)  {
-                        toolSizesParam.colorBrush++;
-                    }
-                }
-                updateToolSize();
-                previewCursorSize();
-                updateToolSizeToolTip();
+                increaseToolSize();
             }
         });
 
