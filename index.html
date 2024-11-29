@@ -417,6 +417,7 @@
         let ctxCurrentLayer = ctxBlack;
         let currentColor = blackPenColor;
         let curPaletteColor = initialChangeableColor;
+        let prevColor = PaletteColors[0];
         colorPalette.value = curPaletteColor;
         let isEraser = false;
         let undoStack = [];
@@ -439,13 +440,14 @@
         };
 
         function setColor(color) {
-            currentColor = color;
-            if(color == blackPenColor){
-                ctxCurrentLayer = ctxBlack;
-            }else{
+            if(color != blackPenColor){
                 ctxCurrentLayer = ctxColor;
                 colorPalette.value = color;
+                prevColor = color;
+            }else{
+                ctxCurrentLayer = ctxBlack;
             }
+            currentColor = color;
             isEraser = false;
         }
 
@@ -838,6 +840,19 @@
             }
         }
 
+        function toggleTool(){
+            const originalIsEraser = isEraser;
+            if (ctxCurrentLayer === ctxBlack){
+                ctxCurrentLayer = ctxColor;
+                setColor(prevColor);
+            }else {
+                ctxCurrentLayer = ctxBlack;
+                setColor(blackPenColor);
+            }
+            isEraser = originalIsEraser;
+            updateToolsState();
+        }
+
         function updateToolSize() {
             if (isEraser) {
                 toolSizeParamInput.value = ctxCurrentLayer === ctxBlack ? toolSizesParam.blackEraser : toolSizesParam.colorEraser;
@@ -874,7 +889,6 @@
                     toolSizesParam.blackPen = clampToolSizeParam(toolSizesParam.blackPen + variation);
                 } else {
                     toolSizesParam.colorBrush = clampToolSizeParam(toolSizesParam.colorBrush + variation);
-                    console.log(toolSizesParam.colorBrush);
                 }
             }
         }
@@ -1098,6 +1112,8 @@
             }else if(event.code === 'KeyX'){
                 isEraser = !isEraser;
                 updateToolsState();
+            }else if(event.code === 'KeyC'){
+                toggleTool();
             }else if(event.code === 'KeyA'){
                 decreaseToolSize();
             }else if(event.code === 'KeyD'){
