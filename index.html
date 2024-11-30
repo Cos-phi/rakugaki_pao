@@ -368,8 +368,8 @@
         const colorLayer = document.getElementById('colorLayer');
         const activeStrokeLayer = document.getElementById('activeStrokeLayer');
         const backgroundLayer = document.getElementById('backgroundLayer');
-        const ctxBlack = blackLayer.getContext('2d');
-        const ctxColor = colorLayer.getContext('2d');
+        const ctxBlack = blackLayer.getContext('2d',{ willReadFrequently: true });
+        const ctxColor = colorLayer.getContext('2d',{ willReadFrequently: true });
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
