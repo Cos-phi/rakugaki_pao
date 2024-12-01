@@ -77,7 +77,7 @@
             margin-top: 24px;
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            justify-content: center;
             gap: 0px;
             max-width: 750px;
         }
@@ -147,7 +147,7 @@
             margin-left: 4px;
             margin-right: 16px;
         }
-        .control-btn {
+        .undo-btn {
             display: flex;
             justify-content: center; 
             align-items: center;
@@ -156,13 +156,13 @@
             background-color: #f0f0f0;
             padding: 6px;
         }
-        .control-btn:disabled{
+        .undo-btn:disabled{
             outline: 0px solid #36364A;
         } 
-        .control-btn:hover{
+        .undo-btn:hover{
             background-color: #E0E0E0;
         }
-        .control-btn:active{
+        .undo-btn:active{
             padding: 7px;
         }
         .output-btn {
@@ -229,8 +229,9 @@
             border-radius: 50%;
         }
         #tool-size {
-            width: 80px;
+            width: 96px;
             margin-right: 16px;
+            margin-left: 16px;
             vertical-align: middle;
         }
         #opacity {
@@ -270,6 +271,9 @@
                 <button id="clear" class="output-btn" title="キャンバスのクリア">
                     <img src="image/new.svg" style="height: 100%;" alt="Clear">
                 </button>
+                <button id="reload" class="output-btn" title="ツールのリセット">
+                    <img src="image/reload.svg" style="height: 100%;" alt="Reload">
+                </button>
             </div>
 
             <div class="top-right-buttons">
@@ -294,12 +298,11 @@
         </div>
 
         <div id="controls1">  
-            <button id="undo" class="control-btn" title="元に戻す"  style="opacity: 0.3; pointer-events: none;">
+            <button id="undo" class="undo-btn" title="元に戻す"  style="opacity: 0.3; pointer-events: none;">
                 <img src="image/undo.svg" style="height: 100%;" alt="Undo">
             </button>
 
                      
-            <button id="reload" class="tool-reset-btn" title="ツールのリセット"></button>
             <input type="range" id="tool-size" min="0" max="7" title="ペン/ブラシのサイズ">
             
             <button id="blackPen" class="pen-btn" title="黒ペン">
