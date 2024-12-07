@@ -271,9 +271,6 @@
                 <button id="clear" class="output-btn" title="キャンバスのクリア">
                     <img src="image/new.svg" style="height: 100%;" alt="Clear">
                 </button>
-                <button id="reload" class="output-btn" title="ツールのリセット">
-                    <img src="image/reload.svg" style="height: 100%;" alt="Reload">
-                </button>
             </div>
 
             <div class="top-right-buttons">
@@ -387,7 +384,6 @@
 
         const undoButton = document.getElementById('undo');
         const clearButton = document.getElementById('clear');
-        const reloadButton = document.getElementById('reload');
         const toolSizeParamInput = document.getElementById('tool-size');
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
@@ -1045,7 +1041,6 @@
         undoButton.addEventListener('mousedown', undo);
         clearButton.addEventListener('click', clearCanvas);
 
-        reloadButton.addEventListener('mousedown', reloadPage);
         toolSizeParamInput.addEventListener('input', () => {
             const sizeParam = parseInt(toolSizeParamInput.value);
             if (isEraser) {
