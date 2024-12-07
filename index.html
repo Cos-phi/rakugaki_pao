@@ -625,7 +625,6 @@
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
 
-            showElapsedTimeFromLastClearTime();
             setLastClearTime();
         }
 
@@ -679,7 +678,8 @@
                 const item = new ClipboardItem({'image/png': blob});
                 await navigator.clipboard.write([item]);
             })
-            showMessage('画像をクリップボードにコピーしました')
+            showMessage('画像をクリップボードにコピーしました');
+            showElapsedTimeFromLastClearTime();
         }
 
         function saveImage() {
@@ -689,10 +689,12 @@
             link.download = 'rakugaki_pao';
             link.href = dataURL;
             link.click();
+            showElapsedTimeFromLastClearTime();
         }
 
         function postImage(dataURL, accessToken) {
             activatePostingProgressBar();
+            showElapsedTimeFromLastClearTime();
             fetch(`${serverUrl}/api/v1/media`, {
                     method: 'POST',
                     headers: {
@@ -797,17 +799,36 @@
             }).catch((error) => {
                 console.log('共有できませんでしたの‥‥');
             });
+            showElapsedTimeFromLastClearTime();
         }
 
-        function showMessage(text){
-            messageLine.style.display = 'flex';
-            hashtagLine.style.display = 'none';
-            messageLine.textContent = text; 
-            setTimeout(() => {
-                messageLine.style.display = 'none';
-                hashtagLine.style.display = 'flex';
-
-            }, 1800);
+        function showMessage(text) {
+            showMessage.queue = showMessage.queue || [];
+            showMessage.queue.push(text);
+            
+            async function processQueue() {
+                while (showMessage.queue.length > 0) {
+                    const message = showMessage.queue.shift();
+                    await new Promise((resolve) => {   
+                        messageLine.style.display = 'flex';
+                        hashtagLine.style.display = 'none';
+                        messageLine.textContent = message; 
+                        
+                        setTimeout(() => {
+                            messageLine.style.display = 'none';
+                            hashtagLine.style.display = 'flex';
+                            resolve();
+                        }, 1800);
+                    });
+                }
+            }
+            
+            if (!showMessage.isProcessing) {
+                showMessage.isProcessing = true;
+                processQueue().then(() => {
+                    showMessage.isProcessing = false;
+                });
+            }
         }
 
         function reloadPage(){
