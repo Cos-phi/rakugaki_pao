@@ -376,6 +376,7 @@
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
+        const localstorageKeyLastClearTime = 'lastcleartimekey';
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
@@ -627,6 +628,21 @@
             saveLocalstorage();
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
+
+            showElapsedTimeFromLastClearTime();
+            setLastClearTime();
+        }
+
+        function setLastClearTime(){
+            const newClearTime = new Date();
+            window.localStorage.setItem(localstorageKeyLastClearTime,newClearTime.getTime());
+        }
+        
+        function showElapsedTimeFromLastClearTime(){
+            const lastClearTime = window.localStorage.getItem(localstorageKeyLastClearTime);
+            const newClearTime = new Date();
+            const elapsedTimeMin = Math.trunc((newClearTime.getTime() - lastClearTime)/1000/60);
+            showMessage(`${elapsedTimeMin} 分 お絵かきしました。` );
         }
 
         function saveLocalstorage() {
