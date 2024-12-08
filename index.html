@@ -271,6 +271,9 @@
                 <button id="clear" class="controls-top-btn" title="キャンバスのクリア">
                     <img src="image/new.svg" style="height: 100%;" alt="Clear">
                 </button>
+                <button id="help" class="controls-top-btn" title="マニュアル">
+                    <img src="image/help.svg" style="height: 100%;" alt="Help">
+                </button>
             </div>
 
             <div class="top-right-buttons">
@@ -356,6 +359,7 @@
         };
         const hostName = "mistodon.cloud"; // 霧鯖だけですわ
         const serverUrl = "https://" + hostName; 
+        const helpUrl = "manual.html"
 
         const blackPenColor = "#36364A";
         const backgroundColor = "#F2EEE6";        
@@ -384,6 +388,7 @@
 
         const undoButton = document.getElementById('undo');
         const clearButton = document.getElementById('clear');
+        const helpButton = document.getElementById('help');
         const toolSizeParamInput = document.getElementById('tool-size');
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
@@ -1061,6 +1066,7 @@
 
         undoButton.addEventListener('mousedown', undo);
         clearButton.addEventListener('click', clearCanvas);
+        helpButton.addEventListener('click', () => {location.href=helpUrl;});
 
         toolSizeParamInput.addEventListener('input', () => {
             const sizeParam = parseInt(toolSizeParamInput.value);

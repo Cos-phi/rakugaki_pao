@@ -22,27 +22,20 @@
             margin: 0;
             background-color: #f0f0f0;
         }
-        body {
-            user-drag: none;
-            -webkit-user-drag: none;
-            -moz-user-select: none;
-            -ms-user-select: none; /* IE 10+ */
-            -moz-user-select: -moz-none;
-            -khtml-user-select: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        #app {
+        #manual-container {
             margin-top: 16px;
             margin-bottom: 16px;
         }
-        #container {
+        #manual-content {
             position: relative;
             width: 720px;
             height: 720px;
             margin-bottom: 16px;
+            color: #36364A;
             border: 1px solid #505050;
             background-color: #F2EEE6;
+            box-sizing:border-box;
+            padding: 64px;
         }
         #controls-top {
             margin-top: 24px;
@@ -103,40 +96,121 @@
     </style>
 </head>
 <body>
-    <div id="app">
+    <div id="manual-containter">
         <div id="controls-top">
             <div class="top-left-buttons">
-                <button id="back" class="controls-top-btn" title="戻る">
-                    <img src="image/undo.svg" style="height: 100%;" alt="Clear">
+                <button id="back" class="controls-top-btn" title="rakugaki_paoに戻る">
+                    <img src="image/undo.svg" style="height: 100%;" alt="Back">
                 </button>
             </div>
-
             <div class="top-right-buttons">
-                <button id="copy" class="controls-top-btn" title="クリップボードにコピー">
-                    <img src="image/copytoclipboard.svg" style="height: 100%;" alt="Copy">
-                </button>
-                <button id="save" class="controls-top-btn" title="ダウンロードして保存">
-                    <img src="image/download.svg" style="height: 100%;" alt="Download">
+                <button id="shareUrl" class="controls-top-btn" title="rakugaki_paoのURLを共有">
+                    <img src="image/share.svg" style="height: 100%;" alt="Share">
                 </button>
             </div>
         </div>
-
-        <div id="container">
-            てすと
+        <div id="manual-content">
+            <H1>rakugaki_pao</H1>
+            描く塗る喜びすぐそこに
+            <hr>
+            <H2>コンセプト</H2>
+            rakugaki_pao は、線画と色塗りに特化したシンプルなペイントアプリですわ。<BR>
+            <BR>
+            アンドゥは1回、レイヤーは線画と色塗りの2つだけ、変形やフィルタもなく、<BR>ただペンを動かして描き進めるだけですの。<BR>
+            <BR>
+            美麗な作品を作ることよりも、線を描き色を塗る手描きの楽しさを味わうことを目的としたアプリです！<BR>
+            <BR>
+            <HR>
+            <H2>つかいかた</H2>
+            rakugaki_paoには、<b>黒ペン</b>・<b>黒ペン消しゴム</b>・<b>色ブラシ</b>・<b>色ブラシ消しゴム</b>の、<br>
+            <b>4種類の描画ツール</b>がありますわ。
+            それぞれ別々に太さ（左側の横スライダー）と透明度（右側の縦スライダー）を調整できますの。<br>
+            <br>
+            <b>消しゴムが２種類</b>あって、<b>対応するツールで描いた線のみ消すことができる</b>のが<br>
+            rakugaki_paoの特徴ですの。<BR>
+            <BR>
+           
         </div>
-        <div id="container">
-            てすと
+        
+        <div id="manual-content">
+            Windows 10/11で<b>ペンが反応しない時</b>は、ペンタブの設定から <b>"Windows Ink" を無効</b>にしてみてください。<br>
+            <br>
+            描き終わったら右上のボタンで共有できましてよ！<br>
+            <b>クリップボードにコピー</b>・<b>ダウンロードして保存</b>・<b>アプリで共有</b>がありますの。<br>
+            <br>
+            投稿・共有時には、クリアボタンを最後に押してからの経過時間が、お絵かきした時間として表示されますの。<br>
+            <br>
+            キャンバス下のハッシュタグ <b>#rakugaki_pao</b>をクリックすると、<b>ハッシュタグをクリップボードにコピー</b>できますの。
+            コピーや保存から投稿するときに活用してくださいませ。<br>
+            <br>
+            mistodon.cloudにアカウントをお持ちの方は、下の<b>mistodonロゴマークをクリックすると即投稿</b>できますわ。<br>     
+            <br>
+            <hr>
+            <H2>ショートカットキー</H2>
+            <b>Z</b>: 戻る　　<b>R</b>: ツールのリセット（再読み込み）<br>
+            <b>A</b>: ツールサイズ縮小　　<b>D</b>: ツールサイズ拡大<br>
+            <b>W</b>: 不透明度アップ　　<b>S</b>: 透明度アップ<br>
+            <b>Q</b>: 黒ペン/色ブラシに切り替え 　　<b>E</b>: 消しゴムに切り替え<br>
+            <b>X</b>: 黒ペン/色ブラシ←→消しゴムのトグル<br>
+            <b>C</b>: 黒ペン←→色ブラシのトグル<BR>
         </div>
+        
+        <div id="manual-content">    
+            <h2>注意事項</h2>
+            本アプリ（rakugaki_pao）を使用した/使用できなかったことによるトラブルについて、作者は一切の責任を負いませんの。<br>
+            <br>
+            インターネットに画像を公開する際は、ご自身の責任で投稿してくださいませ。<br>
+            <br>
+            
+            
+            <hr>
+            <H2>作者</H2>
+            <b>こすふぃー</b> <a href="https://mistodon.cloud/@cosphi">@cosphi@mistodon.cloud</a><br>
+            <ul>
+            <li>JCJK@クラウド女学院 / mistodon.cloud 管理人</li>
+            <li>連絡先: </li>
+            <ul>
+                <li><a href="https://fedibird.com/@cosphi">@cosphi@fedibird.com</a></li>
+                <li><a href="https://misskey.cloud/@cosphi">@cosphi@misskey.cloud</a></li>
+                <li><a href="https://x.com/cosine_phi">@cosine_phi (𝕏)</a></li>
+            </ul>
+            </ul>
+            
+            
+            
+           
 
+
+            
+        </div>
+    </div>
+    <div>
         <div id="hashtag-line">
             <span id="hashtag-text">#rakugaki_pao</span>
-        </div>   
-        
-        <div id="message-line"></div>
-
-
-
-
+        </div>
     </div>
+
+    <script>
+        const backButton = document.getElementById('back');
+        const shareUrlButton = document.getElementById('shareUrl');
+        const mainUrl = "https://kurajo.ivory.ne.jp/rakugaki_pao/";
+        const shareText = `${mainUrl}\n#rakugaki_pao`;
+
+        backButton.addEventListener('click', () => {
+            location.href=mainUrl;
+        })
+
+        shareUrlButton.addEventListener('click',() => {
+            navigator.share({
+                url: mainUrl,
+                text: shareText,
+                title: 'rakugaki_pao',
+            }).then(() => {
+                console.log("共有しましたの");
+            }).catch((error) => {
+                console.log('共有できませんでしたの‥‥');
+            });
+        });
+    </script>
 </body>
 </html>
