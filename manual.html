@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=750">
+    <link rel="icon" href="image/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
+    <title>rakugaki_pao help</title>
+    <style>
+        html {
+            transform-origin: center center;
+            transform: scale(1); 
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        body {
+            user-drag: none;
+            -webkit-user-drag: none;
+            -moz-user-select: none;
+            -ms-user-select: none; /* IE 10+ */
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        #app {
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+        #container {
+            position: relative;
+            width: 720px;
+            height: 720px;
+            margin-bottom: 16px;
+            border: 1px solid #505050;
+            background-color: #F2EEE6;
+        }
+        #controls-top {
+            margin-top: 24px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            max-width: 720px;
+        }
+        .top-left-buttons {
+            display: flex;
+            gap: 0px;
+        }
+        .top-right-buttons {
+            display: flex;
+            margin-left: auto;
+        }
+
+        #hashtag-line {
+            height: 24px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0px;
+        }
+        #hashtag-text {
+            font-size: 20px;
+            color: #AAAAAA;
+            letter-spacing: 0.4rem;
+            margin-left: 20px;
+            text-align: center;
+        } 
+        button {
+            height: 42px;
+            width: 42px;
+            cursor: pointer;
+            border: 1px solid #36364A;
+            border-radius: 4px;
+        }   
+        .controls-top-btn {
+            display: flex;
+            justify-content: center; 
+            align-items: center;
+            height: 32px;
+            width: 32px;
+            border: 0px solid #36364A;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            padding: 4px;
+        }
+        .controls-top-btn:hover{
+            background-color: #E0E0E0;
+        }
+        .controls-top-btn:active{
+            opacity: 0.8;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="controls-top">
+            <div class="top-left-buttons">
+                <button id="back" class="controls-top-btn" title="戻る">
+                    <img src="image/undo.svg" style="height: 100%;" alt="Clear">
+                </button>
+            </div>
+
+            <div class="top-right-buttons">
+                <button id="copy" class="controls-top-btn" title="クリップボードにコピー">
+                    <img src="image/copytoclipboard.svg" style="height: 100%;" alt="Copy">
+                </button>
+                <button id="save" class="controls-top-btn" title="ダウンロードして保存">
+                    <img src="image/download.svg" style="height: 100%;" alt="Download">
+                </button>
+            </div>
+        </div>
+
+        <div id="container">
+            てすと
+        </div>
+        <div id="container">
+            てすと
+        </div>
+
+        <div id="hashtag-line">
+            <span id="hashtag-text">#rakugaki_pao</span>
+        </div>   
+        
+        <div id="message-line"></div>
+
+
+
+
+    </div>
+</body>
+</html>
