@@ -6,263 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <style>
-        html {
-            transform-origin: center center;
-            transform: scale(1); 
-        }
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        body {
-            user-drag: none;
-            -webkit-user-drag: none;
-            -moz-user-select: none;
-            -ms-user-select: none; /* IE 10+ */
-            -moz-user-select: -moz-none;
-            -khtml-user-select: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        #app {
-            margin-top: 16px;
-            margin-bottom: 16px;
-        }
-        #canvas-container {      
-            position: relative;
-            width: 720px;
-            height: 720px;
-            cursor: none !important;
-        }
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            border: 1px solid #505050;
-            
-        }
-        #cursor {
-            position: absolute;
-            pointer-events: none;
-            border-width: 2px;
-            border-style: solid;
-            border-color: #FFF;
-            border-radius: 50%;
-            mix-blend-mode: difference;
-        }
-        #controls-top {
-            margin-top: 24px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            max-width: 720px;
-        }
-        .top-left-buttons {
-            display: flex;
-            gap: 0px;
-        }
-        .top-right-buttons {
-            display: flex;
-            margin-left: auto;
-        }
-        #controls1 {
-            margin-top: 24px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0px;
-            max-width: 750px;
-        }
-        #controls2 {
-            margin-top: 40px;
-            display: flex;
-            align-items: flex-end;
-            flex-wrap: wrap;
-            gap: 0px;
-            justify-content: center;
-        }
-        #hashtag-line {
-            height: 24px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 0px;
-        }
-        #hashtag-text {
-            font-size: 20px;
-            color: #AAAAAA;
-            letter-spacing: 0.4rem;
-            margin-left: 20px;
-            text-align: center;
-        } 
-        #message-line {
-            display: none;
-            height: 24px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #AAAAAA;
-            letter-spacing: 0.1rem;
-            justify-content: center;
-            text-align: center;
-            margin-left: 16px;
-        }        
-        button {
-            height: 42px;
-            width: 42px;
-            cursor: pointer;
-            border: 1px solid #36364A;
-            border-radius: 4px;
-        }   
-        .pen-btn {
-            display: flex;
-            justify-content: center; 
-            align-items: center;
-            margin-right: 4px;
-            padding: 6px 6px 6px 6px;
-            background-color: #36364A;
-        }     
-        .pen-eraser-btn {        
-            background-color: #F9F9F9;    
-            display: flex;
-            justify-content: center; 
-            align-items: center;
-            padding: 6px 6px 6px 6px;
-            margin-right: 16px;
-        }
-        .color-eraser-btn {
-            background-color: #F2EEE6;    
-            display: flex;
-            justify-content: center; 
-            align-items: center;
-            padding: 6px 6px 6px 6px;
-            margin-left: 4px;
-            margin-right: 16px;
-        }
-        .undo-btn {
-            display: flex;
-            justify-content: center; 
-            align-items: center;
-            border: 0px solid #36364A;
-            border-radius: 4px;
-            background-color: #f0f0f0;
-            padding: 6px;
-        }
-        .undo-btn:disabled{
-            outline: 0px solid #36364A;
-        } 
-        .undo-btn:hover{
-            background-color: #E0E0E0;
-        }
-        .undo-btn:active{
-            padding: 7px;
-        }
-        .controls-top-btn {
-            display: flex;
-            justify-content: center; 
-            align-items: center;
-            height: 32px;
-            width: 32px;
-            border: 0px solid #36364A;
-            border-radius: 4px;
-            background-color: #f0f0f0;
-            padding: 4px;
-        }
-        .controls-top-btn:hover{
-            background-color: #E0E0E0;
-        }
-        .controls-top-btn:active{
-            opacity: 0.8;
-            padding: 5px;
-        }
-        .mistodon-btn {
-            justify-content: center; 
-            align-items: center;
-            border: 0px solid #36364A;
-            border-radius: 4px;
-            background-color: #f0f0f0;
-            height: 48px;
-            width: 48px;
-            margin-left: 4px;
-            margin-right: 4px;
-            padding: 0px 0px 1px 0px;
-        }
-        .copy-sharetext-btn {
-            display: flex;
-            justify-content: center; 
-            align-items: flex-end;
-            background-color: #f0f0f0;
-            height: 16px;
-            width: 16px;
-            border:0px;
-        } 
-        .copy-sharetext-btn .icon{
-            opacity: 0;
-            height: 100%
-        } 
-        .copy-sharetext-btn:hover .icon{    
-            opacity: 0.3;
-        } 
-        .tool-reset-btn {
-            position: relative;
-            top: 16px;
-            padding: 0px 0px 0px 0px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-left: auto;
-            margin-right: 4px;
-        }
-        .active {
-            outline: 3px solid #000000;
-            position: relative;
-            top: -16px;
-            z-index: 10;
-            border-radius: 50%;
-        }
-        #tool-size {
-            width: 96px;
-            margin-right: 16px;
-            margin-left: 16px;
-            vertical-align: middle;
-        }
-        #opacity {
-            position: relative;
-            width: 10px;
-            height: 40px;
-            vertical-align: middle;
-            writing-mode: vertical-lr;
-            direction: rtl;
-            margin-right: 4px;
-        }
-        #palette {
-            position: relative;
-            top: 12px;
-            width: 20px;
-            height: 30px;
-            cursor: pointer;
-            border: 1px solid #36364A;
-            border-radius: 4px;
-        }
-        #progress-bar-line{
-            margin-top: 2px;
-            display: flex;
-            justify-content: center; 
-            visibility: hidden;
-        }
-        .progress-bar{
-            width: 200px; 
-        }
-
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
     <div id="app">
@@ -271,8 +15,8 @@
                 <button id="clear" class="controls-top-btn" title="キャンバスのクリア">
                     <img src="image/new.svg" style="height: 100%;" alt="Clear">
                 </button>
-                <button id="help" class="controls-top-btn" title="マニュアル">
-                    <img src="image/help.svg" style="height: 100%;" alt="Help">
+                <button id="manual" class="controls-top-btn" title="rakugaki_paoについて">
+                    <img src="image/manual.svg" style="height: 100%;" alt="manual">
                 </button>
             </div>
 
@@ -359,7 +103,7 @@
         };
         const hostName = "mistodon.cloud"; // 霧鯖だけですわ
         const serverUrl = "https://" + hostName; 
-        const helpUrl = "manual.html"
+        const manualUrl = "manual.html"
 
         const blackPenColor = "#36364A";
         const backgroundColor = "#F2EEE6";        
@@ -388,7 +132,7 @@
 
         const undoButton = document.getElementById('undo');
         const clearButton = document.getElementById('clear');
-        const helpButton = document.getElementById('help');
+        const manualButton = document.getElementById('manual');
         const toolSizeParamInput = document.getElementById('tool-size');
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
@@ -1067,7 +811,7 @@
 
         undoButton.addEventListener('mousedown', undo);
         clearButton.addEventListener('click', clearCanvas);
-        helpButton.addEventListener('click', () => {location.href=helpUrl;});
+        manualButton.addEventListener('click', () => {location.href=manualUrl;});
 
         toolSizeParamInput.addEventListener('input', () => {
             const sizeParam = parseInt(toolSizeParamInput.value);
