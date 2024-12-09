@@ -22,6 +22,7 @@ body {
     -khtml-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+    color:#36364A;
 }
 #app {
     margin-top: 16px;
@@ -267,5 +268,5 @@ button {
     border: 1px solid #505050;
     background-color: #F2EEE6;
     box-sizing:border-box;
-    padding: 64px;
+    padding: 48px 64px;
 }
