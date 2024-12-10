@@ -159,6 +159,7 @@
         const copyTextButton = document.getElementById('copyText');
         const shareText = '#rakugaki_pao';
         const shareUrl = 'https://kurajo.ivory.ne.jp/rakugaki_pao/';
+        let outputFileName = 'rakugaki_pao.png';
 
         let isDrawing = false;
         let [lastX,lastY] =[0,0];
@@ -378,14 +379,25 @@
         }
 
         function setLastClearTime(){
-            const newClearTime = new Date();
-            window.localStorage.setItem(localstorageKeyLastClearTime,newClearTime.getTime());
+            const nowTime = new Date();
+            window.localStorage.setItem(localstorageKeyLastClearTime,nowTime.getTime());
         }
-        
-        function showElapsedTimeFromLastClearTime(){
+
+        function getElapsedTimeMinFromLastClearTime(){
             const lastClearTime = window.localStorage.getItem(localstorageKeyLastClearTime);
-            const newClearTime = new Date();
-            const elapsedTimeMin = Math.trunc((newClearTime.getTime() - lastClearTime)/1000/60);
+            const nowTime = new Date();
+            const elapsedTimeMin = Math.trunc((nowTime.getTime() - lastClearTime)/1000/60);
+            return elapsedTimeMin;
+        }
+
+        function setOutputFileName(){
+            const nowTime = new Date();
+            const timeString = nowTime.toLocaleString("ja-JP", {year: "numeric",month: "2-digit", day: "2-digit", hour:"2-digit", minute:"2-digit"}).replaceAll('/', '').replaceAll(':','').replaceAll(' ','-');
+            outputFileName = timeString + '_rakugaki_pao(' + getElapsedTimeMinFromLastClearTime() +'min).png';
+        }
+
+        function showElapsedTimeFromLastClearTime(){
+            const elapsedTimeMin = getElapsedTimeMinFromLastClearTime();
             showMessage(`${elapsedTimeMin} 分 お絵かきしました。` );
         }
 
@@ -432,16 +444,18 @@
         }
 
         function saveImage() {
-            combineCanvas();            
+            combineCanvas();    
+            setOutputFileName();        
             const dataURL = combinedCanvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = 'rakugaki_pao';
+            link.download = outputFileName;
             link.href = dataURL;
             link.click();
             showElapsedTimeFromLastClearTime();
         }
 
         function postImage(dataURL, accessToken) {
+            setOutputFileName();
             activatePostingProgressBar();
             showElapsedTimeFromLastClearTime();
             fetch(`${serverUrl}/api/v1/media`, {
@@ -451,7 +465,7 @@
                     },
                     body: (() => {
                         const formData = new FormData();
-                        formData.append('file', dataURLToBlob(dataURL), 'rakugaki_pao');
+                        formData.append('file', dataURLToBlob(dataURL), outputFileName);
                         return formData;
                     })()
             })
@@ -535,10 +549,11 @@
         }
 
         function shareImage() {
-            combineCanvas();            
+            combineCanvas();
+            setOutputFileName();           
             const dataURL = combinedCanvas.toDataURL('image/png');
             const blob = dataURLToBlob(dataURL);
-            const imageFile = new File([blob], "rakugaki.png", {type: "image/png",});
+            const imageFile = new File([blob], outputFileName, {type: "image/png",});
             navigator.share({
                 url: shareUrl,
                 text: shareText,
