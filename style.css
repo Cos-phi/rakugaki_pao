@@ -7,13 +7,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    
     flex-direction: column;
     min-height: 100vh;
     margin: 0;
+    color:#36364A;
     background-color: #f0f0f0;
 }
-body {
+#app {
+    margin-top: 16px;
+    margin-bottom: 16px;
     user-drag: none;
     -webkit-user-drag: none;
     -moz-user-select: none;
@@ -22,11 +24,6 @@ body {
     -khtml-user-select: none;
     -webkit-user-select: none;
     user-select: none;
-    color:#36364A;
-}
-#app {
-    margin-top: 16px;
-    margin-bottom: 16px;
 }
 #canvas-container {      
     position: relative;
@@ -39,7 +36,6 @@ canvas {
     top: 0;
     left: 0;
     border: 1px solid #505050;
-    
 }
 #cursor {
     position: absolute;
@@ -253,8 +249,6 @@ button {
 .progress-bar{
     width: 200px; 
 }
-
-
 #manual-container {
     margin-top: 16px;
     margin-bottom: 16px;
