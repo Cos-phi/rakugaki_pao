@@ -18,9 +18,9 @@
                 <button id="manual" class="controls-top-btn" title="rakugaki_paoについて">
                     <img src="image/manual.svg" style="height: 100%;" alt="manual">
                 </button>
-                <!--<button id="setting" class="controls-top-btn" title="設定">
+                <button id="settings" class="controls-top-btn" title="設定">
                     <img src="image/setting.svg" style="height: 100%;" alt="setting">
-                </button>-->
+                </button>
             </div>
 
             <div class="top-right-buttons">
@@ -94,10 +94,32 @@
         <div id="progress-bar-line">
             <progress class="progress-bar"></progress>
         </div>
-
-
-
     </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h2>mistodon.cloud投稿時の公開範囲設定</h2>
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="visibility" value="public">
+                    公開（デフォルト）
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="visibility" value="unlisted">
+                    ひかえめな公開
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="visibility" value="private">
+                    フォロワーのみ
+                </label>
+            </div>
+            <div class="button-group">
+                <button onclick="closeSettingsDialog()" class="cancel-button">キャンセル</button>
+                <button onclick="saveSettings()" class="save-button">保存</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const app_info = {
             "client_id":"hckNv2TV74MVO9e-vc2oRvOGDH211pbnLEvH3Z5_8Ww",
@@ -137,6 +159,7 @@
         const undoButton = document.getElementById('undo');
         const clearButton = document.getElementById('clear');
         const manualButton = document.getElementById('manual');
+        const settingsButton = document.getElementById(('settings'))
         const toolSizeParamInput = document.getElementById('tool-size');
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
@@ -176,7 +199,7 @@
         let isEraser = false;
         let undoStack = [];
         let accessToken = null;
-        let publishingLevel = 'public'; // public:公開 unlisted:ひかえめな公開 private:フォロワーのみ
+        let publishingLevel = localStorage.getItem(localstoragekeyPublishingLevelsSetting) || 'public';
 
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
@@ -806,6 +829,33 @@
             postButton.style.display = '';
         }
 
+        //設定ダイアログ
+        function openSettingsDialog() {
+            document.getElementById('settingsModal').style.display = 'block';
+            document.querySelector(`input[value="${publishingLevel}"]`).checked = true;
+        }
+
+        function closeSettingsDialog() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function saveSettings() {
+            const selectedValue = document.querySelector('input[name="visibility"]:checked').value;
+            publishingLevel = selectedValue;
+            localStorage.setItem('publishingLevel', selectedValue);
+            closeSettingsDialog();
+        }
+
+        // 画面外クリックでダイアログを閉じる
+        window.onclick = function(event) {
+            const modal = document.getElementById('settingsModal');
+            if (event.target === modal) {
+                closeSettingsDialog();
+            }
+        }
+
+
+
         blackLayer.addEventListener('mousedown', startDrawingMouse);
         blackLayer.addEventListener('mousemove', drawMouse);
         blackLayer.addEventListener('mouseup', stopDrawing);
@@ -907,6 +957,7 @@
         postButton.addEventListener('click', postToMastodon);
         getTokenButton.addEventListener('click', getAuthCodeRedirect);      
         shareButton.addEventListener('click', shareImage);
+        settingsButton.addEventListener('click',openSettingsDialog);
 
         copyTextButton.addEventListener('click', () => {
             if (navigator.clipboard) {
