@@ -98,13 +98,18 @@
 
     <div id="settingsModal" class="modal">
         <div class="modal-content">
+            mistodon.cloud 投稿設定
             <div class="select-container">
-                mistodon.cloud投稿時の公開範囲
+                公開範囲
                 <select id="visibilitySelect">
                     <option value="public">公開 public （デフォルト）</option>
                     <option value="unlisted">ひかえめな公開 unlisted</option>
                     <option value="private">フォロワーのみ private</option>
                 </select>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="enableCWCheckbox">
+                    画像にCWを設定する
+                </label>
             </div>
             <div class="button-group">
                 <button onclick="closeSettingsDialog()" class="cancel-button">キャンセル</button>
@@ -141,6 +146,7 @@
         const localstorageKeyAccessToken = 'accesstokenkey';
         const localstorageKeyLastClearTime = 'lastcleartimekey';
         const localstoragekeyPublishingLevelsSetting = 'plsettingkey';
+        const localstoragekeyEnableCW = 'enableCW';
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
@@ -193,6 +199,7 @@
         let undoStack = [];
         let accessToken = null;
         let publishingLevel = localStorage.getItem(localstoragekeyPublishingLevelsSetting) || 'public';
+        let enableCW = localStorage.getItem(localstoragekeyEnableCW) === 'true' || false;
 
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
@@ -509,6 +516,7 @@
                         status: '#rakugaki_pao',
                         media_ids: [data.id],
                         visibility: publishingLevel,
+                        sensitive: enableCW,
                     }),
                 });
             })
@@ -826,6 +834,7 @@
         function openSettingsDialog() {
             document.getElementById('settingsModal').style.display = 'block';
             document.getElementById('visibilitySelect').value = publishingLevel;
+            document.getElementById('enableCWCheckbox').checked = enableCW;
             
         }
 
@@ -835,11 +844,13 @@
 
         function saveSettings() {
             const selectedValue = document.getElementById('visibilitySelect').value;
+            const cwEnabled = document.getElementById('enableCWCheckbox').checked;
             publishingLevel = selectedValue;
-            localStorage.setItem('publishingLevel', selectedValue);
+            enableCW = cwEnabled;
+            localStorage.setItem(localstoragekeyPublishingLevelsSetting, selectedValue);
+            localStorage.setItem(localstoragekeyEnableCW, cwEnabled);
             closeSettingsDialog();
         }
-
         // 画面外クリックでダイアログを閉じる
         window.onclick = function(event) {
             const modal = document.getElementById('settingsModal');

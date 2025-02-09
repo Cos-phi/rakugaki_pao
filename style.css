@@ -308,6 +308,14 @@ select {
     font-size: 16px;
 }
 
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    cursor: pointer;
+}
+
 .button-group {
     display: flex;
     justify-content: flex-end;
