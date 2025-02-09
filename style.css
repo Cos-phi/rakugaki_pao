@@ -287,27 +287,25 @@ button {
 
 .modal-content {
     position: fixed;
-    top: 50%;
+    top: 42%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: rgb(240, 240, 240);
-    padding: 20px;
+    padding: 16px;
     border-radius: 2px;
     width: 400px;
 }
 
-.radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.select-container {
     margin: 20px 0;
 }
 
-.radio-label {
-    display: flex;
-    align-items: center;
-    gap: 0px;
-    cursor: pointer;
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    font-size: 16px;
 }
 
 .button-group {
@@ -318,14 +316,19 @@ button {
 }
 
 .save-button {
+    padding: 0px;
     width: 120px;
+    height: 42px;
     background-color: #6364ff;
     color: white;
     cursor: pointer;
 }
 
 .cancel-button {
+    
+    padding: 0px;
     width: 120px;
+    height: 42px;
     background-color: #f5f5f5;
     cursor: pointer;
 }

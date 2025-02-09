@@ -98,20 +98,13 @@
 
     <div id="settingsModal" class="modal">
         <div class="modal-content">
-            <h2>mistodon.cloud投稿時の公開範囲設定</h2>
-            <div class="radio-group">
-                <label class="radio-label">
-                    <input type="radio" name="visibility" value="public">
-                    公開（デフォルト）
-                </label>
-                <label class="radio-label">
-                    <input type="radio" name="visibility" value="unlisted">
-                    ひかえめな公開
-                </label>
-                <label class="radio-label">
-                    <input type="radio" name="visibility" value="private">
-                    フォロワーのみ
-                </label>
+            <div class="select-container">
+                mistodon.cloud投稿時の公開範囲
+                <select id="visibilitySelect">
+                    <option value="public">公開 public （デフォルト）</option>
+                    <option value="unlisted">ひかえめな公開 unlisted</option>
+                    <option value="private">フォロワーのみ private</option>
+                </select>
             </div>
             <div class="button-group">
                 <button onclick="closeSettingsDialog()" class="cancel-button">キャンセル</button>
@@ -832,7 +825,8 @@
         //設定ダイアログ
         function openSettingsDialog() {
             document.getElementById('settingsModal').style.display = 'block';
-            document.querySelector(`input[value="${publishingLevel}"]`).checked = true;
+            document.getElementById('visibilitySelect').value = publishingLevel;
+            
         }
 
         function closeSettingsDialog() {
@@ -840,7 +834,7 @@
         }
 
         function saveSettings() {
-            const selectedValue = document.querySelector('input[name="visibility"]:checked').value;
+            const selectedValue = document.getElementById('visibilitySelect').value;
             publishingLevel = selectedValue;
             localStorage.setItem('publishingLevel', selectedValue);
             closeSettingsDialog();
