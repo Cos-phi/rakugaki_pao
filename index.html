@@ -18,9 +18,9 @@
                 <button id="manual" class="controls-top-btn" title="rakugaki_paoについて">
                     <img src="image/manual.svg" style="height: 100%;" alt="manual">
                 </button>
-                <button id="setting" class="controls-top-btn" title="設定">
+                <!--<button id="setting" class="controls-top-btn" title="設定">
                     <img src="image/setting.svg" style="height: 100%;" alt="setting">
-                </button>
+                </button>-->
             </div>
 
             <div class="top-right-buttons">
@@ -125,6 +125,7 @@
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
         const localstorageKeyLastClearTime = 'lastcleartimekey';
+        const localstoragekeyPublishingLevelsSetting = 'plsettingkey';
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
@@ -175,6 +176,7 @@
         let isEraser = false;
         let undoStack = [];
         let accessToken = null;
+        let publishingLevel = 'private'; // public:公開 unlisted:ひかえめな公開 private:フォロワーのみ
 
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
@@ -490,6 +492,7 @@
                     body: JSON.stringify({
                         status: '#rakugaki_pao',
                         media_ids: [data.id],
+                        visibility: publishingLevel,
                     }),
                 });
             })
