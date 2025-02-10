@@ -18,7 +18,7 @@
                 <button id="manual" class="controls-top-btn" title="rakugaki_paoについて">
                     <img src="image/manual.svg" style="height: 100%;" alt="manual">
                 </button>
-                <button id="settings" class="controls-top-btn" title="設定">
+                <button id="settings" class="controls-top-btn" title="設定" style="display: none;">
                     <img src="image/setting.svg" style="height: 100%;" alt="setting">
                 </button>
             </div>
@@ -96,7 +96,7 @@
         </div>
     </div>
 
-    <div id="settingsModal" class="modal">
+    <div id="settingsModal" class="modal"  style="display: none;">
         <div class="modal-content">
             mistodon.cloud 投稿設定
             <div class="select-container">
@@ -830,6 +830,10 @@
             postButton.style.display = '';
         }
 
+        function enableSettingsButton() {
+            settingsButton.style.display = '';
+        }
+
         //設定ダイアログ
         function openSettingsDialog() {
             document.getElementById('settingsModal').style.display = 'block';
@@ -837,7 +841,6 @@
             document.getElementById('enableCWCheckbox').checked = enableCW;
             
         }
-
         function closeSettingsDialog() {
             document.getElementById('settingsModal').style.display = 'none';
         }
@@ -851,7 +854,6 @@
             localStorage.setItem(localstoragekeyEnableCW, cwEnabled);
             closeSettingsDialog();
         }
-        // 画面外クリックでダイアログを閉じる
         window.onclick = function(event) {
             const modal = document.getElementById('settingsModal');
             if (event.target === modal) {
@@ -1006,7 +1008,8 @@
         restoreLocalstorage();
 
         if (accessToken) {
-            enablePostButton();            
+            enablePostButton();     
+            enableSettingsButton();       
         } else if(code) {
             fetch(`${serverUrl}/oauth/token`, 
                     {
@@ -1029,6 +1032,7 @@
                     accessToken = data.access_token;
                     window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
                     enablePostButton();
+                    enableSettingsButton();
                 })
         } else {
             //未認証
