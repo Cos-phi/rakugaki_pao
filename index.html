@@ -18,7 +18,7 @@
                 <button id="manual" class="controls-top-btn" title="rakugaki_paoについて">
                     <img src="image/manual.svg" style="height: 100%;" alt="manual">
                 </button>
-                <button id="settings" class="controls-top-btn" title="設定" style="display: none;">
+                <button id="settings" class="controls-top-btn" title="設定" style="display: block;"> <!--none-->
                     <img src="image/setting.svg" style="height: 100%;" alt="setting">
                 </button>
             </div>
@@ -83,7 +83,7 @@
         </div>
 
         <div id="hashtag-line">
-            <button id="copyText" class="copy-sharetext-btn" title="ハッシュタグをコピー">
+            <button id="copyText" class="copy-hashtag-btn" title="ハッシュタグをコピー">
                 <span id="hashtag-text">#rakugaki_pao</span>
                 <img src="image/copytoclipboard.svg" class="icon" alt="">
             </button>
@@ -98,9 +98,9 @@
 
     <div id="settingsModal" class="modal"  style="display: none;">
         <div class="modal-content">
-            mistodon.cloud 投稿設定
+            <h2>mistodon.cloud 投稿設定</h2>
             <div class="select-container">
-                公開範囲
+                <label class="setting-label">公開範囲</label>
                 <select id="visibilitySelect">
                     <option value="public">公開 public （デフォルト）</option>
                     <option value="unlisted">ひかえめな公開 unlisted</option>
@@ -111,7 +111,10 @@
                     画像にCWを設定する
                 </label>
             </div>
+            <label class="setting-label" style="margin-top: 16px;">投稿コメント</label>
+            <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
             <div class="button-group">
+                <button onclick="resetSettings()" class="reset-button">リセット</button>
                 <button onclick="closeSettingsDialog()" class="cancel-button">キャンセル</button>
                 <button onclick="saveSettings()" class="save-button">保存</button>
             </div>
@@ -146,6 +149,7 @@
         const localstorageKeyAccessToken = 'accesstokenkey';
         const localstorageKeyLastClearTime = 'lastcleartimekey';
         const localstoragekeyPublishingLevelsSetting = 'plsettingkey';
+        const localstoragekeyPostComment = 'postcomment';
         const localstoragekeyEnableCW = 'enableCW';
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
@@ -183,7 +187,7 @@
         const code = params.get('code');
 
         const copyTextButton = document.getElementById('copyText');
-        const shareText = '#rakugaki_pao';
+        const hashtag = '#rakugaki_pao';
         const shareUrl = 'https://kurajo.ivory.ne.jp/rakugaki_pao/';
         let outputFileName = 'rakugaki_pao.png';
 
@@ -198,8 +202,15 @@
         let isEraser = false;
         let undoStack = [];
         let accessToken = null;
-        let publishingLevel = localStorage.getItem(localstoragekeyPublishingLevelsSetting) || 'public';
-        let enableCW = localStorage.getItem(localstoragekeyEnableCW) === 'true' || false;
+
+        const defaultSettings = {
+            publishingLevel: 'public',
+            enableCW: false,
+            postComment: hashtag
+        };
+        let publishingLevel = localStorage.getItem(localstoragekeyPublishingLevelsSetting) || defaultSettings.publishingLevel;
+        let enableCW = localStorage.getItem(localstoragekeyEnableCW) === 'true' || defaultSettings.enableCW;
+        let postComment = localStorage.getItem(localstoragekeyPostComment) || defaultSettings.postComment;
 
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
@@ -513,7 +524,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        status: '#rakugaki_pao',
+                        status: postComment,
                         media_ids: [data.id],
                         visibility: publishingLevel,
                         sensitive: enableCW,
@@ -586,7 +597,7 @@
             const imageFile = new File([blob], outputFileName, {type: "image/png",});
             navigator.share({
                 url: shareUrl,
-                text: shareText,
+                text: hashtag,
                 title: 'rakugaki_pao',
                 files: [imageFile],
             }).then(() => {
@@ -839,8 +850,9 @@
             document.getElementById('settingsModal').style.display = 'block';
             document.getElementById('visibilitySelect').value = publishingLevel;
             document.getElementById('enableCWCheckbox').checked = enableCW;
-            
+            document.getElementById('commentTextarea').value = postComment;
         }
+
         function closeSettingsDialog() {
             document.getElementById('settingsModal').style.display = 'none';
         }
@@ -848,12 +860,28 @@
         function saveSettings() {
             const selectedValue = document.getElementById('visibilitySelect').value;
             const cwEnabled = document.getElementById('enableCWCheckbox').checked;
+            const comment = document.getElementById('commentTextarea').value.trim() || hashtag;
             publishingLevel = selectedValue;
             enableCW = cwEnabled;
+            postComment = comment;
             localStorage.setItem(localstoragekeyPublishingLevelsSetting, selectedValue);
             localStorage.setItem(localstoragekeyEnableCW, cwEnabled);
+            localStorage.setItem(localstoragekeyPostComment, comment)
             closeSettingsDialog();
         }
+
+        function resetSettings() {
+            publishingLevel = defaultSettings.publishingLevel;
+            enableCW = defaultSettings.enableCW;
+            postComment = defaultSettings.postComment;
+            localStorage.setItem('publishingLevel', publishingLevel);
+            localStorage.setItem('enableCW', enableCW);
+            localStorage.setItem('postComment', postComment);
+            document.getElementById('visibilitySelect').value = publishingLevel;
+            document.getElementById('enableCWCheckbox').checked = enableCW;
+            document.getElementById('commentTextarea').value = postComment;
+        }
+
         window.onclick = function(event) {
             const modal = document.getElementById('settingsModal');
             if (event.target === modal) {
@@ -968,7 +996,7 @@
 
         copyTextButton.addEventListener('click', () => {
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(shareText).then(function () {
+                navigator.clipboard.writeText(hashtag).then(function () {
                 showMessage('ハッシュタグをコピーしました')
                 })
             } else {
@@ -977,6 +1005,10 @@
         });
 
         document.addEventListener('keydown', event => {
+            if (event.target.tagName === 'TEXTAREA' || event.target.tagName === 'INPUT') {
+                return;
+            }
+
             if (event.code === 'KeyQ') {
                 isEraser = false;
                 updateToolsState();
