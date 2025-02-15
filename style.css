@@ -80,12 +80,11 @@ canvas {
 #hashtag-line {
     height: 24px;
     display: flex;
-    align-items: flex-end;
     justify-content: center;
     flex-wrap: wrap;
     gap: 0px;
 }
-#hashtag-text {
+#share-text {
     font-size: 20px;
     color: #AAAAAA;
     letter-spacing: 0.4rem;
@@ -183,20 +182,19 @@ button {
     margin-right: 4px;
     padding: 0px 0px 1px 0px;
 }
-.copy-hashtag-btn {
+.copy-sharetext-btn {
     display: flex;
     justify-content: center; 
-    align-items: flex-end;
     background-color: #f0f0f0;
     height: 16px;
     width: 16px;
     border:0px;
 } 
-.copy-hashtag-btn .icon{
+.copy-sharetext-btn .icon{
     opacity: 0;
     height: 100%
 } 
-.copy-hashtag-btn:hover .icon{    
+.copy-sharetext-btn:hover .icon{    
     opacity: 0.3;
 } 
 .tool-reset-btn {

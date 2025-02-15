@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=1"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=2"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
@@ -18,7 +18,7 @@
                 <button id="manual" class="controls-top-btn" title="rakugaki_paoについて">
                     <img src="image/manual.svg" style="height: 100%;" alt="manual">
                 </button>
-                <button id="settings" class="controls-top-btn" title="設定" style="display: none;"> 
+                <button id="settings" class="controls-top-btn" title="設定" style="display: none;"> <!--none-->
                     <img src="image/setting.svg" style="height: 100%;" alt="setting">
                 </button>
             </div>
@@ -83,8 +83,8 @@
         </div>
 
         <div id="hashtag-line">
-            <button id="copyText" class="copy-hashtag-btn" title="ハッシュタグをコピー">
-                <span id="hashtag-text">#rakugaki_pao</span>
+            <button id="copyText" class="copy-sharetext-btn" title="テキストをコピー">
+                <span id="share-text">#rakugaki_pao</span>
                 <img src="image/copytoclipboard.svg" class="icon" alt="">
             </button>
         </div>   
@@ -867,19 +867,18 @@
             localStorage.setItem(localstoragekeyPublishingLevelsSetting, selectedValue);
             localStorage.setItem(localstoragekeyEnableCW, cwEnabled);
             localStorage.setItem(localstoragekeyPostComment, comment)
+            updateHashtagLine();
             closeSettingsDialog();
         }
 
         function resetSettings() {
-            publishingLevel = defaultSettings.publishingLevel;
-            enableCW = defaultSettings.enableCW;
-            postComment = defaultSettings.postComment;
-            localStorage.setItem('publishingLevel', publishingLevel);
-            localStorage.setItem('enableCW', enableCW);
-            localStorage.setItem('postComment', postComment);
-            document.getElementById('visibilitySelect').value = publishingLevel;
-            document.getElementById('enableCWCheckbox').checked = enableCW;
-            document.getElementById('commentTextarea').value = postComment;
+            document.getElementById('visibilitySelect').value = defaultSettings.publishingLevel;
+            document.getElementById('enableCWCheckbox').checked = defaultSettings.enableCW;
+            document.getElementById('commentTextarea').value = defaultSettings.postComment;
+        }
+
+        function updateHashtagLine() {
+            document.getElementById('share-text').textContent = postComment;
         }
 
         window.onclick = function(event) {
@@ -996,8 +995,8 @@
 
         copyTextButton.addEventListener('click', () => {
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(hashtag).then(function () {
-                showMessage('ハッシュタグをコピーしました')
+                navigator.clipboard.writeText(postComment).then(function () {
+                showMessage(`テキストをコピーしました`)
                 })
             } else {
                 alert('コピーできませんの');
@@ -1038,6 +1037,7 @@
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
+        updateHashtagLine();
 
         if (accessToken) {
             enablePostButton();     
