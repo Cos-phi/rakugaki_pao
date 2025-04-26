@@ -98,6 +98,7 @@
 
     <div id="settingsModal" class="modal"  style="display: none;">
         <div class="modal-content">
+            <button id="close-dialog-button"><img src="image/undo.svg" style="height: 100%;" alt="Undo"></button>
             <h2>mistodon.cloud 投稿設定</h2>
             <div class="select-container">
                 <label class="setting-label">公開範囲</label>
@@ -114,9 +115,9 @@
             <label class="setting-label" style="margin-top: 16px;">投稿コメント</label>
             <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
             <div class="button-group">
-                <button onclick="resetPostSettings()" class="reset-button">リセット</button>
-                <button onclick="closeSettingsDialog()" class="cancel-button">キャンセル</button>
-                <button onclick="savePostSettings()" class="save-button">保存</button>
+                <button id="reset-post-settings-button" class="post-setting-button">リセット</button>
+                <button id="save-post-settings-button" class="post-setting-button">保存</button>
+                <button id="submit-button" class="submit-button">投稿</button>
             </div>
         </div>
     </div>
@@ -184,6 +185,10 @@
         const saveButton = document.getElementById('save');
         const postButton = document.getElementById('post');
         postButton.title = hostName + "に投稿";
+        const savePostSettingsButton = document.getElementById('save-post-settings-button');
+        const resetPostSettingsButton = document.getElementById('reset-post-settings-button');
+        const submitButton = document.getElementById('submit-button');
+        const closeDialogButton = document.getElementById('close-dialog-button');
         const getTokenButton = document.getElementById('getToken');
         const shareButton = document.getElementById('share');
         const postingDummyButton = document.getElementById('posting');
@@ -855,14 +860,14 @@
         }
 
         //設定ダイアログ
-        function openSettingsDialog() {
+        function openPostDialog() {
             document.getElementById('settingsModal').style.display = 'block';
             document.getElementById('visibilitySelect').value = publishingLevel;
             document.getElementById('enableCWCheckbox').checked = enableCW;
             document.getElementById('commentTextarea').value = postComment;
         }
 
-        function closeSettingsDialog() {
+        function closePostDialog() {
             document.getElementById('settingsModal').style.display = 'none';
         }
 
@@ -876,7 +881,7 @@
             localStorage.setItem(localstoragekeyPublishingLevelsSetting, selectedValue);
             localStorage.setItem(localstoragekeyEnableCW, cwEnabled);
             localStorage.setItem(localstoragekeyPostComment, comment)
-            closeSettingsDialog();
+            closePostDialog();
         }
 
         function resetPostSettings() {
@@ -894,7 +899,7 @@
         window.onclick = function(event) {
             const modal = document.getElementById('settingsModal');
             if (event.target === modal) {
-                closeSettingsDialog();
+                closePostDialog();
             }
         }
 
@@ -1001,7 +1006,10 @@
         postButton.addEventListener('click', postToMastodon);
         getTokenButton.addEventListener('click', getAuthCodeRedirect);      
         shareButton.addEventListener('click', shareImage);
-        settingsButton.addEventListener('click',openSettingsDialog);
+        settingsButton.addEventListener('click',openPostDialog);
+        resetPostSettingsButton.addEventListener('click',resetPostSettings);
+        savePostSettingsButton.addEventListener('click',savePostSettings);
+        closeDialogButton.addEventListener('click',closePostDialog)
 
         copyTextButton.addEventListener('click', () => {
             if (navigator.clipboard) {
