@@ -884,15 +884,15 @@
         }
 
         function resetPostSettings() {
-            document.getElementById('visibilitySelect').value = defaultSettings.publishingLevel;
-            document.getElementById('enableCWCheckbox').checked = defaultSettings.enableCW;
-            resetComment();
-        }
-
-        function resetComment() {
+            publishingLevel = defaultSettings.publishingLevel;
+            enableCW = defaultSettings.enableCW;
             postComment = defaultSettings.postComment;
-            localStorage.setItem(localstoragekeyPostComment, postComment)
+            document.getElementById('visibilitySelect').value = publishingLevel;
+            document.getElementById('enableCWCheckbox').checked = enableCW;
             document.getElementById('commentTextarea').value = postComment;
+            localStorage.setItem(localstoragekeyPublishingLevelsSetting, publishingLevel);
+            localStorage.setItem(localstoragekeyEnableCW, enableCW);
+            localStorage.setItem(localstoragekeyPostComment, postComment);
         }
 
         window.onclick = function(event) {
