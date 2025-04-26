@@ -507,6 +507,7 @@
         function postImage(dataURL, accessToken) {
             setOutputFileName();
             activatePostingProgressBar();
+            closePostDialog();
             showElapsedTimeFromLastClearTime();
             fetch(`${serverUrl}/api/v1/media`, {
                     method: 'POST',
@@ -547,7 +548,7 @@
                 setTimeout(() => {
                     showMessage('　投稿しましたわ！')
                     showElapsedTimeFromLastClearTime();
-                    resetComment();
+                    resetPostSettings();
                 }, 100);
                 
             })
