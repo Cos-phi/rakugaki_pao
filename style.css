@@ -305,8 +305,8 @@ button {
 }
 
 select {
-    width: 100%;
-    padding: 8px;
+    width: 80%;
+    padding: 2px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
@@ -322,11 +322,14 @@ textarea {
     font-family: inherit;
 }
 
+.select-container {
+    display: flex;
+}
+
 .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 16px;
+    margin-left: 16px;
     cursor: pointer;
 }
 

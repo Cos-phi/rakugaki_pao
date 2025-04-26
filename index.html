@@ -99,9 +99,9 @@
     <div id="settingsModal" class="modal"  style="display: none;">
         <div class="modal-content">
             <button id="close-dialog-button">戻る</button>
-            <h2>mistodon.cloud 投稿設定</h2>
+            
+            <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
             <div class="select-container">
-                <label class="setting-label">公開範囲</label>
                 <select id="visibilitySelect">
                     <option value="public">公開 public （デフォルト）</option>
                     <option value="unlisted">ひかえめな公開 unlisted</option>
@@ -109,11 +109,9 @@
                 </select>
                 <label class="checkbox-label">
                     <input type="checkbox" id="enableCWCheckbox">
-                    画像にCWを設定する
+                    CW
                 </label>
             </div>
-            <label class="setting-label" style="margin-top: 16px;">投稿コメント</label>
-            <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
             <div class="button-group">
                 <button id="reset-post-settings-button" class="post-setting-button">リセット</button>
                 <button id="submit-button" class="submit-button">投稿</button>
