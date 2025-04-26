@@ -886,13 +886,10 @@
             resetComment();
         }
 
-        function resetComment(){
-            document.getElementById('commentTextarea').value = defaultSettings.postComment;
-        }
-
         function resetComment() {
             postComment = defaultSettings.postComment;
             localStorage.setItem(localstoragekeyPostComment, postComment)
+            document.getElementById('commentTextarea').value = defaultSettings.postComment;
             updateHashtagLine();
         }
 
