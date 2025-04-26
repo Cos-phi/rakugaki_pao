@@ -876,7 +876,6 @@
             localStorage.setItem(localstoragekeyPublishingLevelsSetting, selectedValue);
             localStorage.setItem(localstoragekeyEnableCW, cwEnabled);
             localStorage.setItem(localstoragekeyPostComment, comment)
-            updateHashtagLine();
             closeSettingsDialog();
         }
 
@@ -889,12 +888,7 @@
         function resetComment() {
             postComment = defaultSettings.postComment;
             localStorage.setItem(localstoragekeyPostComment, postComment)
-            document.getElementById('commentTextarea').value = defaultSettings.postComment;
-            updateHashtagLine();
-        }
-
-        function updateHashtagLine() {
-            document.getElementById('share-text').textContent = postComment;
+            document.getElementById('commentTextarea').value = postComment;
         }
 
         window.onclick = function(event) {
@@ -1053,7 +1047,6 @@
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
-        updateHashtagLine();
 
         if (accessToken) {
             enablePostButton();     
