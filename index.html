@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=2"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=3"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
@@ -98,7 +98,7 @@
 
     <div id="settingsModal" class="modal"  style="display: none;">
         <div class="modal-content">
-            <button id="close-dialog-button"><img src="image/undo.svg" style="height: 100%;" alt="Undo"></button>
+            <button id="close-dialog-button">戻る</button>
             <h2>mistodon.cloud 投稿設定</h2>
             <div class="select-container">
                 <label class="setting-label">公開範囲</label>
@@ -1010,6 +1010,7 @@
         resetPostSettingsButton.addEventListener('click',resetPostSettings);
         savePostSettingsButton.addEventListener('click',savePostSettings);
         closeDialogButton.addEventListener('click',closePostDialog)
+        submitButton.addEventListener('click', postToMastodon);
 
         copyTextButton.addEventListener('click', () => {
             if (navigator.clipboard) {
