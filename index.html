@@ -114,9 +114,9 @@
             <label class="setting-label" style="margin-top: 16px;">投稿コメント</label>
             <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
             <div class="button-group">
-                <button onclick="resetSettings()" class="reset-button">リセット</button>
+                <button onclick="resetPostSettings()" class="reset-button">リセット</button>
                 <button onclick="closeSettingsDialog()" class="cancel-button">キャンセル</button>
-                <button onclick="saveSettings()" class="save-button">保存</button>
+                <button onclick="savePostSettings()" class="save-button">保存</button>
             </div>
         </div>
     </div>
@@ -866,7 +866,7 @@
             document.getElementById('settingsModal').style.display = 'none';
         }
 
-        function saveSettings() {
+        function savePostSettings() {
             const selectedValue = document.getElementById('visibilitySelect').value;
             const cwEnabled = document.getElementById('enableCWCheckbox').checked;
             const comment = document.getElementById('commentTextarea').value.trim() || hashtag;
@@ -879,7 +879,7 @@
             closeSettingsDialog();
         }
 
-        function resetSettings() {
+        function resetPostSettings() {
             document.getElementById('visibilitySelect').value = defaultSettings.publishingLevel;
             document.getElementById('enableCWCheckbox').checked = defaultSettings.enableCW;
             resetComment();
