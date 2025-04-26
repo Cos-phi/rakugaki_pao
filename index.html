@@ -875,6 +875,10 @@
         function resetSettings() {
             document.getElementById('visibilitySelect').value = defaultSettings.publishingLevel;
             document.getElementById('enableCWCheckbox').checked = defaultSettings.enableCW;
+            resetComment();
+        }
+
+        function resetComment(){
             document.getElementById('commentTextarea').value = defaultSettings.postComment;
         }
 
