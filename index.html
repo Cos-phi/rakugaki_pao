@@ -875,11 +875,13 @@
         function resetSettings() {
             document.getElementById('visibilitySelect').value = defaultSettings.publishingLevel;
             document.getElementById('enableCWCheckbox').checked = defaultSettings.enableCW;
-            resetComment();
+            document.getElementById('commentTextarea').value = defaultSettings.postComment;
         }
 
-        function resetComment(){
-            document.getElementById('commentTextarea').value = defaultSettings.postComment;
+        function resetComment() {
+            postComment = defaultSettings.postComment;
+            localStorage.setItem(localstoragekeyPostComment, postComment)
+            updateHashtagLine();
         }
 
         function updateHashtagLine() {
