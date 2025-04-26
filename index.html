@@ -122,11 +122,18 @@
     </div>
 
     <script>
-        const app_info = {
+        const app_info = window.location.origin.includes('cos-phi.github.io') 
+        ? {
+            "client_id":"ahEQR-_jEZYLC1UjgBx9M5yJGFtmzxunRPCjqGz-ZAY",
+            "client_secret":"D9_84dg-8gDfuXe4Qp2wrEwbWfJEMxdIoNjlCHHBgt0",
+            "redirect_uri":"https://cos-phi.github.io/rakugaki_pao/index.html",
+          } 
+        : {
             "client_id":"hckNv2TV74MVO9e-vc2oRvOGDH211pbnLEvH3Z5_8Ww",
             "client_secret":"zCiw-bHy2VF9NEUXpNIzQUxB8TqgpB1ccwz7lrTcF7s",
             "redirect_uri":"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
-        };
+          };
+
         const hostName = "mistodon.cloud"; // 霧鯖だけですわ
         const serverUrl = "https://" + hostName; 
         const manualUrl = "manual.html"
