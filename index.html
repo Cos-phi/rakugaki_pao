@@ -96,25 +96,24 @@
         </div>
     </div>
 
-    <div id="settingsModal" class="modal"  style="display: none;"> <!-- none -->
+    <div id="settingsModal" class="modal"  style="display: block;"> <!-- none -->
         <div class="modal-content">
             <button id="close-dialog-button" class="controls-top-btn">×</button>
-            
+            <img id="preview-img" width="360" height="360">
             <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
             <div class="select-container">
                 <select id="visibilitySelect">
-                    <option value="public">🌐 公開 </option>
+                    <option value="public">🌐 公開  </option>
                     <option value="unlisted">🌙 ひかえめな公開</option>
-                    <option value="private">🔒 フォロワーのみ</option>
+                    <option value="private">🔒 フォロワーのみ </option>
                 </select>
                 <label class="checkbox-label">
                     <input type="checkbox" id="enableCWCheckbox">
                     CW
                 </label>
+                <button id="submit-button" class="submit-button">投稿</button>   
             </div>
-            <div class="button-group">            
-                <button id="submit-button" class="submit-button">投稿</button>
-            </div>
+
         </div>
     </div>
 
@@ -178,7 +177,6 @@
         const saveButton = document.getElementById('save');
         const postButton = document.getElementById('post');
         postButton.title = hostName + "に投稿";
-        const resetPostSettingsButton = document.getElementById('reset-post-settings-button');
         const submitButton = document.getElementById('submit-button');
         const closeDialogButton = document.getElementById('close-dialog-button');
         const getTokenButton = document.getElementById('getToken');
@@ -854,6 +852,12 @@
 
         //設定ダイアログ
         function openPostDialog() {
+
+            combineCanvas();    
+            const dataURL = combinedCanvas.toDataURL('image/png');
+            document.getElementById("preview-img").src = dataURL;
+
+
             document.getElementById('settingsModal').style.display = 'block';
         }
 
