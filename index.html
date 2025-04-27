@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=6"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=7"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
@@ -566,6 +566,7 @@
         }
 
         function postToMastodon() {
+            savePostSetting();
             combineCanvas();
             const dataURL = combinedCanvas.toDataURL('image/png');
             postImage(dataURL, accessToken);
@@ -841,12 +842,9 @@
 
         //設定ダイアログ
         function openPostDialog() {
-
             combineCanvas();    
             const dataURL = combinedCanvas.toDataURL('image/png');
             document.getElementById("preview-img").src = dataURL;
-
-
             document.getElementById('postDialogModal').style.display = 'block';
         }
 
@@ -858,6 +856,12 @@
             document.getElementById('visibilitySelect').value = publishingLevel;
             document.getElementById('enableCWCheckbox').checked = enableCW;
             document.getElementById('commentTextarea').value = postComment;
+        }
+
+        function savePostSetting() {
+            publishingLevel = document.getElementById('visibilitySelect').value;
+            enableCW = document.getElementById('enableCWCheckbox').checked;
+            postComment = document.getElementById('commentTextarea').value.trim() || defaultSettings.postComment;
         }
 
         window.onclick = function(event) {
