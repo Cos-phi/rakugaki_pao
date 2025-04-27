@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=3"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=4"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
@@ -96,24 +96,23 @@
         </div>
     </div>
 
-    <div id="settingsModal" class="modal"  style="display: none;">
+    <div id="settingsModal" class="modal"  style="display: none;"> <!-- none -->
         <div class="modal-content">
-            <button id="close-dialog-button">戻る</button>
+            <button id="close-dialog-button" class="controls-top-btn">×</button>
             
             <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
             <div class="select-container">
                 <select id="visibilitySelect">
-                    <option value="public">公開 public （デフォルト）</option>
-                    <option value="unlisted">ひかえめな公開 unlisted</option>
-                    <option value="private">フォロワーのみ private</option>
+                    <option value="public">🌐 公開 </option>
+                    <option value="unlisted">🌙 ひかえめな公開</option>
+                    <option value="private">🔒 フォロワーのみ</option>
                 </select>
                 <label class="checkbox-label">
                     <input type="checkbox" id="enableCWCheckbox">
                     CW
                 </label>
             </div>
-            <div class="button-group">
-                <button id="reset-post-settings-button" class="post-setting-button">リセット</button>
+            <div class="button-group">            
                 <button id="submit-button" class="submit-button">投稿</button>
             </div>
         </div>
@@ -215,7 +214,7 @@
         const defaultSettings = {
             publishingLevel: 'public',
             enableCW: false,
-            postComment: hashtag
+            postComment: "\n\n"+hashtag
         };
         let publishingLevel = localStorage.getItem(localstoragekeyPublishingLevelsSetting) || defaultSettings.publishingLevel;
         let enableCW = localStorage.getItem(localstoragekeyEnableCW) === 'true' || defaultSettings.enableCW;
