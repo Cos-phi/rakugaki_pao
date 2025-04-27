@@ -153,9 +153,6 @@
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
         const localstorageKeyLastClearTime = 'lastcleartimekey';
-        const localstoragekeyPublishingLevelsSetting = 'plsettingkey';
-        const localstoragekeyPostComment = 'postcomment';
-        const localstoragekeyEnableCW = 'enableCW';
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxBg = backgroundLayer.getContext('2d');
         const cursor = document.getElementById('cursor');
@@ -216,9 +213,9 @@
             enableCW: false,
             postComment: "\n\n"+hashtag
         };
-        let publishingLevel = localStorage.getItem(localstoragekeyPublishingLevelsSetting) || defaultSettings.publishingLevel;
-        let enableCW = localStorage.getItem(localstoragekeyEnableCW) === 'true' || defaultSettings.enableCW;
-        let postComment = localStorage.getItem(localstoragekeyPostComment) || defaultSettings.postComment;
+        let publishingLevel = defaultSettings.publishingLevel;
+        let enableCW = defaultSettings.enableCW;
+        let postComment = defaultSettings.postComment;
 
         ctxBg.fillStyle = backgroundColor;
         ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
@@ -858,44 +855,22 @@
         //設定ダイアログ
         function openPostDialog() {
             document.getElementById('settingsModal').style.display = 'block';
-            document.getElementById('visibilitySelect').value = publishingLevel;
-            document.getElementById('enableCWCheckbox').checked = enableCW;
-            document.getElementById('commentTextarea').value = postComment;
         }
 
         function closePostDialog() {
             document.getElementById('settingsModal').style.display = 'none';
         }
 
-        function saveAndClosePostDialog() {
-            const selectedValue = document.getElementById('visibilitySelect').value;
-            const cwEnabled = document.getElementById('enableCWCheckbox').checked;
-            const comment = document.getElementById('commentTextarea').value.trim() || hashtag;
-            publishingLevel = selectedValue;
-            enableCW = cwEnabled;
-            postComment = comment;
-            localStorage.setItem(localstoragekeyPublishingLevelsSetting, selectedValue);
-            localStorage.setItem(localstoragekeyEnableCW, cwEnabled);
-            localStorage.setItem(localstoragekeyPostComment, comment)
-            closePostDialog();
-        }
-
-        function resetPostSettings() {
-            publishingLevel = defaultSettings.publishingLevel;
-            enableCW = defaultSettings.enableCW;
-            postComment = defaultSettings.postComment;
+        function initializePostDialog() {
             document.getElementById('visibilitySelect').value = publishingLevel;
             document.getElementById('enableCWCheckbox').checked = enableCW;
             document.getElementById('commentTextarea').value = postComment;
-            localStorage.setItem(localstoragekeyPublishingLevelsSetting, publishingLevel);
-            localStorage.setItem(localstoragekeyEnableCW, enableCW);
-            localStorage.setItem(localstoragekeyPostComment, postComment);
         }
 
         window.onclick = function(event) {
             const modal = document.getElementById('settingsModal');
             if (event.target === modal) {
-                saveAndClosePostDialog();
+                closePostDialog();
             }
         }
 
@@ -1003,7 +978,7 @@
         getTokenButton.addEventListener('click', getAuthCodeRedirect);      
         shareButton.addEventListener('click', shareImage);
         settingsButton.addEventListener('click',openPostDialog);
-        closeDialogButton.addEventListener('click',saveAndClosePostDialog)
+        closeDialogButton.addEventListener('click',closePostDialog)
         submitButton.addEventListener('click', postToMastodon);
 
         copyTextButton.addEventListener('click', () => {
@@ -1050,6 +1025,7 @@
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
+        initializePostDialog();
 
         if (accessToken) {
             enablePostButton();     
