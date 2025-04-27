@@ -296,7 +296,6 @@ button {
     height: 32px;
     width: 32px;
     border: 0px solid #36364A;
-    border-radius: 4px;
     font-size: 24px;
 }
 .close-dialog-button:hover{
@@ -304,7 +303,7 @@ button {
 }
 
 #preview-img {
-    border-radius: 16px;
+    border-radius: 8px;
     border: 0px solid  rgb(18, 18, 21);
     margin-bottom: 8px;
 }
@@ -356,7 +355,6 @@ input[type="checkbox"] {
     filter: grayscale();
 }
 
-
 #enableCWCheckbox:checked ~ .checkbox-label{
     background-color:#6364ff;
     color:#EBECFF;
@@ -373,4 +371,7 @@ input[type="checkbox"] {
     font-weight: bold;    
     border: none;
     cursor: pointer;
+}
+.submit-button:hover {
+    background-color: #563ACC;
 }
