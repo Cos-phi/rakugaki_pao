@@ -96,21 +96,19 @@
         </div>
     </div>
 
-    <div id="settingsModal" class="modal"  style="display: block;"> <!-- none -->
+    <div id="settingsModal" class="modal"  style="display: none;"> <!-- none -->
         <div class="modal-content">
-            <button id="close-dialog-button" class="controls-top-btn">×</button>
+            <button id="close-dialog-button" class="close-dialog-button">×</button>
             <img id="preview-img" width="360" height="360">
             <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
             <div class="select-container">
                 <select id="visibilitySelect">
-                    <option value="public">🌐 公開  </option>
-                    <option value="unlisted">🌙 ひかえめな公開</option>
-                    <option value="private">🔒 フォロワーのみ </option>
+                    <option value="public">🌐　公開　</option>
+                    <option value="unlisted">🌙　ひかえめな公開　</option>
+                    <option value="private">🔒　フォロワーのみ　</option>
                 </select>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="enableCWCheckbox">
-                    CW
-                </label>
+                <input type="checkbox" id="enableCWCheckbox">
+                <label for="enableCWCheckbox" class="checkbox-label">⚠️CW </label>
                 <button id="submit-button" class="submit-button">投稿</button>   
             </div>
 
