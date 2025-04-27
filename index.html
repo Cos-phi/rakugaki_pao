@@ -18,9 +18,6 @@
                 <button id="manual" class="controls-top-btn" title="rakugaki_paoについて">
                     <img src="image/manual.svg" style="height: 100%;" alt="manual">
                 </button>
-                <button id="settings" class="controls-top-btn" title="設定" style="display: none;"> <!--none-->
-                    <img src="image/setting.svg" style="height: 100%;" alt="setting">
-                </button>
             </div>
 
             <div class="top-right-buttons">
@@ -127,7 +124,6 @@
             "client_secret":"lDCqUUok59GkUUfbOcLKVU4n1H8vOM3s97bB6KC6bZ4",
             "redirect_uri":"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
           };
-        console.log(app_info.redirect_uri);
 
         const hostName = "mistodon.cloud"; // 霧鯖だけですわ
         const serverUrl = "https://" + hostName; 
@@ -161,7 +157,6 @@
         const undoButton = document.getElementById('undo');
         const clearButton = document.getElementById('clear');
         const manualButton = document.getElementById('manual');
-        const settingsButton = document.getElementById(('settings'))
         const toolSizeParamInput = document.getElementById('tool-size');
         const blackPenButton = document.getElementById('blackPen');
         const eraserBlack = document.getElementById('eraserBlack');
@@ -844,10 +839,6 @@
             postButton.style.display = '';
         }
 
-        function enableSettingsButton() {
-            settingsButton.style.display = '';
-        }
-
         //設定ダイアログ
         function openPostDialog() {
 
@@ -976,10 +967,9 @@
 
         copyButton.addEventListener('click', copyImage);
         saveButton.addEventListener('click', saveImage);
-        postButton.addEventListener('click', postToMastodon);
+        postButton.addEventListener('click', openPostDialog);
         getTokenButton.addEventListener('click', getAuthCodeRedirect);      
         shareButton.addEventListener('click', shareImage);
-        settingsButton.addEventListener('click',openPostDialog);
         closeDialogButton.addEventListener('click',closePostDialog)
         submitButton.addEventListener('click', postToMastodon);
 
@@ -1031,7 +1021,6 @@
 
         if (accessToken) {
             enablePostButton();     
-            enableSettingsButton();       
         } else if(code) {
             fetch(`${serverUrl}/oauth/token`, 
                     {
@@ -1054,7 +1043,6 @@
                     accessToken = data.access_token;
                     window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
                     enablePostButton();
-                    enableSettingsButton();
                 })
         } else {
             //未認証
