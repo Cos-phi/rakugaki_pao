@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=4"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=5"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
@@ -96,7 +96,7 @@
         </div>
     </div>
 
-    <div id="settingsModal" class="modal"  style="display: none;"> <!-- none -->
+    <div id="postDialogModal" class="modal"  style="display: none;"> <!-- none -->
         <div class="modal-content">
             <button id="close-dialog-button" class="close-dialog-button">×</button>
             <img id="preview-img" width="360" height="360">
@@ -856,11 +856,11 @@
             document.getElementById("preview-img").src = dataURL;
 
 
-            document.getElementById('settingsModal').style.display = 'block';
+            document.getElementById('postDialogModal').style.display = 'block';
         }
 
         function closePostDialog() {
-            document.getElementById('settingsModal').style.display = 'none';
+            document.getElementById('postDialogModal').style.display = 'none';
         }
 
         function initializePostDialog() {
@@ -870,7 +870,7 @@
         }
 
         window.onclick = function(event) {
-            const modal = document.getElementById('settingsModal');
+            const modal = document.getElementById('postDialogModal');
             if (event.target === modal) {
                 closePostDialog();
             }
