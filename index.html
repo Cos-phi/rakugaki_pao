@@ -533,7 +533,7 @@
                 setTimeout(() => {
                     showMessage('　投稿しましたわ！')
                     showElapsedTimeFromLastClearTime();
-                    resetPostSettings();
+                    initializePostDialog();
                 }, 100);
                 
             })
@@ -853,9 +853,9 @@
         }
 
         function initializePostDialog() {
-            document.getElementById('visibilitySelect').value = publishingLevel;
-            document.getElementById('enableCWCheckbox').checked = enableCW;
-            document.getElementById('commentTextarea').value = postComment;
+            document.getElementById('visibilitySelect').value = defaultSettings.publishingLevel;
+            document.getElementById('enableCWCheckbox').checked = defaultSettings.enableCW;
+            document.getElementById('commentTextarea').value = defaultSettings.postComment;
         }
 
         function savePostSetting() {
