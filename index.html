@@ -125,7 +125,7 @@
             <div class="select-container">
                 <select id="destination-server-select">
                     <option value="mistodon.cloud">mistodon.cloud</option>
-                    <!--<option value="fedibird.com">fedibird.com</option>-->
+                    <option value="fedibird.com">fedibird.com</option>
                 </select>
                 <button id="destination-server-auth-btn">認証</button>   
             </div>
@@ -225,21 +225,35 @@
         
         const serverDataMain = {
             "mistodon.cloud": {
-                app_type: "mastodon",
+                app_type: "mistodon",
                 hostname: "mistodon.cloud",
                 client_id:"kxcPRIOf0YfLnd_RP9kzjycaRdxiAAJfS2yPCYopB-4",
                 client_secret:"lDCqUUok59GkUUfbOcLKVU4n1H8vOM3s97bB6KC6bZ4",
                 redirect_uri:"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
-            },
+            },            
+            "fedibird.com": {
+                app_type: "mastodon",
+                hostname: "fedibird.com",
+                client_id:"5BeHayqwh2hVzj_rWA_JwITrUs1u5jX3nkFd32b6JTE",
+                client_secret:"PsMoMYAj4qXwBH36NGGAhJA2SjytPvbY9m9GAJ1Erl8",
+                redirect_uri:"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
+            }
         };
         const serverDataDev = {
             "mistodon.cloud": {
-                app_type: "mastodon",
+                app_type: "mistodon",
                 hostname: "mistodon.cloud",
                 client_id:"ahEQR-_jEZYLC1UjgBx9M5yJGFtmzxunRPCjqGz-ZAY",
                 client_secret:"D9_84dg-8gDfuXe4Qp2wrEwbWfJEMxdIoNjlCHHBgt0",
                 redirect_uri:"https://cos-phi.github.io/rakugaki_pao/index.html",
             },
+            "fedibird.com": {
+                app_type: "mastodon",
+                hostname: "fedibird.com",
+                client_id:"kS_5YdvHvVYor577pNlro2FXEazbp91f79QACC4gkKo",
+                client_secret:"ciPBpCvLc6UuAY5ljuKH6wXffCcVC_-9CswTmgvO7Gw",
+                redirect_uri:"https://cos-phi.github.io/rakugaki_pao/index.html",
+            }
         }
         const serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverDataMain;
 
