@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=7"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=0"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
@@ -93,10 +93,13 @@
         </div>
     </div>
 
-    <div id="postDialogModal" class="modal"  style="display: none;"> <!-- none -->
+    <div id="postDialogModal" class="modal"  style="display: block;"> <!-- none -->
         <div class="modal-content">
-            <button id="close-dialog-button" class="close-dialog-button">×</button>
-            
+            <div class="dialog-title-container">
+                <button id="close-dialog-button" class="close-dialog-button">×</button>
+                <div id="destination-server-name"></div>
+                <button id="destination-server-setting-button"><img src="image/setting.svg" style="height: 100%;"></button>
+            </div>
             <img id="preview-img" width="360" height="360">
             <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
             <div class="select-container">
@@ -104,7 +107,7 @@
                     <option value="public">🌐　公開　</option>
                     <option value="unlisted">🌙　ひかえめな公開　</option>
                     <option value="private">🔒　フォロワー　</option>
-                    <option value="direct">＠　特定の人　</option>
+                    <option value="direct">✉️　特定の人　</option>
                 </select>
                 <input type="checkbox" id="enableCWCheckbox">
                 <label for="enableCWCheckbox" class="checkbox-label">⚠️CW </label>
@@ -177,8 +180,13 @@
         const saveButton = document.getElementById('save');
         const postButton = document.getElementById('post');
         postButton.title = hostName + "に投稿";
+        
         const submitButton = document.getElementById('submit-button');
         const closeDialogButton = document.getElementById('close-dialog-button');
+        const curServerNameTitle = document.getElementById('destination-server-name');
+        curServerNameTitle.textContent = "→ " + hostName;
+        const serverChangeButton = document.getElementById('destination-server-setting-button');
+
         const getTokenButton = document.getElementById('getToken');
         const shareButton = document.getElementById('share');
         const postingDummyButton = document.getElementById('posting');
