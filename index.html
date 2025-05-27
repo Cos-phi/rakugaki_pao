@@ -113,18 +113,23 @@
     </div>
 
     <script>
-        const app_info = window.location.origin.includes('cos-phi.github.io') 
-        ? {
-            "client_id":"ahEQR-_jEZYLC1UjgBx9M5yJGFtmzxunRPCjqGz-ZAY",
-            "client_secret":"D9_84dg-8gDfuXe4Qp2wrEwbWfJEMxdIoNjlCHHBgt0",
-            "redirect_uri":"https://cos-phi.github.io/rakugaki_pao/index.html",
-          } 
-        : {
-            "client_id":"kxcPRIOf0YfLnd_RP9kzjycaRdxiAAJfS2yPCYopB-4",
-            "client_secret":"lDCqUUok59GkUUfbOcLKVU4n1H8vOM3s97bB6KC6bZ4",
-            "redirect_uri":"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
-          };
-
+        const serverData = [
+            {
+                "hostname": "mistodon.cloud",
+                "client_id":"kxcPRIOf0YfLnd_RP9kzjycaRdxiAAJfS2yPCYopB-4",
+                "client_secret":"lDCqUUok59GkUUfbOcLKVU4n1H8vOM3s97bB6KC6bZ4",
+                "redirect_uri":"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
+            },
+        ];
+        const serverDataForTest = [
+            {
+                "hostname": "mistodon.cloud",
+                "client_id":"ahEQR-_jEZYLC1UjgBx9M5yJGFtmzxunRPCjqGz-ZAY",
+                "client_secret":"D9_84dg-8gDfuXe4Qp2wrEwbWfJEMxdIoNjlCHHBgt0",
+                "redirect_uri":"https://cos-phi.github.io/rakugaki_pao/index.html",
+            },
+        ]
+        const app_info = window.location.origin.includes('cos-phi.github.io') ? serverDataForTest[0] : serverData[0] ;
         const hostName = "mistodon.cloud"; // 霧鯖だけですわ
         const serverUrl = "https://" + hostName; 
         const manualUrl = "manual.html"
