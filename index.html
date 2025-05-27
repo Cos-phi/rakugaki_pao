@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=10"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=11"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
@@ -267,6 +267,8 @@
         let undoStack = [];
         let accessToken = null;
 
+        const reloadTime = new Date().getTime();
+
         let publishingLevel = defaultSettings.publishingLevel;
         let enableCW = defaultSettings.enableCW;
         let postComment = defaultSettings.postComment;
@@ -467,7 +469,6 @@
             saveLocalstorage();
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
-
             setLastClearTime();
         }
 
@@ -477,7 +478,7 @@
         }
 
         function getElapsedTimeMinFromLastClearTime(){
-            const lastClearTime = window.localStorage.getItem(localstorageKeyLastClearTime);
+            const lastClearTime = window.localStorage.getItem(localstorageKeyLastClearTime) || reloadTime;
             const nowTime = new Date();
             const elapsedTimeMin = Math.trunc((nowTime.getTime() - lastClearTime)/1000/60);
             return elapsedTimeMin;
