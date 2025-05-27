@@ -147,11 +147,6 @@
         const backgroundLayer = document.getElementById('backgroundLayer');
         const cursor = document.getElementById('cursor');
         const combinedCanvas = document.createElement('canvas');
-        const ctxBlack = blackLayer.getContext('2d',{ willReadFrequently: true });
-        const ctxColor = colorLayer.getContext('2d',{ willReadFrequently: true });
-        const ctxActiveStroke = activeStrokeLayer.getContext('2d');
-        const ctxBg = backgroundLayer.getContext('2d');
-        const ctxCombined = combinedCanvas.getContext('2d');
 
         const undoButton = document.getElementById('undo');
         const toolSizeParamInput = document.getElementById('tool-size');
@@ -193,8 +188,6 @@
         const code = params.get('code');
 
         //重要な設定
-        combinedCanvas.width = 720;
-        combinedCanvas.height = 720;
         const blackPenColor = "#36364A";
         const backgroundColor = "#F2EEE6";        
         const PaletteColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"];
@@ -208,6 +201,17 @@
             postComment: "\n\n"+hashtag+" "
         };
 
+        //キャンバスの初期化
+        combinedCanvas.width = 720;
+        combinedCanvas.height = 720;
+        const ctxBlack = blackLayer.getContext('2d',{ willReadFrequently: true });
+        const ctxColor = colorLayer.getContext('2d',{ willReadFrequently: true });
+        const ctxActiveStroke = activeStrokeLayer.getContext('2d');
+        const ctxBg = backgroundLayer.getContext('2d');
+        const ctxCombined = combinedCanvas.getContext('2d');
+        ctxBg.fillStyle = backgroundColor;
+        ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
+
         //ローカルストレージキー
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
@@ -216,7 +220,7 @@
 
         //投稿に関する情報
         let destinationServerName = "mistodon.cloud";
-        const serverData = [
+        const serverDataMain = [
             {
                 hostname: "mistodon.cloud",
                 client_id:"kxcPRIOf0YfLnd_RP9kzjycaRdxiAAJfS2yPCYopB-4",
@@ -224,7 +228,7 @@
                 redirect_uri:"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
             },
         ];
-        const serverDataForTest = [
+        const serverDataDev = [
             {
                 hostname: "mistodon.cloud",
                 client_id:"ahEQR-_jEZYLC1UjgBx9M5yJGFtmzxunRPCjqGz-ZAY",
@@ -232,7 +236,8 @@
                 redirect_uri:"https://cos-phi.github.io/rakugaki_pao/index.html",
             },
         ]
-        const app_info = window.location.origin.includes('cos-phi.github.io') ? serverDataForTest[0] : serverData[0] ;
+        let serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverData;
+        let app_info = serverData[0];
         const hostName = app_info.hostname;
         const serverUrl = "https://" + hostName; 
         const manualUrl = "manual.html"
@@ -260,9 +265,6 @@
         let enableCW = defaultSettings.enableCW;
         let postComment = defaultSettings.postComment;
 
-        ctxBg.fillStyle = backgroundColor;
-        ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
-
         let toolSizesParam = {
             blackPen: 2,
             colorBrush: 5,
@@ -275,7 +277,6 @@
             blackPen: 1,
             colorBrush: 1,
         };
-        
 
         function setColor(color) {
             if(color != blackPenColor){
