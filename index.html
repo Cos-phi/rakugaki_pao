@@ -199,12 +199,16 @@
         const modals = document.getElementsByClassName('modal');
         const closeDestinationServerDialogButton = document.getElementById('close-destination-server-dialog-button');
 
-        const previewImg = document.getElementById("preview-img");
-        const submitButton = document.getElementById('submit-button');
+        const postDialogModal = document.getElementById('post-dialog-modal');
         const closePostDialogButton = document.getElementById('close-post-dialog-button');
         const curServerNameTitle = document.getElementById('destination-server-name');
         curServerNameTitle.textContent = "→ " + hostName;
         const serverChangeButton = document.getElementById('destination-server-setting-button');
+        const previewImg = document.getElementById("preview-img");
+        const commentTextarea = document.getElementById('comment-textarea');
+        const visibilitySelect = document.getElementById('visibility-select');
+        const enableCWCheckbox = document.getElementById('enable-CW-checkbox')
+        const submitButton = document.getElementById('submit-button');
 
         const getTokenButton = document.getElementById('getToken');
         const shareButton = document.getElementById('share');
@@ -879,7 +883,7 @@
             combineCanvas();    
             const dataURL = combinedCanvas.toDataURL('image/png');
             previewImg.src = dataURL;
-            document.getElementById('post-dialog-modal').style.display = 'block';
+            postDialogModal.style.display = 'block';
         }
 
         function closeDialog() {
@@ -889,15 +893,15 @@
         }
 
         function initializePostDialog() {
-            document.getElementById('visibility-select').value = defaultSettings.publishingLevel;
-            document.getElementById('enable-CW-checkbox').checked = defaultSettings.enableCW;
-            document.getElementById('comment-textarea').value = defaultSettings.postComment;
+            visibilitySelect.value = defaultSettings.publishingLevel;
+            enableCWCheckbox.checked = defaultSettings.enableCW;
+            commentTextarea.value = defaultSettings.postComment;
         }
 
         function savePostSetting() {
-            publishingLevel = document.getElementById('visibility-select').value;
-            enableCW = document.getElementById('enable-CW-checkbox').checked;
-            postComment = document.getElementById('comment-textarea').value.trim() || defaultSettings.postComment;
+            publishingLevel = visibilitySelect.value;
+            enableCW = enableCWCheckbox.checked;
+            postComment = commentTextarea.value.trim() || defaultSettings.postComment;
         }
 
         function initializeModal(){
