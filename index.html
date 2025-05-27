@@ -117,7 +117,7 @@
         </div>
     </div>
 
-    <div id="destinationServerSettingDialogModal" class="modal"  style="display: block;"> <!-- none -->
+    <div id="destination-server-setting-dialog-modal" class="modal"  style="display: block;"> <!-- none -->
         <div class="modal-content">
             <div class="dialog-title-container">
                 <button id="close-destination-server-dialog-button" class="close-dialog-button">×</button>
@@ -127,12 +127,95 @@
                     <option value="mistodon.cloud">mistodon.cloud</option>
                     <option value="fedibird.com">fedibird.com</option>
                 </select>
-                <button id="destination-server-select-btn">select</button>   
+                <button id="destination-server-apply-btn">select</button>   
             </div>
         </div>
     </div>
 
     <script>
+        //HTML要素の取得
+        const clearButton = document.getElementById('clear');
+        const manualButton = document.getElementById('manual');
+        
+        const copyButton = document.getElementById('copy');
+        const saveButton = document.getElementById('save');
+        const postButton = document.getElementById('post');
+
+        const blackLayer = document.getElementById('blackLayer');
+        const colorLayer = document.getElementById('colorLayer');
+        const activeStrokeLayer = document.getElementById('activeStrokeLayer');
+        const backgroundLayer = document.getElementById('backgroundLayer');
+        const cursor = document.getElementById('cursor');
+        const combinedCanvas = document.createElement('canvas');
+        const ctxBlack = blackLayer.getContext('2d',{ willReadFrequently: true });
+        const ctxColor = colorLayer.getContext('2d',{ willReadFrequently: true });
+        const ctxActiveStroke = activeStrokeLayer.getContext('2d');
+        const ctxBg = backgroundLayer.getContext('2d');
+        const ctxCombined = combinedCanvas.getContext('2d');
+
+        const undoButton = document.getElementById('undo');
+        const toolSizeParamInput = document.getElementById('tool-size');
+        const blackPenButton = document.getElementById('blackPen');
+        const eraserBlack = document.getElementById('eraserBlack');
+        const colorButtons = document.getElementById('colorButtons');
+        const changeableColorButton = document.getElementById('changeableColorButton')
+        const colorPalette = document.getElementById('palette');
+        const eraserColor = document.getElementById('eraserColor');
+        const opacityInput = document.getElementById('opacity');
+
+        const modals = document.getElementsByClassName('modal');
+
+        const destinationServerSettingDialogModal = document.getElementById('destinationServerSettingDialogModal');
+        const closeDestinationServerDialogButton = document.getElementById('close-destination-server-dialog-button');
+        const destinationServerSelect = document.getElementById('destination-server-select');
+        const destinationServerApplyButton = document.getElementById('destination-server-apply-btn');
+
+        const postDialogModal = document.getElementById('post-dialog-modal');
+        const closePostDialogButton = document.getElementById('close-post-dialog-button');
+        const curDestinationServerNameTitle = document.getElementById('destination-server-name');
+        const serverChangeButton = document.getElementById('destination-server-setting-button');
+        const previewImg = document.getElementById("preview-img");
+        const commentTextarea = document.getElementById('comment-textarea');
+        const visibilitySelect = document.getElementById('visibility-select');
+        const enableCWCheckbox = document.getElementById('enable-CW-checkbox')
+        const submitButton = document.getElementById('submit-button');
+
+        const getTokenButton = document.getElementById('getToken');
+        const shareButton = document.getElementById('share');
+        const postingDummyButton = document.getElementById('posting');
+        const progressBar = document.getElementById('progress-bar-line');
+        const hashtagLine = document.getElementById('hashtag-line');
+        const messageLine = document.getElementById('message-line');
+        const copyTextButton = document.getElementById('copyText');
+
+        //引数の取得
+        const params = new URLSearchParams(document.location.search);
+        const code = params.get('code');
+
+        //重要な設定
+        combinedCanvas.width = 720;
+        combinedCanvas.height = 720;
+        const blackPenColor = "#36364A";
+        const backgroundColor = "#F2EEE6";        
+        const PaletteColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"];
+        const initialChangeableColor = "#C3C3C3";
+        const undoLimit = 1;
+        const movingAvgParam = 0.375;
+        const hashtag = '#rakugaki_pao';
+        const defaultSettings = {
+            publishingLevel: 'public',
+            enableCW: false,
+            postComment: "\n\n"+hashtag+" "
+        };
+
+        //ローカルストレージキー
+        const localstorageKeyBlack = 'blacklayerlskey';
+        const localstorageKeyColor = 'colorlayerlskey';
+        const localstorageKeyAccessToken = 'accesstokenkey';
+        const localstorageKeyLastClearTime = 'lastcleartimekey';
+
+        //投稿に関する情報
+        let destinationServerName = "mistodon.cloud";
         const serverData = [
             {
                 hostname: "mistodon.cloud",
@@ -154,77 +237,13 @@
         const serverUrl = "https://" + hostName; 
         const manualUrl = "manual.html"
 
-        const blackPenColor = "#36364A";
-        const backgroundColor = "#F2EEE6";        
-        const PaletteColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"];
-        const initialChangeableColor = "#C3C3C3";
-        
-        const undoLimit = 1;
-
-        const blackLayer = document.getElementById('blackLayer');
-        const colorLayer = document.getElementById('colorLayer');
-        const activeStrokeLayer = document.getElementById('activeStrokeLayer');
-        const backgroundLayer = document.getElementById('backgroundLayer');
-        const ctxBlack = blackLayer.getContext('2d',{ willReadFrequently: true });
-        const ctxColor = colorLayer.getContext('2d',{ willReadFrequently: true });
-        const localstorageKeyBlack = 'blacklayerlskey';
-        const localstorageKeyColor = 'colorlayerlskey';
-        const localstorageKeyAccessToken = 'accesstokenkey';
-        const localstorageKeyLastClearTime = 'lastcleartimekey';
-        const ctxActiveStroke = activeStrokeLayer.getContext('2d');
-        const ctxBg = backgroundLayer.getContext('2d');
-        const cursor = document.getElementById('cursor');
-        const combinedCanvas = document.createElement('canvas');
-        combinedCanvas.width = 720;
-        combinedCanvas.height = 720;
-        const ctxCombined = combinedCanvas.getContext('2d');
-
-        const undoButton = document.getElementById('undo');
-        const clearButton = document.getElementById('clear');
-        const manualButton = document.getElementById('manual');
-        const toolSizeParamInput = document.getElementById('tool-size');
-        const blackPenButton = document.getElementById('blackPen');
-        const eraserBlack = document.getElementById('eraserBlack');
-        const colorButtons = document.getElementById('colorButtons');
-        const changeableColorButton = document.getElementById('changeableColorButton')
-        const colorPalette = document.getElementById('palette');
-        const eraserColor = document.getElementById('eraserColor');
-        const opacityInput = document.getElementById('opacity');
-
-        const copyButton = document.getElementById('copy');
-        const saveButton = document.getElementById('save');
-        const postButton = document.getElementById('post');
-        postButton.title = hostName + "に投稿";
-
-        const modals = document.getElementsByClassName('modal');
-        const closeDestinationServerDialogButton = document.getElementById('close-destination-server-dialog-button');
-
-        const postDialogModal = document.getElementById('post-dialog-modal');
-        const closePostDialogButton = document.getElementById('close-post-dialog-button');
-        const curServerNameTitle = document.getElementById('destination-server-name');
-        curServerNameTitle.textContent = "→ " + hostName;
-        const serverChangeButton = document.getElementById('destination-server-setting-button');
-        const previewImg = document.getElementById("preview-img");
-        const commentTextarea = document.getElementById('comment-textarea');
-        const visibilitySelect = document.getElementById('visibility-select');
-        const enableCWCheckbox = document.getElementById('enable-CW-checkbox')
-        const submitButton = document.getElementById('submit-button');
-
-        const getTokenButton = document.getElementById('getToken');
-        const shareButton = document.getElementById('share');
-        const postingDummyButton = document.getElementById('posting');
-        const progressBar = document.getElementById('progress-bar-line');
-        const hashtagLine = document.getElementById('hashtag-line');
-        const messageLine = document.getElementById('message-line');
-
-        const params = new URLSearchParams(document.location.search);
-        const code = params.get('code');
-
-        const copyTextButton = document.getElementById('copyText');
-        const hashtag = '#rakugaki_pao';
         const shareUrl = app_info.redirect_uri = app_info.redirect_uri.replace(/\/index\.html$/, '/');
-        let outputFileName = 'rakugaki_pao.png';
+        
+        postButton.title = hostName + "に投稿";
+        curDestinationServerNameTitle.textContent = "→ " + hostName;
 
+        //変数の初期化
+        let outputFileName = 'rakugaki_pao.png';
         let isDrawing = false;
         let [lastX,lastY] =[0,0];
         let [beforeLastX,beforeLastY] = [0,0];
@@ -237,11 +256,6 @@
         let undoStack = [];
         let accessToken = null;
 
-        const defaultSettings = {
-            publishingLevel: 'public',
-            enableCW: false,
-            postComment: "\n\n"+hashtag+" "
-        };
         let publishingLevel = defaultSettings.publishingLevel;
         let enableCW = defaultSettings.enableCW;
         let postComment = defaultSettings.postComment;
@@ -262,7 +276,6 @@
             colorBrush: 1,
         };
         
-        const movingAvgParam = 0.375;
 
         function setColor(color) {
             if(color != blackPenColor){
@@ -886,12 +899,6 @@
             postDialogModal.style.display = 'block';
         }
 
-        function closeDialog() {
-            for (let i = 0; i < modals.length; i++) {
-                modals[i].style.display = 'none'; // 各要素を非表示にする
-            }
-        }
-
         function initializePostDialog() {
             visibilitySelect.value = defaultSettings.publishingLevel;
             enableCWCheckbox.checked = defaultSettings.enableCW;
@@ -902,6 +909,22 @@
             publishingLevel = visibilitySelect.value;
             enableCW = enableCWCheckbox.checked;
             postComment = commentTextarea.value.trim() || defaultSettings.postComment;
+        }
+
+        //投稿先選択ダイアログ
+        function openDestinationServerSettingDialog() {
+            destinationServerSettingDialogModal.style.display = 'block';
+        }
+
+        function applyDestinationServerSetting() {
+            destinationServerName = destinationServerSelect.value;
+        }
+
+        //ダイアログ共通
+        function closeDialog() {
+            for (let i = 0; i < modals.length; i++) {
+                modals[i].style.display = 'none'; // 各要素を非表示にする
+            }
         }
 
         function initializeModal(){
@@ -1062,6 +1085,7 @@
             }
         });
 
+        //初期化
         updateActiveButton();
         updateToolSize();
         restoreLocalstorage();
