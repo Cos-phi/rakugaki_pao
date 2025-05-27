@@ -353,6 +353,7 @@ select {
     background-color: rgb(29, 29, 38);
     font-size: 16px;
     color: #DDD9E8;
+    cursor: pointer;
 }
 
 .select-container {
