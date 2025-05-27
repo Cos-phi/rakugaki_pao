@@ -93,45 +93,60 @@
         </div>
     </div>
 
-    <div id="postDialogModal" class="modal"  style="display: block;"> <!-- none -->
+    <div id="post-dialog-modal" class="modal"  style="display: none;"> <!-- none -->
         <div class="modal-content">
             <div class="dialog-title-container">
-                <button id="close-dialog-button" class="close-dialog-button">×</button>
+                <button id="close-post-dialog-button" class="close-dialog-button">×</button>
                 <div id="destination-server-name"></div>
                 <button id="destination-server-setting-button"><img src="image/setting.svg" style="height: 100%;"></button>
             </div>
             <img id="preview-img" width="360" height="360">
-            <textarea id="commentTextarea" rows="3" maxlength="483"></textarea>
+            <textarea id="comment-textarea" rows="3" maxlength="483"></textarea>
             <div class="select-container">
-                <select id="visibilitySelect">
+                <select id="visibility-select">
                     <option value="public">🌐　公開　</option>
                     <option value="unlisted">🌙　ひかえめな公開　</option>
                     <option value="private">🔒　フォロワー　</option>
                     <option value="direct">✉️　特定の人　</option>
                 </select>
-                <input type="checkbox" id="enableCWCheckbox">
-                <label for="enableCWCheckbox" class="checkbox-label">⚠️CW </label>
+                <input type="checkbox" id="enable-CW-checkbox">
+                <label for="enable-CW-checkbox" class="checkbox-label">⚠️CW </label>
                 <button id="submit-button" class="submit-button">投稿</button>   
             </div>
 
         </div>
     </div>
 
+    <div id="destinationServerSettingDialogModal" class="modal"  style="display: block;"> <!-- none -->
+        <div class="modal-content">
+            <div class="dialog-title-container">
+                <button id="close-destination-server-dialog-button" class="close-dialog-button">×</button>
+            </div>
+            <div class="select-container">
+                <select id="destination-server-select">
+                    <option value="mistodon.cloud">mistodon.cloud</option>
+                    <option value="fedibird.com">fedibird.com</option>
+                </select>
+                <button id="destination-server-select-btn">select</button>   
+            </div>
+        </div>
+    </div>
+
     <script>
         const serverData = [
             {
-                "hostname": "mistodon.cloud",
-                "client_id":"kxcPRIOf0YfLnd_RP9kzjycaRdxiAAJfS2yPCYopB-4",
-                "client_secret":"lDCqUUok59GkUUfbOcLKVU4n1H8vOM3s97bB6KC6bZ4",
-                "redirect_uri":"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
+                hostname: "mistodon.cloud",
+                client_id:"kxcPRIOf0YfLnd_RP9kzjycaRdxiAAJfS2yPCYopB-4",
+                client_secret:"lDCqUUok59GkUUfbOcLKVU4n1H8vOM3s97bB6KC6bZ4",
+                redirect_uri:"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
             },
         ];
         const serverDataForTest = [
             {
-                "hostname": "mistodon.cloud",
-                "client_id":"ahEQR-_jEZYLC1UjgBx9M5yJGFtmzxunRPCjqGz-ZAY",
-                "client_secret":"D9_84dg-8gDfuXe4Qp2wrEwbWfJEMxdIoNjlCHHBgt0",
-                "redirect_uri":"https://cos-phi.github.io/rakugaki_pao/index.html",
+                hostname: "mistodon.cloud",
+                client_id:"ahEQR-_jEZYLC1UjgBx9M5yJGFtmzxunRPCjqGz-ZAY",
+                client_secret:"D9_84dg-8gDfuXe4Qp2wrEwbWfJEMxdIoNjlCHHBgt0",
+                redirect_uri:"https://cos-phi.github.io/rakugaki_pao/index.html",
             },
         ]
         const app_info = window.location.origin.includes('cos-phi.github.io') ? serverDataForTest[0] : serverData[0] ;
@@ -181,8 +196,12 @@
         const postButton = document.getElementById('post');
         postButton.title = hostName + "に投稿";
 
+        const modals = document.getElementsByClassName('modal');
+        const closeDestinationServerDialogButton = document.getElementById('close-destination-server-dialog-button');
+
+        const previewImg = document.getElementById("preview-img");
         const submitButton = document.getElementById('submit-button');
-        const closeDialogButton = document.getElementById('close-dialog-button');
+        const closePostDialogButton = document.getElementById('close-post-dialog-button');
         const curServerNameTitle = document.getElementById('destination-server-name');
         curServerNameTitle.textContent = "→ " + hostName;
         const serverChangeButton = document.getElementById('destination-server-setting-button');
@@ -507,7 +526,7 @@
         function postImage(dataURL, accessToken) {
             setOutputFileName();
             activatePostingProgressBar();
-            closePostDialog();
+            closeDialog();
             showElapsedTimeFromLastClearTime();
             fetch(`${serverUrl}/api/v1/media`, {
                     method: 'POST',
@@ -855,37 +874,42 @@
             postButton.style.display = '';
         }
 
-        //設定ダイアログ
+        //投稿ダイアログ
         function openPostDialog() {
             combineCanvas();    
             const dataURL = combinedCanvas.toDataURL('image/png');
-            document.getElementById("preview-img").src = dataURL;
-            document.getElementById('postDialogModal').style.display = 'block';
+            previewImg.src = dataURL;
+            document.getElementById('post-dialog-modal').style.display = 'block';
         }
 
-        function closePostDialog() {
-            document.getElementById('postDialogModal').style.display = 'none';
-        }
-
-        function initializePostDialog() {
-            document.getElementById('visibilitySelect').value = defaultSettings.publishingLevel;
-            document.getElementById('enableCWCheckbox').checked = defaultSettings.enableCW;
-            document.getElementById('commentTextarea').value = defaultSettings.postComment;
-        }
-
-        function savePostSetting() {
-            publishingLevel = document.getElementById('visibilitySelect').value;
-            enableCW = document.getElementById('enableCWCheckbox').checked;
-            postComment = document.getElementById('commentTextarea').value.trim() || defaultSettings.postComment;
-        }
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('postDialogModal');
-            if (event.target === modal) {
-                closePostDialog();
+        function closeDialog() {
+            for (let i = 0; i < modals.length; i++) {
+                modals[i].style.display = 'none'; // 各要素を非表示にする
             }
         }
 
+        function initializePostDialog() {
+            document.getElementById('visibility-select').value = defaultSettings.publishingLevel;
+            document.getElementById('enable-CW-checkbox').checked = defaultSettings.enableCW;
+            document.getElementById('comment-textarea').value = defaultSettings.postComment;
+        }
+
+        function savePostSetting() {
+            publishingLevel = document.getElementById('visibility-select').value;
+            enableCW = document.getElementById('enable-CW-checkbox').checked;
+            postComment = document.getElementById('comment-textarea').value.trim() || defaultSettings.postComment;
+        }
+
+        function initializeModal(){
+            for (let i = 0; i < modals.length; i++) {
+                //modals[i].style.display = 'none'; // 各要素を非表示にする
+                modals[i].addEventListener('click', (event) => {
+                    if (event.target === modals[i]) {
+                        closeDialog();
+                    }
+                });
+            }
+        }
 
 
         blackLayer.addEventListener('mousedown', startDrawingMouse);
@@ -989,7 +1013,8 @@
         postButton.addEventListener('click', openPostDialog);
         getTokenButton.addEventListener('click', getAuthCodeRedirect);      
         shareButton.addEventListener('click', shareImage);
-        closeDialogButton.addEventListener('click',closePostDialog)
+        closePostDialogButton.addEventListener('click',closeDialog);
+        closeDestinationServerDialogButton.addEventListener('click',closeDialog);
         submitButton.addEventListener('click', postToMastodon);
 
         copyTextButton.addEventListener('click', () => {
@@ -1037,6 +1062,7 @@
         updateToolSize();
         restoreLocalstorage();
         initializePostDialog();
+        initializeModal();
 
         if (accessToken) {
             enablePostButton();     

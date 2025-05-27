@@ -327,6 +327,31 @@ button {
     border-radius: 4px;
 }
 
+#destination-server-select {
+    width: 240px;
+    height: 42px;
+    border: 0px solid #ddd;
+    border-radius: 4px;
+    background-color: rgb(29, 29, 38);
+    text-align-last: center;
+    font-size: 16px;
+    font-weight: bold;    
+    color: #DDD9E8;
+    cursor: pointer;
+}
+
+#destination-server-select-btn {
+    padding: 0px;
+    width: 100px;
+    height: 42px;
+    background-color: #6364ff;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;    
+    border: none;
+    cursor: pointer;
+}
+
 #preview-img {
     border-radius: 8px;
     border: 0px solid  rgb(18, 18, 21);
@@ -346,7 +371,7 @@ textarea {
     font-family: inherit;
 }
 
-select {
+#visibility-select {
     width: 48px;
     border: 0px solid #ddd;
     border-radius: 4px;
@@ -382,7 +407,7 @@ input[type="checkbox"] {
     filter: grayscale();
 }
 
-#enableCWCheckbox:checked ~ .checkbox-label{
+#enable-CW-checkbox:checked ~ .checkbox-label{
     background-color:#6364ff;
     color:#EBECFF;
     filter: none;
