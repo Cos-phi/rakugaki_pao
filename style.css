@@ -340,7 +340,7 @@ button {
     cursor: pointer;
 }
 
-#destination-server-apply-btn {
+#destination-server-auth-btn {
     padding: 0px;
     width: 100px;
     height: 42px;

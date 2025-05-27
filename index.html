@@ -68,7 +68,7 @@
 
 
         <div id="controls2">
-            <button id="getToken" class="mistodon-btn" title="認証">
+            <button id="auth-btn" class="mistodon-btn" title="認証">
                 <img src="image/mistodon_disable.svg" style="height: 100%;" alt="Authentication">
             </button>
             <button id="post" class="mistodon-btn" style="display: none;">
@@ -98,7 +98,7 @@
             <div class="dialog-title-container">
                 <button id="close-post-dialog-button" class="close-dialog-button">×</button>
                 <div id="destination-server-name"></div>
-                <button id="destination-server-setting-button"><img src="image/setting.svg" style="height: 100%;"></button>
+                <button id="destination-server-reset-button"><img src="image/setting.svg" style="height: 100%;"></button>
             </div>
             <img id="preview-img" width="360" height="360">
             <textarea id="comment-textarea" rows="3" maxlength="483"></textarea>
@@ -117,7 +117,7 @@
         </div>
     </div>
 
-    <div id="destination-server-setting-dialog-modal" class="modal"  style="display: block;"> <!-- none -->
+    <div id="destination-server-setting-dialog-modal" class="modal"  style="display: none;"> <!-- none -->
         <div class="modal-content">
             <div class="dialog-title-container">
                 <button id="close-destination-server-dialog-button" class="close-dialog-button">×</button>
@@ -125,9 +125,9 @@
             <div class="select-container">
                 <select id="destination-server-select">
                     <option value="mistodon.cloud">mistodon.cloud</option>
-                    <option value="fedibird.com">fedibird.com</option>
+                    <!--<option value="fedibird.com">fedibird.com</option>-->
                 </select>
-                <button id="destination-server-apply-btn">select</button>   
+                <button id="destination-server-auth-btn">認証</button>   
             </div>
         </div>
     </div>
@@ -160,22 +160,22 @@
 
         const modals = document.getElementsByClassName('modal');
 
-        const destinationServerSettingDialogModal = document.getElementById('destinationServerSettingDialogModal');
+        const destinationServerSettingDialogModal = document.getElementById('destination-server-setting-dialog-modal');
         const closeDestinationServerDialogButton = document.getElementById('close-destination-server-dialog-button');
         const destinationServerSelect = document.getElementById('destination-server-select');
-        const destinationServerApplyButton = document.getElementById('destination-server-apply-btn');
+        const destinationServerAuthButton = document.getElementById('destination-server-auth-btn');
 
         const postDialogModal = document.getElementById('post-dialog-modal');
         const closePostDialogButton = document.getElementById('close-post-dialog-button');
         const curDestinationServerNameTitle = document.getElementById('destination-server-name');
-        const serverChangeButton = document.getElementById('destination-server-setting-button');
+        const destinationServerResetButton = document.getElementById('destination-server-reset-button');
         const previewImg = document.getElementById("preview-img");
         const commentTextarea = document.getElementById('comment-textarea');
         const visibilitySelect = document.getElementById('visibility-select');
         const enableCWCheckbox = document.getElementById('enable-CW-checkbox')
         const submitButton = document.getElementById('submit-button');
 
-        const getTokenButton = document.getElementById('getToken');
+        const authButton = document.getElementById('auth-btn');
         const shareButton = document.getElementById('share');
         const postingDummyButton = document.getElementById('posting');
         const progressBar = document.getElementById('progress-bar-line');
@@ -217,27 +217,33 @@
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
         const localstorageKeyLastClearTime = 'lastcleartimekey';
+        const localstorageKeyDestinationServerName = 'destinationservernamekey';
 
         //投稿に関する情報
-        let destinationServerName = "mistodon.cloud";
-        const serverDataMain = [
-            {
+        const destinationServerName = window.localStorage.getItem(localstorageKeyDestinationServerName) || "mistodon.cloud";
+        console.log(destinationServerName);
+        
+        const serverDataMain = {
+            "mistodon.cloud": {
+                app_type: "mastodon",
                 hostname: "mistodon.cloud",
                 client_id:"kxcPRIOf0YfLnd_RP9kzjycaRdxiAAJfS2yPCYopB-4",
                 client_secret:"lDCqUUok59GkUUfbOcLKVU4n1H8vOM3s97bB6KC6bZ4",
                 redirect_uri:"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
             },
-        ];
-        const serverDataDev = [
-            {
+        };
+        const serverDataDev = {
+            "mistodon.cloud": {
+                app_type: "mastodon",
                 hostname: "mistodon.cloud",
                 client_id:"ahEQR-_jEZYLC1UjgBx9M5yJGFtmzxunRPCjqGz-ZAY",
                 client_secret:"D9_84dg-8gDfuXe4Qp2wrEwbWfJEMxdIoNjlCHHBgt0",
                 redirect_uri:"https://cos-phi.github.io/rakugaki_pao/index.html",
             },
-        ]
-        let serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverData;
-        let app_info = serverData[0];
+        }
+        const serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverDataMain;
+
+        const app_info = serverData[destinationServerName];
         const hostName = app_info.hostname;
         const serverUrl = "https://" + hostName; 
         const manualUrl = "manual.html"
@@ -888,7 +894,7 @@
         }
 
         function enablePostButton() {
-            getTokenButton.style.display = 'none';
+            authButton.style.display = 'none';
             postButton.style.display = '';
         }
 
@@ -914,11 +920,14 @@
 
         //投稿先選択ダイアログ
         function openDestinationServerSettingDialog() {
+            closeDialog();
             destinationServerSettingDialogModal.style.display = 'block';
         }
 
-        function applyDestinationServerSetting() {
-            destinationServerName = destinationServerSelect.value;
+        function authDestinationServer() {
+            window.localStorage.setItem(localstorageKeyDestinationServerName,destinationServerSelect.value);
+            window.localStorage.removeItem(localstorageKeyAccessToken);
+            getAuthCodeRedirect();
         }
 
         //ダイアログ共通
@@ -1038,12 +1047,17 @@
 
         copyButton.addEventListener('click', copyImage);
         saveButton.addEventListener('click', saveImage);
-        postButton.addEventListener('click', openPostDialog);
-        getTokenButton.addEventListener('click', getAuthCodeRedirect);      
         shareButton.addEventListener('click', shareImage);
-        closePostDialogButton.addEventListener('click',closeDialog);
+        
+        authButton.addEventListener('click', openDestinationServerSettingDialog); 
+        destinationServerAuthButton.addEventListener('click', authDestinationServer);    
         closeDestinationServerDialogButton.addEventListener('click',closeDialog);
+        
+        postButton.addEventListener('click', openPostDialog); 
+        destinationServerResetButton.addEventListener('click', openDestinationServerSettingDialog);
         submitButton.addEventListener('click', postToMastodon);
+        closePostDialogButton.addEventListener('click',closeDialog);
+
 
         copyTextButton.addEventListener('click', () => {
             if (navigator.clipboard) {
