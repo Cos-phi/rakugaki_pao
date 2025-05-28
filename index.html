@@ -266,6 +266,7 @@
 
         const shareUrl = app_info.redirect_uri = app_info.redirect_uri.replace(/\/index\.html$/, '/');
         
+        destinationServerSelect.value = destinationServerName;
         postButtonImg.src = "image/"+ app_info.app_type + ".svg";
         postingDummyButtonImg.src = "image/"+ app_info.app_type + "_active.svg";
         postButton.title = hostName + "に投稿";
