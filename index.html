@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=13"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=14"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
@@ -93,14 +93,11 @@
         </div>
     </div>
 
-    <div id="post-dialog-modal" class="modal"  style="display: none;"> <!-- none -->
+    <div id="post-dialog-modal" class="modal"  style="display: block;"> <!-- none -->
         <div class="modal-content">
             <div class="dialog-title-container">
                 <button id="close-post-dialog-button" class="close-dialog-button">×</button>
-                <button id="destination-server-reset-button">
-                    <div id="destination-server-name"></div>
-                    <img src="image/setting.svg" style="height: 100%;">
-                </button>
+                <button id="destination-server-reset-button"></button>
             </div>
             <img id="preview-img" width="360" height="360">
             <textarea id="comment-textarea" rows="3" maxlength="483"></textarea>
@@ -180,7 +177,6 @@
 
         const postDialogModal = document.getElementById('post-dialog-modal');
         const closePostDialogButton = document.getElementById('close-post-dialog-button');
-        const curDestinationServerNameTitle = document.getElementById('destination-server-name');
         const destinationServerResetButton = document.getElementById('destination-server-reset-button');
         const previewImg = document.getElementById("preview-img");
         const commentTextarea = document.getElementById('comment-textarea');
@@ -274,7 +270,7 @@
         postButtonImg.src = "image/"+ app_info.app_type + ".svg";
         postingDummyButtonImg.src = "image/"+ app_info.app_type + "_active.svg";
         postButton.title = hostName + "に投稿";
-        curDestinationServerNameTitle.textContent = "→ " + hostName;
+        destinationServerResetButton.textContent = hostName;
 
 
         //変数の初期化

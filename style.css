@@ -282,12 +282,13 @@ button {
     transform: translate(-50%, -50%);
     background-color: rgb(18, 18, 21);
     padding: 20px;
-    padding-top: 10px;
+    padding-top: 16px;
     border-radius: 4px;
     width: 360px;
 }
 
 .dialog-title-container {
+    margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -307,23 +308,18 @@ button {
     color: #FFFFFF;
 }
 
-#destination-server-name {
-    margin-left:auto;
-    font-size: 16px;
-    color: #DDD9E8;
-    font-family: inherit;
-}
-
 #destination-server-reset-button {
-    padding: 0px;
-    height: 14px;
-    width:  14px;
-    margin-left: 4px;
+    height: initial;
+    width: initial;
+    margin-left:auto;
+    padding: 8px;
     justify-content: center; 
     align-items: center;
+    font-size: 16px;
+    color: #DDD9E8;
     cursor: pointer;
     border: 0px solid #36364A;
-    background-color: inherit;
+    background-color: rgb(29, 29, 38);
     border-radius: 4px;
 }
 
