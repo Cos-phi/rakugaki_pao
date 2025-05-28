@@ -69,13 +69,13 @@
 
         <div id="controls2">
             <button id="auth-btn" class="logo-btn" title="認証">
-                <img src="image/mistodon_disable.svg" style="height: 100%;" alt="Authentication">
+                <img id="auth-btn-img" style="height: 100%;" alt="Authentication">
             </button>
             <button id="post-btn" class="logo-btn" style="display: none;">
-                <img id="post-btn-img" src="image/mistodon.svg" style="height: 100%;" alt="Post">
+                <img id="post-btn-img" style="height: 100%;" alt="Post">
             </button>
             <button id="posting-dummy-btn" class="logo-btn" style="display: none;">
-                <img id="posting-dummy-btn-img" src="image/mistodon_active.svg" style="height: 100%;" alt="Posting..">
+                <img id="posting-dummy-btn-img" style="height: 100%;" alt="Posting..">
             </button>
         </div>
 
@@ -159,6 +159,7 @@
         const opacityInput = document.getElementById('opacity');
 
         const authButton = document.getElementById('auth-btn');
+        const authButtonImg = document.getElementById('auth-btn-img');
         const postButton = document.getElementById('post-btn');
         const postButtonImg = document.getElementById('post-btn-img');
         const postingDummyButton = document.getElementById('posting-dummy-btn');
@@ -267,6 +268,7 @@
         const shareUrl = app_info.redirect_uri = app_info.redirect_uri.replace(/\/index\.html$/, '/');
         
         destinationServerSelect.value = destinationServerName;
+        authButtonImg.src = "image/"+ app_info.app_type + "_disable.svg";
         postButtonImg.src = "image/"+ app_info.app_type + ".svg";
         postingDummyButtonImg.src = "image/"+ app_info.app_type + "_active.svg";
         postButton.title = hostName + "に投稿";
