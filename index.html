@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=12"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=13"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
@@ -21,13 +21,13 @@
             </div>
 
             <div class="top-right-buttons">
-                <button id="copy" class="controls-top-btn" title="クリップボードにコピー">
+                <button id="copy-btn" class="controls-top-btn" title="クリップボードにコピー">
                     <img src="image/copytoclipboard.svg" style="height: 100%;" alt="Copy">
                 </button>
-                <button id="save" class="controls-top-btn" title="ダウンロードして保存">
+                <button id="save-btn" class="controls-top-btn" title="ダウンロードして保存">
                     <img src="image/download.svg" style="height: 100%;" alt="Download">
                 </button>
-                <button id="share" class="controls-top-btn" title="共有">
+                <button id="share-btn" class="controls-top-btn" title="共有">
                     <img src="image/share.svg" style="height: 100%;" alt="Share">
                 </button>
             </div>
@@ -68,14 +68,14 @@
 
 
         <div id="controls2">
-            <button id="auth-btn" class="mistodon-btn" title="認証">
+            <button id="auth-btn" class="logo-btn" title="認証">
                 <img src="image/mistodon_disable.svg" style="height: 100%;" alt="Authentication">
             </button>
-            <button id="post" class="mistodon-btn" style="display: none;">
-                <img src="image/mistodon.svg" style="height: 100%;" alt="Post">
+            <button id="post-btn" class="logo-btn" style="display: none;">
+                <img id="post-btn-img" src="image/mistodon.svg" style="height: 100%;" alt="Post">
             </button>
-            <button id="posting" class="mistodon-btn" style="display: none;">
-                <img src="image/mistodon_active.svg" style="height: 100%;" alt="Post">
+            <button id="posting-dummy-btn" class="logo-btn" style="display: none;">
+                <img id="posting-dummy-btn-img" src="image/mistodon_active.svg" style="height: 100%;" alt="Posting..">
             </button>
         </div>
 
@@ -137,9 +137,9 @@
         const clearButton = document.getElementById('clear');
         const manualButton = document.getElementById('manual');
         
-        const copyButton = document.getElementById('copy');
-        const saveButton = document.getElementById('save');
-        const postButton = document.getElementById('post');
+        const copyButton = document.getElementById('copy-btn');
+        const saveButton = document.getElementById('save-btn');
+        const shareButton = document.getElementById('share-btn');
 
         const blackLayer = document.getElementById('blackLayer');
         const colorLayer = document.getElementById('colorLayer');
@@ -158,6 +158,16 @@
         const eraserColor = document.getElementById('eraserColor');
         const opacityInput = document.getElementById('opacity');
 
+        const authButton = document.getElementById('auth-btn');
+        const postButton = document.getElementById('post-btn');
+        const postButtonImg = document.getElementById('post-btn-img');
+        const postingDummyButton = document.getElementById('posting-dummy-btn');
+        const postingDummyButtonImg = document.getElementById('posting-dummy-btn-img');
+        const progressBar = document.getElementById('progress-bar-line');
+        const hashtagLine = document.getElementById('hashtag-line');
+        const messageLine = document.getElementById('message-line');
+        const copyTextButton = document.getElementById('copyText');
+
         const modals = document.getElementsByClassName('modal');
 
         const destinationServerSettingDialogModal = document.getElementById('destination-server-setting-dialog-modal');
@@ -174,14 +184,6 @@
         const visibilitySelect = document.getElementById('visibility-select');
         const enableCWCheckbox = document.getElementById('enable-CW-checkbox')
         const submitButton = document.getElementById('submit-button');
-
-        const authButton = document.getElementById('auth-btn');
-        const shareButton = document.getElementById('share');
-        const postingDummyButton = document.getElementById('posting');
-        const progressBar = document.getElementById('progress-bar-line');
-        const hashtagLine = document.getElementById('hashtag-line');
-        const messageLine = document.getElementById('message-line');
-        const copyTextButton = document.getElementById('copyText');
 
         //引数の取得
         const params = new URLSearchParams(document.location.search);
@@ -264,8 +266,11 @@
 
         const shareUrl = app_info.redirect_uri = app_info.redirect_uri.replace(/\/index\.html$/, '/');
         
+        postButtonImg.src = "image/"+ app_info.app_type + ".svg";
+        postingDummyButtonImg.src = "image/"+ app_info.app_type + "_active.svg";
         postButton.title = hostName + "に投稿";
         curDestinationServerNameTitle.textContent = "→ " + hostName;
+
 
         //変数の初期化
         let outputFileName = 'rakugaki_pao.png';
