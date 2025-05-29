@@ -1083,10 +1083,10 @@
         copyTextButton.addEventListener('click', () => {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(hashtag).then(function () {
-                showMessage(`テキストをコピーしました`)
+                showMessage(`ハッシュタグをコピーしました`)
                 })
             } else {
-                alert('コピーできませんの');
+                alert('テキストをコピーできませんの');
             }
         });
 
