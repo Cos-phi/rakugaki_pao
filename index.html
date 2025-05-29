@@ -745,7 +745,7 @@
             changeableColorButton.dataset.color = color;
         }
 
-        function updateActiveButton() {
+        function updateActiveToolButton() {
             document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#changeableColorButton').forEach(btn => btn.classList.remove('active'));
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
@@ -870,7 +870,7 @@
         }
 
         function updateToolsState() {
-            updateActiveButton();
+            updateActiveToolButton();
             setCursorBorderStyle();
             updateToolSize();
             updateToolOpacity();
@@ -1109,7 +1109,7 @@
         });
 
         //初期化
-        updateActiveButton();
+        updateActiveToolButton();
         updateToolSize();
         restoreLocalstorage();
         initializePostDialog();
