@@ -469,8 +469,7 @@
                 black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
                 color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
             });
-            undoButton.style.opacity = 1.0;
-            undoButton.style.pointerEvents = '';
+            activateUndoButton();
         }
 
         function undo() {
@@ -479,9 +478,18 @@
             ctxBlack.putImageData(state.black, 0, 0);
             ctxColor.putImageData(state.color, 0, 0);
             if (undoStack.length === 0) {
-                undoButton.style.opacity = 0.3;
-                undoButton.style.pointerEvents = 'none';
+                disactivateUndoButton();
             }
+        }
+
+        function activateUndoButton() {
+            undoButton.style.opacity = 1.0;
+            undoButton.style.pointerEvents = '';
+        }
+        
+        function disactivateUndoButton() {
+            undoButton.style.opacity = 0.3;
+            undoButton.style.pointerEvents = 'none';
         }
 
         function clearCanvas() {
