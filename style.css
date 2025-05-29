@@ -183,7 +183,7 @@ button {
     margin-right: 4px;
     padding: 0px 0px 1px 0px;
 }
-.copy-sharetext-btn {
+.copy-hashtag-btn {
     display: flex;
     justify-content: center; 
     background-color: #f0f0f0;
@@ -191,11 +191,11 @@ button {
     width: 16px;
     border:0px;
 } 
-.copy-sharetext-btn .icon{
+.copy-hashtag-btn .icon{
     opacity: 0;
     height: 100%
 } 
-.copy-sharetext-btn:hover .icon{    
+.copy-hashtag-btn:hover .icon{    
     opacity: 0.3;
 } 
 .tool-reset-btn {

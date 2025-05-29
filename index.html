@@ -80,7 +80,7 @@
         </div>
 
         <div id="hashtag-line">
-            <button id="copyText" class="copy-sharetext-btn" title="テキストをコピー">
+            <button id="copy-hashtag" class="copy-hashtag-btn" title="ハッシュタグをコピー">
                 <span id="share-text">#rakugaki_pao</span>
                 <img src="image/copytoclipboard.svg" class="icon" alt="">
             </button>
@@ -166,7 +166,7 @@
         const progressBar = document.getElementById('progress-bar-line');
         const hashtagLine = document.getElementById('hashtag-line');
         const messageLine = document.getElementById('message-line');
-        const copyTextButton = document.getElementById('copyText');
+        const copyHashtagButton = document.getElementById('copy-hashtag');
 
         const modals = document.getElementsByClassName('modal');
 
@@ -652,7 +652,7 @@
             postingDummyButton.style.display = 'none';
         }
 
-        function postToMastodon() {
+        function postToDestinationServer() {
             savePostSetting();
             combineCanvas();
             const dataURL = combinedCanvas.toDataURL('image/png');
@@ -852,7 +852,6 @@
             opacityInput.value = ctxCurrentLayer === ctxBlack ? toolOpacity.blackPen : toolOpacity.colorBrush;
             updateButtonOpacity();
             activeStrokeLayer.style.opacity = opacityInput.value;
-            
         }
 
         function increaseToolOpacity(){
@@ -886,29 +885,27 @@
         }
 
         function previewCursorSize(){
-            const previewY = 630;
+            let previewX = 360;
+            let previewY = 630;
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
-                    updateCursor(270, previewY);
+                    previewX = 270;
                 } else {
-                    updateCursor(630, previewY);
+                    previewX = 630;
                 }
             } else {
                 if (ctxCurrentLayer === ctxBlack) {
-                    updateCursor(90, previewY);
+                    previewX = 90;
                 } else {
-                    updateCursor(450, previewY);
+                    previewX = 450;
                 }
             }
+            updateCursor(previewX, previewY);
         }
 
         function setCursorBorderStyle(){
             if (isEraser) {
-                if (ctxCurrentLayer === ctxBlack) {
-                    cursor.style.borderStyle = 'dotted';
-                } else {
-                    cursor.style.borderStyle = 'dotted';
-                }
+                cursor.style.borderStyle = 'dotted';
             } else {
                 cursor.style.borderStyle = 'solid';
             }
@@ -962,7 +959,7 @@
         //ダイアログ共通
         function closeDialog() {
             for (let i = 0; i < modals.length; i++) {
-                modals[i].style.display = 'none'; // 各要素を非表示にする
+                modals[i].style.display = 'none'; 
             }
         }
 
@@ -1071,11 +1068,11 @@
         
         postButton.addEventListener('click', openPostDialog); 
         destinationServerResetButton.addEventListener('click', openDestinationServerSettingDialog);
-        submitButton.addEventListener('click', postToMastodon);
+        submitButton.addEventListener('click', postToDestinationServer);
         closePostDialogButton.addEventListener('click',closeDialog);
 
 
-        copyTextButton.addEventListener('click', () => {
+        copyHashtagButton.addEventListener('click', () => {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(hashtag).then(function () {
                 showMessage(`ハッシュタグをコピーしました`)
