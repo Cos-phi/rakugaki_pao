@@ -125,6 +125,7 @@
                 <select id="destination-server-select">
                     <option value="mistodon.cloud">mistodon.cloud</option>
                     <option value="fedibird.com">fedibird.com</option>
+                    <option value="tanoshii.site">tanoshii.site</option>
                 </select>
                 <button id="destination-server-auth-btn">認証</button>   
             </div>
@@ -238,6 +239,13 @@
                 client_id:"5BeHayqwh2hVzj_rWA_JwITrUs1u5jX3nkFd32b6JTE",
                 client_secret:"PsMoMYAj4qXwBH36NGGAhJA2SjytPvbY9m9GAJ1Erl8",
                 redirect_uri:"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
+            },
+            "tanoshii.site": {
+                app_type: "misskey",
+                hostname: "tanoshii.site",
+                client_id: "a8d2gm0tsoka04w9",
+                client_secret: "5sJt8Wz9Hyq0ox0AoKuW5D5OjwNUlTKt",
+                redirect_uri: "https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
             }
         };
         const serverDataDev = {
@@ -254,6 +262,13 @@
                 client_id:"kS_5YdvHvVYor577pNlro2FXEazbp91f79QACC4gkKo",
                 client_secret:"ciPBpCvLc6UuAY5ljuKH6wXffCcVC_-9CswTmgvO7Gw",
                 redirect_uri:"https://cos-phi.github.io/rakugaki_pao/index.html",
+            },
+            "tanoshii.site": {
+                app_type: "misskey",
+                hostname: "tanoshii.site",
+                client_id: "a8d2dtgxsoka04w5",
+                client_secret: "2gVt5bFHLoqOVrHB0QgzMFRZXfYjmSSS",
+                redirect_uri: "https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
             }
         }
         const serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverDataMain;
@@ -573,6 +588,14 @@
             activatePostingProgressBar();
             closeDialog();
             showElapsedTimeFromLastClearTime();
+            if (app_info.app_type === "misskey") {
+                postImageToMisskey(dataURL, accessToken);
+            } else {
+                postImageToMastodon(dataURL, accessToken);
+            }
+        }
+
+        function postImageToMastodon(dataURL, accessToken){
             fetch(`${serverUrl}/api/v1/media`, {
                     method: 'POST',
                     headers: {
@@ -632,6 +655,57 @@
             });
         }
 
+        function postImageToMisskey(dataURL, accessToken) {
+            // 画像アップロード
+            const blob = dataURLToBlob(dataURL);
+            const formData = new FormData();
+            formData.append('file', blob, outputFileName);
+            formData.append('i', accessToken);
+
+            fetch(`${serverUrl}/api/drive/files/create`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(fileData => {
+                // 投稿
+                return fetch(`${serverUrl}/api/notes/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        i: accessToken,
+                        text: postComment,
+                        visibility: getMisskeyVisibility(publishingLevel),
+                        fileIds: [fileData.id],
+                        cw: enableCW ? "CW" : undefined
+                    })
+                });
+            })
+            .then(() => {
+                deactivatePostingProgressBar();
+                setTimeout(() => {
+                    showMessage('　投稿しましたわ！')
+                    showElapsedTimeFromLastClearTime();
+                    initializePostDialog();
+                }, 100);
+            })
+            .catch(error => {
+                deactivatePostingProgressBar();
+                alert('Misskey投稿中にエラーが発生しました');
+                console.error(error);
+            });
+        }
+
+        function getMisskeyVisibility(mastodonVisibility) {
+            switch (mastodonVisibility) {
+                case "public": return "public";
+                case "unlisted": return "home";
+                case "private": return "followers";
+                case "direct": return "specified";
+                default: return "public";
+            }
+        }
+
         function activatePostingProgressBar(){
             progressBar.style.visibility = 'visible';
             postButton.style.display = 'none';
@@ -652,7 +726,11 @@
         }
 
         function getAuthCodeRedirect() {
-            document.location = `${serverUrl}/oauth/authorize?response_type=code&redirect_uri=${app_info.redirect_uri}&scope=write&client_id=${app_info.client_id}`;
+            if (app_info.app_type === "misskey") {
+                document.location = `${serverUrl}/oauth/authorize?response_type=code&client_id=${app_info.client_id}&redirect_uri=${app_info.redirect_uri}&scope=write:notes`;
+            } else {
+                document.location = `${serverUrl}/oauth/authorize?response_type=code&redirect_uri=${app_info.redirect_uri}&scope=write&client_id=${app_info.client_id}`;
+            }
         }
 
         function dataURLToBlob(dataURL) {
@@ -1131,7 +1209,32 @@
         if (accessToken) {
             enablePostButton();     
         } else if(code) {
-            fetch(`${serverUrl}/oauth/token`, 
+            if (app_info.app_type === "misskey") {
+                // Misskey用処理
+                fetch(`${serverUrl}/api/auth/session/userkey`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        clientId: app_info.client_id,
+                        clientSecret: app_info.client_secret,
+                        code: code
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        getAuthCodeRedirect();
+                        throw "TokenError";
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    accessToken = data.accessToken;
+                    window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
+                    enablePostButton();
+                });
+            } else {
+                // Mastodon用処理
+                fetch(`${serverUrl}/oauth/token`, 
                     {
                         method: 'POST',
                         headers: {
@@ -1142,7 +1245,6 @@
                 )
                 .then(response => {
                     if (!response.ok) {
-                        //alert("トークンエラーですの。codeが駄目みたいですのでもう一度codeの取り直しをしますの。");
                         getAuthCodeRedirect()
                         throw "TokenError";
                     }
@@ -1153,9 +1255,7 @@
                     window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
                     enablePostButton();
                 })
-        } else {
-            //未認証
-            //getAuthCodeRedirect();
+            }
         }
     </script>
 </body>
