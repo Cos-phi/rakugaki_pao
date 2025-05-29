@@ -278,7 +278,7 @@
         const serverUrl = "https://" + hostName; 
         const manualUrl = "manual.html"
 
-        const shareUrl = app_info.redirect_uri = app_info.redirect_uri.replace(/\/index\.html$/, '/');
+        const shareUrl = app_info.redirect_uri.replace(/\/index\.html$/, '/');
         
         destinationServerSelect.value = destinationServerName;
         authButtonImg.src = "image/"+ app_info.app_type + "_disable.svg";
