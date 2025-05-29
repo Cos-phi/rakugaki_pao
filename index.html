@@ -969,30 +969,17 @@
             }
         }
 
-
         blackLayer.addEventListener('mousedown', startDrawingMouse);
         blackLayer.addEventListener('mousemove', drawMouse);
         blackLayer.addEventListener('mouseup', stopDrawing);
         blackLayer.addEventListener('mouseout', stopDrawingMouseOut);
         blackLayer.addEventListener('mousemove', updateCursorMouse);
 
-        colorLayer.addEventListener('mousedown', startDrawingMouse);
-        colorLayer.addEventListener('mousemove', drawMouse);
-        colorLayer.addEventListener('mouseup', stopDrawing);
-        colorLayer.addEventListener('mouseout', stopDrawingMouseOut);
-        colorLayer.addEventListener('mousemove', updateCursorMouse);
-
         blackLayer.addEventListener('touchstart', startDrawingTouch);
         blackLayer.addEventListener('touchmove', drawTouch);
         blackLayer.addEventListener('touchend', stopDrawingTouch);
         blackLayer.addEventListener('touchcancel', stopDrawingTouch);
         blackLayer.addEventListener('touchmove', updateCursorTouch);
-
-        colorLayer.addEventListener('touchstart', startDrawingTouch);
-        colorLayer.addEventListener('touchmove', drawTouch);
-        colorLayer.addEventListener('touchend', stopDrawingTouch);
-        colorLayer.addEventListener('touchcancel', stopDrawingTouch);
-        colorLayer.addEventListener('touchmove', updateCursorTouch);
 
         undoButton.addEventListener('mousedown', undo);
         clearButton.addEventListener('click', clearCanvas);
