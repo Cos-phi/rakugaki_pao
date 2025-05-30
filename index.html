@@ -236,7 +236,14 @@
                 client_id:"5BeHayqwh2hVzj_rWA_JwITrUs1u5jX3nkFd32b6JTE",
                 client_secret:"PsMoMYAj4qXwBH36NGGAhJA2SjytPvbY9m9GAJ1Erl8",
                 redirect_uri:"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
-            }
+            },
+            "tanoshii.site": {
+                app_type: "misskey",
+                hostname: "tanoshii.site",
+                redirect_uri: "https://kurajo.ivory.ne.jp/rakugaki_pao/", // MiAuthのcallback
+                miauth_name: "rakugaki_pao",
+                miauth_permission: ["write:notes", "write:drive"],
+            },
         };
         const serverDataDev = {
             "mistodon.cloud": {
@@ -257,9 +264,9 @@
                 app_type: "misskey",
                 hostname: "tanoshii.site",
                 redirect_uri: "https://cos-phi.github.io/rakugaki_pao/", // MiAuthのcallback
-                miauth_name: "rakugaki_pao",
+                miauth_name: "rakugaki_pao.dev",
                 miauth_permission: ["write:notes", "write:drive"],
-            }
+            },
         }
         const serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverDataMain;
 
