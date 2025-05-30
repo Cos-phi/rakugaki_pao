@@ -6,81 +6,79 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=14"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=15"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
 </head>
 <body>
     <div id="app">
         <div id="controls-top">
             <div class="top-left-buttons">
-                <button id="clear" class="controls-top-btn" title="キャンバスのクリア">
+                <button id="clear" class="controls-top-button" title="キャンバスのクリア">
                     <img src="image/new.svg" style="height: 100%;" alt="Clear">
                 </button>
-                <button id="manual" class="controls-top-btn" title="rakugaki_paoについて">
-                    <img src="image/manual.svg" style="height: 100%;" alt="manual">
+                <button id="manual" class="controls-top-button" title="rakugaki_paoについて">
+                    <img src="image/manual.svg" style="height: 100%;" alt="Manual">
                 </button>
             </div>
 
             <div class="top-right-buttons">
-                <button id="copy-btn" class="controls-top-btn" title="クリップボードにコピー">
+                <button id="copy-button" class="controls-top-button" title="クリップボードにコピー">
                     <img src="image/copytoclipboard.svg" style="height: 100%;" alt="Copy">
                 </button>
-                <button id="save-btn" class="controls-top-btn" title="ダウンロードして保存">
+                <button id="save-button" class="controls-top-button" title="ダウンロードして保存">
                     <img src="image/download.svg" style="height: 100%;" alt="Download">
                 </button>
-                <button id="share-btn" class="controls-top-btn" title="共有">
+                <button id="share-button" class="controls-top-button" title="共有">
                     <img src="image/share.svg" style="height: 100%;" alt="Share">
                 </button>
             </div>
         </div>
 
         <div id="canvas-container">
-            <canvas id="backgroundLayer" width="720" height="720"></canvas>
-            <canvas id="colorLayer" width="720" height="720"></canvas>
-            <canvas id="activeStrokeLayer" width="720" height="720"></canvas>
-            <canvas id="blackLayer" width="720" height="720"></canvas>
+            <canvas id="background-layer" width="720" height="720"></canvas>
+            <canvas id="color-layer" width="720" height="720"></canvas>
+            <canvas id="active-stroke-layer" width="720" height="720"></canvas>
+            <canvas id="black-layer" width="720" height="720"></canvas>
             <div id="cursor"></div>
         </div>
 
         <div id="controls1">  
-            <button id="undo" class="undo-btn" title="元に戻す"  style="opacity: 0.3; pointer-events: none;">
+            <button id="undo-button" title="元に戻す"  style="opacity: 0.3; pointer-events: none;">
                 <img src="image/undo.svg" style="height: 100%;" alt="Undo">
             </button>
-
                      
             <input type="range" id="tool-size" min="0" max="7" title="ペン/ブラシのサイズ">
             
-            <button id="blackPen" class="pen-btn" title="黒ペン">
+            <button id="black-pen-button" title="黒ペン">
                 <img src="image/pen_w.svg" style="height: 100%;" alt="Pen">
             </button>
-            <button id="eraserBlack" class="pen-eraser-btn" title="黒ペン消し">
+            <button id="black-eraser-button" title="黒ペン消し">
                 <img src="image/eraser.svg" style="height: 100%;" alt="Eraser">    
             </button>
             
-            <div id="colorButtons" title="色ブラシ"></div>
-            <button id="changeableColorButton" class="color-btn" title="選択色ブラシ"></button>
+            <div id="color-brush-buttons-container" title="色ブラシ"></div>
+            <button id="changeable-color-brush-button" class="color-brush-button" title="選択色ブラシ"></button>
             <input id="palette" type="color" title="色の選択">
-            <button id="eraserColor" class="color-eraser-btn" title="色ブラシ消し">
+            <button id="color-eraser-button" title="色ブラシ消し">
                
             </button>
              
             <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="ペン/ブラシの不透明度">
         </div>
 
-
         <div id="controls2">
-            <button id="auth-btn" class="logo-btn" title="認証">
-                <img id="auth-btn-img" style="height: 100%;" alt="Authentication">
+            <button id="auth-button" class="logo-button" title="認証">
+                <img id="auth-button-img" style="height: 100%;" alt="Authentication">
             </button>
-            <button id="post-btn" class="logo-btn" style="display: none;">
-                <img id="post-btn-img" style="height: 100%;" alt="Post">
+            <button id="post-button" class="logo-button" style="display: none;">
+                <img id="post-button-img" style="height: 100%;" alt="Post">
             </button>
-            <button id="posting-dummy-btn" class="logo-btn" style="display: none;">
-                <img id="posting-dummy-btn-img" style="height: 100%;" alt="Posting..">
+            <button id="posting-dummy-button" class="logo-button" style="display: none;">
+                <img id="posting-dummy-button-img" style="height: 100%;" alt="Posting..">
             </button>
         </div>
 
         <div id="hashtag-line">
-            <button id="copy-hashtag" class="copy-hashtag-btn" title="ハッシュタグをコピー">
+            <button id="copy-hashtag" class="copy-hashtag-button" title="ハッシュタグをコピー">
                 <span id="share-text">#rakugaki_pao</span>
                 <img src="image/copytoclipboard.svg" class="icon" alt="">
             </button>
@@ -126,7 +124,7 @@
                     <option value="mistodon.cloud">mistodon.cloud</option>
                     <option value="fedibird.com">fedibird.com</option>
                 </select>
-                <button id="destination-server-auth-btn">認証</button>   
+                <button id="destination-server-auth-button">認証</button>   
             </div>
         </div>
     </div>
@@ -136,33 +134,33 @@
         const clearButton = document.getElementById('clear');
         const manualButton = document.getElementById('manual');
         
-        const copyButton = document.getElementById('copy-btn');
-        const saveButton = document.getElementById('save-btn');
-        const shareButton = document.getElementById('share-btn');
+        const copyButton = document.getElementById('copy-button');
+        const saveButton = document.getElementById('save-button');
+        const shareButton = document.getElementById('share-button');
 
-        const blackLayer = document.getElementById('blackLayer');
-        const colorLayer = document.getElementById('colorLayer');
-        const activeStrokeLayer = document.getElementById('activeStrokeLayer');
-        const backgroundLayer = document.getElementById('backgroundLayer');
+        const blackLayer = document.getElementById('black-layer');
+        const colorLayer = document.getElementById('color-layer');
+        const activeStrokeLayer = document.getElementById('active-stroke-layer');
+        const backgroundLayer = document.getElementById('background-layer');
         const cursor = document.getElementById('cursor');
         const combinedCanvas = document.createElement('canvas');
 
-        const undoButton = document.getElementById('undo');
+        const undoButton = document.getElementById('undo-button');
         const toolSizeParamInput = document.getElementById('tool-size');
-        const blackPenButton = document.getElementById('blackPen');
-        const eraserBlack = document.getElementById('eraserBlack');
-        const colorButtons = document.getElementById('colorButtons');
-        const changeableColorButton = document.getElementById('changeableColorButton')
+        const blackPenButton = document.getElementById('black-pen-button');
+        const blackEraser = document.getElementById('black-eraser-button');
+        const colorBrushButtonsContainer = document.getElementById('color-brush-buttons-container');
+        const changeableColorBrushButton = document.getElementById('changeable-color-brush-button')
         const colorPalette = document.getElementById('palette');
-        const eraserColor = document.getElementById('eraserColor');
+        const colorEraser = document.getElementById('color-eraser-button');
         const opacityInput = document.getElementById('opacity');
 
-        const authButton = document.getElementById('auth-btn');
-        const authButtonImg = document.getElementById('auth-btn-img');
-        const postButton = document.getElementById('post-btn');
-        const postButtonImg = document.getElementById('post-btn-img');
-        const postingDummyButton = document.getElementById('posting-dummy-btn');
-        const postingDummyButtonImg = document.getElementById('posting-dummy-btn-img');
+        const authButton = document.getElementById('auth-button');
+        const authButtonImg = document.getElementById('auth-button-img');
+        const postButton = document.getElementById('post-button');
+        const postButtonImg = document.getElementById('post-button-img');
+        const postingDummyButton = document.getElementById('posting-dummy-button');
+        const postingDummyButtonImg = document.getElementById('posting-dummy-button-img');
         const progressBar = document.getElementById('progress-bar-line');
         const hashtagLine = document.getElementById('hashtag-line');
         const messageLine = document.getElementById('message-line');
@@ -173,7 +171,7 @@
         const destinationServerSettingDialogModal = document.getElementById('destination-server-setting-dialog-modal');
         const closeDestinationServerDialogButton = document.getElementById('close-destination-server-dialog-button');
         const destinationServerSelect = document.getElementById('destination-server-select');
-        const destinationServerAuthButton = document.getElementById('destination-server-auth-btn');
+        const destinationServerAuthButton = document.getElementById('destination-server-auth-button');
 
         const postDialogModal = document.getElementById('post-dialog-modal');
         const closePostDialogButton = document.getElementById('close-post-dialog-button');
@@ -743,10 +741,10 @@
             location.reload()
         }
 
-        function createColorButtons() {
+        function createColorBrushButtons() {
             PaletteColors.forEach(color => {
                 const button = document.createElement('button');
-                button.className = 'color-btn';
+                button.className = 'color-brush-button';
                 button.style.backgroundColor = color;
                 button.dataset.color = color;  // データ属性を追加
                 button.addEventListener('mousedown', () => {
@@ -754,38 +752,38 @@
                     setColor(color);
                     updateToolsState();
                 });
-                colorButtons.appendChild(button);
+                colorBrushButtonsContainer.appendChild(button);
             });
         }
 
-        function createChangeableColorButton() {
-            changeableColorButton.style.backgroundColor = curPaletteColor;
-            changeableColorButton.dataset.color = curPaletteColor;
-            colorButtons.appendChild(changeableColorButton);
-            changeableColorButton.addEventListener('mousedown', selectChangeableColorButton);
+        function createChangeableColorBrushButton() {
+            changeableColorBrushButton.style.backgroundColor = curPaletteColor;
+            changeableColorBrushButton.dataset.color = curPaletteColor;
+            colorBrushButtonsContainer.appendChild(changeableColorBrushButton);
+            changeableColorBrushButton.addEventListener('mousedown', selectChangeableColorBrushButton);
         }
 
-        function updateChangeableColorButton(color){
-            changeableColorButton.style.backgroundColor = `rgb(${hexToRgba(color,toolOpacity.colorBrush)})`;
-            changeableColorButton.dataset.color = color;
+        function updateChangeableColorBrushButton(color){
+            changeableColorBrushButton.style.backgroundColor = `rgb(${hexToRgba(color,toolOpacity.colorBrush)})`;
+            changeableColorBrushButton.dataset.color = color;
         }
 
         function updateActiveToolButton() {
-            document.querySelectorAll('.color-btn, #blackPen, #eraserBlack, #eraserColor,#changeableColorButton').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.color-brush-button, #black-pen-button, #black-eraser-button, #color-eraser-button,#changeable-color-brush-button').forEach(btn => btn.classList.remove('active'));
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
-                    eraserBlack.classList.add('active');
+                    blackEraser.classList.add('active');
                 } else {
-                    eraserColor.classList.add('active');
+                    colorEraser.classList.add('active');
                 }
             } else if (currentColor === blackPenColor) {
                 blackPenButton.classList.add('active');
             } else {
-                const activeColorBtn = document.querySelector(`.color-btn[data-color="${currentColor}"]`);
+                const activeColorBtn = document.querySelector(`.color-brush-button[data-color="${currentColor}"]`);
                 if (activeColorBtn) {
                     activeColorBtn.classList.add('active');
                 }else{
-                    changeableColorButton.classList.add('active');
+                    changeableColorBrushButton.classList.add('active');
                 }
             }
         }
@@ -884,13 +882,13 @@
             updateToolsState();
         }
 
-        function selectEraserBlack() {
+        function selectBlackEraser() {
             ctxCurrentLayer = ctxBlack;
             isEraser = true;
             updateToolsState();
         }
 
-        function selectChangeableColorButton() {
+        function selectChangeableColorBrushButton() {
             ctxCurrentLayer = ctxColor;
             isEraser = false;
             setColor(curPaletteColor);
@@ -901,11 +899,11 @@
             curPaletteColor = colorPalette.value;
             ctxCurrentLayer = ctxColor;
             setColor(curPaletteColor);
-            updateChangeableColorButton(curPaletteColor);
+            updateChangeableColorBrushButton(curPaletteColor);
             updateToolsState();
         }
 
-        function selectEraserColor() {
+        function selectColorEraser() {
             ctxCurrentLayer = ctxColor;
             isEraser = true;
             updateToolsState();
@@ -929,7 +927,7 @@
 
         function updateButtonOpacity(){
             blackPenButton.style.backgroundColor =`rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
-            const buttons = document.querySelectorAll('.color-btn');
+            const buttons = document.querySelectorAll('.color-brush-button');
             buttons.forEach(button => {
                 button.style.backgroundColor = `rgb(${hexToRgba(button.dataset.color,toolOpacity.colorBrush)})`;
             });
@@ -1083,11 +1081,11 @@
         undoButton.addEventListener('mousedown', undo);
         toolSizeParamInput.addEventListener('input', changeToolSize);
         blackPenButton.addEventListener('mousedown', selectBlackPen);
-        eraserBlack.addEventListener('mousedown', selectEraserBlack);
-        createColorButtons();
-        createChangeableColorButton();
+        blackEraser.addEventListener('mousedown', selectBlackEraser);
+        createColorBrushButtons();
+        createChangeableColorBrushButton();
         colorPalette.addEventListener('input', inputColorPalette, false);
-        eraserColor.addEventListener('mousedown', selectEraserColor);
+        colorEraser.addEventListener('mousedown', selectColorEraser);
         opacityInput.addEventListener('input', inputOpacity);
 
         authButton.addEventListener('click', openDestinationServerSettingDialog); 
