@@ -1227,7 +1227,7 @@
                     window.localStorage.removeItem(localstorageKeyAccessToken);
                     authButton.style.display = '';
                     postButton.style.display = 'none';
-                    console.log('Misskey認証が無効になっています。再認証してください。');
+                    showMessage('Misskey認証が無効になっていますの。再認証してもういちど試してくださいませ。');
                 } else if (error instanceof Response) {
                     const errJson = await error.json();
                     alert('Misskey投稿中にエラー: ' + JSON.stringify(errJson));
