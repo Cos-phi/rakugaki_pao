@@ -802,6 +802,40 @@
             isEraser = originalIsEraser;
             updateToolsState();
         }
+        
+        function changeToolSize() {
+            const sizeParam = parseInt(toolSizeParamInput.value);
+            if (isEraser) {
+                if (ctxCurrentLayer === ctxBlack) {
+                    toolSizesParam.blackEraser = sizeParam;
+                } else {
+                    toolSizesParam.colorEraser = sizeParam;
+                }
+            } else {
+                if (ctxCurrentLayer === ctxBlack) {
+                    toolSizesParam.blackPen = sizeParam;
+                } else {
+                    toolSizesParam.colorBrush = sizeParam;
+                }
+            }
+            toolDiameter = calcToolSize(sizeParam);
+            previewCursorSize();
+            updateToolSizeToolTip();
+        }
+
+        function increaseToolSize(){
+            varyToolSizeParam(1);               
+            updateToolSize();
+            previewCursorSize();
+            updateToolSizeToolTip();
+        }
+
+        function decreaseToolSize(){
+            varyToolSizeParam(-1);
+            updateToolSize();
+            previewCursorSize();
+            updateToolSizeToolTip();
+        }
 
         function updateToolSize() {
             if (isEraser) {
@@ -841,20 +875,6 @@
                     toolSizesParam.colorBrush = clampToolSizeParam(toolSizesParam.colorBrush + variation);
                 }
             }
-        }
-
-        function increaseToolSize(){
-            varyToolSizeParam(1);               
-            updateToolSize();
-            previewCursorSize();
-            updateToolSizeToolTip();
-        }
-
-        function decreaseToolSize(){
-            varyToolSizeParam(-1);
-            updateToolSize();
-            previewCursorSize();
-            updateToolSizeToolTip();
         }
         
         function updateButtonOpacity(){
@@ -990,7 +1010,6 @@
                 });
             }
         }
-
         
         //イベントリスナーの登録
         clearButton.addEventListener('click', clearCanvas);
@@ -1010,25 +1029,6 @@
         undoButton.addEventListener('mousedown', undo);
         toolSizeParamInput.addEventListener('input', changeToolSize);
 
-        function changeToolSize() {
-            const sizeParam = parseInt(toolSizeParamInput.value);
-            if (isEraser) {
-                if (ctxCurrentLayer === ctxBlack) {
-                    toolSizesParam.blackEraser = sizeParam;
-                } else {
-                    toolSizesParam.colorEraser = sizeParam;
-                }
-            } else {
-                if (ctxCurrentLayer === ctxBlack) {
-                    toolSizesParam.blackPen = sizeParam;
-                } else {
-                    toolSizesParam.colorBrush = sizeParam;
-                }
-            }
-            toolDiameter = calcToolSize(sizeParam);
-            previewCursorSize();
-            updateToolSizeToolTip();
-        }
 
         blackPenButton.addEventListener('mousedown', () => {
             ctxCurrentLayer = ctxBlack;
