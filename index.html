@@ -694,6 +694,19 @@
             showElapsedTimeFromLastClearTime();
         }
 
+        function copyHastag() {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(hashtag).then(function () {
+                    showMessage(`ハッシュタグをコピーしました`);
+                }).catch(function (error) {
+                    console.error('ハッシュタグのコピーに失敗しました:', error);
+                    alert('ハッシュタグのコピーに失敗しましたの');
+                });
+            } else {
+                alert('テキストをコピーできませんの');
+            }
+        }
+
         function showMessage(text) {
             showMessage.queue = showMessage.queue || [];
             showMessage.queue.push(text);
@@ -1071,16 +1084,7 @@
         submitButton.addEventListener('click', postToDestinationServer);
         closePostDialogButton.addEventListener('click',closeDialog);
 
-
-        copyHashtagButton.addEventListener('click', () => {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(hashtag).then(function () {
-                showMessage(`ハッシュタグをコピーしました`)
-                })
-            } else {
-                alert('テキストをコピーできませんの');
-            }
-        });
+        copyHashtagButton.addEventListener('click',copyHastag);
 
         document.addEventListener('keydown', event => {
             if (event.target.tagName === 'TEXTAREA' || event.target.tagName === 'INPUT') {
