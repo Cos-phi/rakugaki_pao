@@ -316,7 +316,6 @@
                 ctxCurrentLayer = ctxBlack;
             }
             currentColor = color;
-            isEraser = false;
         }
 
         function startDrawing(x, y) {
@@ -731,7 +730,6 @@
                     });
                 }
             }
-            
             if (!showMessage.isProcessing) {
                 showMessage.isProcessing = true;
                 processQueue().then(() => {
@@ -752,6 +750,7 @@
                 button.style.backgroundColor = color;
                 button.dataset.color = color;  // データ属性を追加
                 button.addEventListener('mousedown', () => {
+                    isEraser = false;
                     setColor(color);
                     updateToolsState();
                 });
@@ -763,6 +762,7 @@
             changeableColorButton.style.backgroundColor = curPaletteColor;
             changeableColorButton.dataset.color = curPaletteColor;
             colorButtons.appendChild(changeableColorButton);
+            changeableColorButton.addEventListener('mousedown', selectChangeableColorButton);
         }
 
         function updateChangeableColorButton(color){
@@ -877,6 +877,56 @@
             }
         }
         
+        function selectBlackPen() {
+            ctxCurrentLayer = ctxBlack;
+            isEraser = false;
+            setColor(blackPenColor);
+            updateToolsState();
+        }
+
+        function selectEraserBlack() {
+            ctxCurrentLayer = ctxBlack;
+            isEraser = true;
+            updateToolsState();
+        }
+
+        function selectChangeableColorButton() {
+            ctxCurrentLayer = ctxColor;
+            isEraser = false;
+            setColor(curPaletteColor);
+            updateToolsState();
+        }
+
+        function inputColorPalette() {
+            curPaletteColor = colorPalette.value;
+            ctxCurrentLayer = ctxColor;
+            setColor(curPaletteColor);
+            updateChangeableColorButton(curPaletteColor);
+            updateToolsState();
+        }
+
+        function selectEracerColor() {
+            ctxCurrentLayer = ctxColor;
+            isEraser = true;
+            updateToolsState();
+        }
+
+        function inputOpacity() {
+            if (ctxCurrentLayer === ctxBlack) {
+                toolOpacity.blackPen = opacityInput.value;          
+            } else {
+                toolOpacity.colorBrush = opacityInput.value;
+            }
+            updateToolOpacity();
+        }
+        
+        function hexToRgba(inputColor, opacity) {
+            const r = parseInt(inputColor.slice(1, 3), 16);
+            const g = parseInt(inputColor.slice(3, 5), 16);
+            const b = parseInt(inputColor.slice(5, 7), 16);
+            return `${r} ${g} ${b} / ${opacity}`;
+        }
+
         function updateButtonOpacity(){
             blackPenButton.style.backgroundColor =`rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
             const buttons = document.querySelectorAll('.color-btn');
@@ -1014,6 +1064,10 @@
         //イベントリスナーの登録
         clearButton.addEventListener('click', clearCanvas);
         manualButton.addEventListener('click', openManual);
+        
+        copyButton.addEventListener('click', copyImage);
+        saveButton.addEventListener('click', saveImage);
+        shareButton.addEventListener('click', shareImage);
 
         blackLayer.addEventListener('mousedown', startDrawingMouse);
         blackLayer.addEventListener('mousemove', drawMouse);
@@ -1028,60 +1082,14 @@
 
         undoButton.addEventListener('mousedown', undo);
         toolSizeParamInput.addEventListener('input', changeToolSize);
-
-
-        blackPenButton.addEventListener('mousedown', () => {
-            ctxCurrentLayer = ctxBlack;
-            setColor(blackPenColor);
-            updateToolsState();
-        });
-        eraserBlack.addEventListener('mousedown', () => {
-            ctxCurrentLayer = ctxBlack;
-            isEraser = true;
-            updateToolsState();
-        });
-
+        blackPenButton.addEventListener('mousedown', selectBlackPen);
+        eraserBlack.addEventListener('mousedown', selectEraserBlack);
         createColorButtons();
         createChangeableColorButton();
+        colorPalette.addEventListener('input', inputColorPalette, false);
+        eraserColor.addEventListener('mousedown', selectEracerColor);
+        opacityInput.addEventListener('input', inputOpacity);
 
-        changeableColorButton.addEventListener('mousedown', () => {
-            ctxCurrentLayer = ctxColor;
-            setColor(curPaletteColor);
-            updateToolsState();
-        });
-        colorPalette.addEventListener('input', () => {
-            curPaletteColor = colorPalette.value;
-            ctxCurrentLayer = ctxColor;
-            setColor(curPaletteColor);
-            updateChangeableColorButton(curPaletteColor);
-            updateToolsState();
-        }, false);
-        eraserColor.addEventListener('mousedown', () => {
-            ctxCurrentLayer = ctxColor;
-            isEraser = true;
-            updateToolsState();
-        });
-
-        opacityInput.addEventListener('input', () => {
-            if (ctxCurrentLayer === ctxBlack) {
-                toolOpacity.blackPen = opacityInput.value;          
-            } else {
-                toolOpacity.colorBrush = opacityInput.value;
-            }
-            updateToolOpacity();
-        });
-        
-        function hexToRgba(inputColor, opacity) {
-            const r = parseInt(inputColor.slice(1, 3), 16);
-            const g = parseInt(inputColor.slice(3, 5), 16);
-            const b = parseInt(inputColor.slice(5, 7), 16);
-            return `${r} ${g} ${b} / ${opacity}`;
-        }
-
-        copyButton.addEventListener('click', copyImage);
-        saveButton.addEventListener('click', saveImage);
-        shareButton.addEventListener('click', shareImage);
-        
         authButton.addEventListener('click', openDestinationServerSettingDialog); 
         destinationServerAuthButton.addEventListener('click', authDestinationServer);    
         closeDestinationServerDialogButton.addEventListener('click',closeDialog);
