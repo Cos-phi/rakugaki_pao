@@ -259,7 +259,6 @@ button {
     box-sizing:border-box;
     padding: 32px 64px;
 }
-
 .modal {
     display: none;
     position: fixed;
@@ -270,7 +269,6 @@ button {
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
 }
-
 .modal-content {
     position: fixed;
     top: 45%;
@@ -282,14 +280,12 @@ button {
     border-radius: 4px;
     width: 360px;
 }
-
 .dialog-title-container {
     margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
 .close-dialog-button{
     background-color: rgb(18, 18, 21);
     color: #9C9CC9;
@@ -303,7 +299,6 @@ button {
 .close-dialog-button:hover{
     color: #FFFFFF;
 }
-
 #destination-server-reset-button {
     height: initial;
     width: initial;
@@ -317,7 +312,6 @@ button {
     background-color: rgb(29, 29, 38);
     border-radius: 4px;
 }
-
 #destination-server-select {
     width: 240px;
     height: 42px;
@@ -330,7 +324,6 @@ button {
     color: #DDD9E8;
     cursor: pointer;
 }
-
 #destination-server-auth-button {
     padding: 0px;
     width: 100px;
@@ -341,12 +334,10 @@ button {
     font-weight: bold;    
     border: none;
 }
-
 #preview-img {
     border-radius: 8px;
     border: 0px solid  rgb(18, 18, 21);
 }
-
 textarea {
     margin-bottom: 8px;
     margin-top: 8px;
@@ -360,7 +351,6 @@ textarea {
     resize: vertical;
     font-family: inherit;
 }
-
 #visibility-select {
     width: 48px;
     border: 0px solid #ddd;
@@ -370,16 +360,13 @@ textarea {
     color: #DDD9E8;
     cursor: pointer;
 }
-
 .select-container {
     display: flex;
     justify-content: space-between;
 }
-
 input[type="checkbox"] {
     display: none;
 }
-
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -396,13 +383,11 @@ input[type="checkbox"] {
     background-color: rgb(29, 29, 38);
     filter: grayscale();
 }
-
 #enable-CW-checkbox:checked ~ .checkbox-label{
     background-color:#6364ff;
     color:#EBECFF;
     filter: none;
 }
-
 .submit-button {
     padding: 0px;
     width: 160px;

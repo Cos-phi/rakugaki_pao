@@ -46,7 +46,7 @@
             </button>
                      
             <input type="range" id="tool-size" min="0" max="7" title="ペン/ブラシのサイズ">
-            
+
             <button id="black-pen-button" class="paint-tool-button" title="黒ペン">
                 <img src="image/pen_w.svg" style="height: 100%;" alt="Pen">
             </button>
@@ -107,7 +107,6 @@
                 <label for="enable-CW-checkbox" class="checkbox-label">⚠️CW </label>
                 <button id="submit-button" class="submit-button">投稿</button>   
             </div>
-
         </div>
     </div>
 
@@ -326,7 +325,6 @@
 
         function draw(x, y) {
             if (!isDrawing) return;
-
             if (isEraser) {
                 ctxCurrentLayer.beginPath();
                 ctxCurrentLayer.moveTo(lastX, lastY);
@@ -349,7 +347,6 @@
                     x = x*(1-smoothingFactor) + lastX*smoothingFactor;
                     y = y*(1-smoothingFactor) + lastY*smoothingFactor;
                 }
-
                 ctxActiveStroke.lineTo(x, y);
                 ctxActiveStroke.globalCompositeOperation = 'source-over';
                 ctxActiveStroke.strokeStyle = currentColor;
@@ -1152,8 +1149,7 @@
                 )
                 .then(response => {
                     if (!response.ok) {
-                        //alert("トークンエラーですの。codeが駄目みたいですのでもう一度codeの取り直しをしますの。");
-                        getAuthCodeRedirect()
+                        getAuthCodeRedirect() // トークンエラーのため、再度認証を要求
                         throw "TokenError";
                     }
                     return response.json()
@@ -1164,8 +1160,7 @@
                     enablePostButton();
                 })
         } else {
-            //未認証
-            //getAuthCodeRedirect();
+            // 未認証。何もしません。
         }
     </script>
 </body>
