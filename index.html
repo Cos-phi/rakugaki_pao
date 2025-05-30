@@ -499,6 +499,10 @@
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
             setLastClearTime();
         }
+        
+        function openManual(){
+            location.href = manualUrl;
+        }
 
         function setLastClearTime(){
             const nowTime = new Date();
@@ -987,13 +991,16 @@
             }
         }
 
+        
         //イベントリスナーの登録
+        clearButton.addEventListener('click', clearCanvas);
+        manualButton.addEventListener('click', openManual);
+
         blackLayer.addEventListener('mousedown', startDrawingMouse);
         blackLayer.addEventListener('mousemove', drawMouse);
         blackLayer.addEventListener('mouseup', stopDrawing);
         blackLayer.addEventListener('mouseout', stopDrawingMouseOut);
         blackLayer.addEventListener('mousemove', updateCursorMouse);
-
         blackLayer.addEventListener('touchstart', startDrawingTouch);
         blackLayer.addEventListener('touchmove', drawTouch);
         blackLayer.addEventListener('touchend', stopDrawingTouch);
@@ -1001,13 +1008,6 @@
         blackLayer.addEventListener('touchmove', updateCursorTouch);
 
         undoButton.addEventListener('mousedown', undo);
-        clearButton.addEventListener('click', clearCanvas);
-        manualButton.addEventListener('click', openManual);
-
-        function openManual(){
-            location.href = manualUrl;
-        }
-
         toolSizeParamInput.addEventListener('input', changeToolSize);
 
         function changeToolSize() {
