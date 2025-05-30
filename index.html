@@ -263,9 +263,9 @@
         }
         const serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverDataMain;
 
-        const app_info = serverData[destinationServerName];
-        const hostName = app_info.hostname;
-        const serverUrl = "https://" + hostName; 
+        let app_info = serverData[destinationServerName];
+        let hostName = app_info.hostname;
+        let serverUrl = "https://" + hostName; 
         const manualUrl = "manual.html"
 
         const shareUrl = "https://kurajo.ivory.ne.jp/rakugaki_pao/";
@@ -1060,6 +1060,11 @@
         function authDestinationServer() {
             window.localStorage.setItem(localstorageKeyDestinationServerName,destinationServerSelect.value);
             window.localStorage.removeItem(localstorageKeyAccessToken);
+            const newServerName = destinationServerSelect.value;
+            const newAppInfo = serverData[newServerName];
+            app_info = newAppInfo;
+            hostName = app_info.hostname;
+            serverUrl = "https://" + hostName;
             if (app_info.app_type === "misskey") {
                 startMiAuth();
             } else {
