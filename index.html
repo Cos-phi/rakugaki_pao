@@ -194,7 +194,7 @@
         const PaletteColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"];
         const initialChangeableColor = "#C3C3C3";
         const undoLimit = 1;
-        const movingAvgParam = 0.375;
+        const smoothingFactor = 0.375;
         const hashtag = '#rakugaki_pao';
         const defaultSettings = {
             publishingLevel: 'public',
@@ -306,6 +306,7 @@
             colorBrush: 1,
         };
 
+        //関数
         function setColor(color) {
             if(color != blackPenColor){
                 ctxCurrentLayer = ctxColor;
@@ -348,8 +349,8 @@
                     ctxActiveStroke.lineTo(xM, yM); //移動量が多いとき、補間点を作って経由します
                     [lastX,lastY] = [xM,yM];
                 }else if( ctxCurrentLayer === ctxBlack ){
-                    x = x*(1-movingAvgParam) + lastX*movingAvgParam;
-                    y = y*(1-movingAvgParam) + lastY*movingAvgParam;
+                    x = x*(1-smoothingFactor) + lastX*smoothingFactor;
+                    y = y*(1-smoothingFactor) + lastY*smoothingFactor;
                 }
 
                 ctxActiveStroke.lineTo(x, y);
