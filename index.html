@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=15"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいます-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=15"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
 </head>
 <body>
     <div id="app">
@@ -303,18 +303,88 @@
             colorBrush: 1,
         };
 
-        //関数
-        function setColor(color) {
-            if(color != blackPenColor){
-                ctxCurrentLayer = ctxColor;
-                colorPalette.value = color;
-                prevColor = color;
-            }else{
-                ctxCurrentLayer = ctxBlack;
-            }
-            currentColor = color;
-        }
+        //イベントリスナーの登録
+        clearButton.addEventListener('click', clearCanvas);
+        manualButton.addEventListener('click', openManual);
+        
+        copyButton.addEventListener('click', copyImage);
+        saveButton.addEventListener('click', saveImage);
+        shareButton.addEventListener('click', shareImage);
 
+        blackLayer.addEventListener('mousedown', startDrawingMouse);
+        blackLayer.addEventListener('mousemove', drawMouse);
+        blackLayer.addEventListener('mouseup', stopDrawing);
+        blackLayer.addEventListener('mouseout', stopDrawingMouseOut);
+        blackLayer.addEventListener('mousemove', updateCursorMouse);
+        blackLayer.addEventListener('touchstart', startDrawingTouch);
+        blackLayer.addEventListener('touchmove', drawTouch);
+        blackLayer.addEventListener('touchend', stopDrawingTouch);
+        blackLayer.addEventListener('touchcancel', stopDrawingTouch);
+        blackLayer.addEventListener('touchmove', updateCursorTouch);
+
+        undoButton.addEventListener('mousedown', undo);
+        toolSizeParamInput.addEventListener('input', changeToolSize);
+        blackPenButton.addEventListener('mousedown', selectBlackPen);
+        blackEraser.addEventListener('mousedown', selectBlackEraser);
+        createColorBrushButtons();
+        createChangeableColorBrushButton();
+        colorPalette.addEventListener('input', inputColorPalette, false);
+        colorEraser.addEventListener('mousedown', selectColorEraser);
+        opacityInput.addEventListener('input', inputOpacity);
+
+        authButton.addEventListener('click', openDestinationServerSettingDialog); 
+        destinationServerAuthButton.addEventListener('click', authDestinationServer);    
+        closeDestinationServerDialogButton.addEventListener('click',closeDialog);
+        
+        postButton.addEventListener('click', openPostDialog); 
+        destinationServerResetButton.addEventListener('click', openDestinationServerSettingDialog);
+        submitButton.addEventListener('click', postToDestinationServer);
+        closePostDialogButton.addEventListener('click',closeDialog);
+
+        copyHashtagButton.addEventListener('click',copyHastag);
+
+        //ショートカットキーの登録
+        document.addEventListener('keydown', event => {
+            if (event.target.tagName === 'TEXTAREA' || event.target.tagName === 'INPUT') {
+                return;
+            }
+            if (event.code === 'KeyQ') {
+                isEraser = false;
+                updateToolsState();
+            }else if (event.code === 'KeyE') {
+                isEraser = true;
+                updateToolsState();
+            }else if (event.code === 'KeyZ') {
+                undo();
+            }else if(event.code === 'KeyX'){
+                isEraser = !isEraser;
+                updateToolsState();
+            }else if(event.code === 'KeyC'){
+                toggleTool();
+            }else if(event.code === 'KeyA'){
+                decreaseToolSize();
+            }else if(event.code === 'KeyD'){
+                increaseToolSize();
+            }else if(event.code === 'KeyW'){
+                increaseToolOpacity();
+            }else if(event.code === 'KeyS'){
+                decreaseToolOpacity();
+            }else if(event.code === 'KeyR'){
+                reloadPage();
+            }
+        });
+
+        //初期化
+        updateActiveToolButton();
+        updateToolSize();
+        restoreLocalstorage();
+        initializePostDialog();
+        initializeModal();
+
+
+        //関数
+
+        //描画に関する関数
         function startDrawing(x, y) {
             isDrawing = true;
             [lastX, lastY] = [x, y];
@@ -450,7 +520,40 @@
             e.preventDefault();
             updateCursor(...touchToOffsetXY(e));
         }
+        
+        //製作中の絵の保存・読込に関する関数
+        function saveLocalstorage() {
+            saveLayeronlocalstorage(localstorageKeyBlack,blackLayer);    
+            saveLayeronlocalstorage(localstorageKeyColor,colorLayer);    
+        }
+        
+        function saveLayeronlocalstorage(localstoragekey,layer){
+            window.localStorage.setItem(localstoragekey,layer.toDataURL());
+        }
 
+        function restoreLocalstorage() {
+            restoreLayeronlocalstorage(localstorageKeyBlack,blackLayer);
+            restoreLayeronlocalstorage(localstorageKeyColor,colorLayer);
+            accessToken = window.localStorage.getItem(localstorageKeyAccessToken);
+        }
+
+        function restoreLayeronlocalstorage(localstoragekey,layer) {
+            let base64blacklayer = window.localStorage.getItem(localstoragekey);
+            if ( base64blacklayer != null) {
+                let image = new Image();
+                image.src = base64blacklayer;
+                image.onload = function(){
+                    layer.getContext('2d').drawImage(image,0,0);
+                }
+            }
+        }
+        
+        function reloadPage(){
+            saveLocalstorage();
+            location.reload()
+        }
+
+        //Undo機能に関する関数
         function saveState() {
             saveStateUnlimited();
             while (undoStack.length > undoLimit) {
@@ -486,16 +589,13 @@
             undoButton.style.pointerEvents = 'none';
         }
 
+        //キャンバスクリア・経過時間表示に関する関数
         function clearCanvas() {
             saveStateUnlimited();
             saveLocalstorage();
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
             setLastClearTime();
-        }
-        
-        function openManual(){
-            location.href = manualUrl;
         }
 
         function setLastClearTime(){
@@ -509,261 +609,74 @@
             const elapsedTimeMin = Math.trunc((nowTime.getTime() - lastClearTime)/1000/60);
             return elapsedTimeMin;
         }
-
-        function setOutputFileName(){
-            const nowTime = new Date();
-            const timeString = nowTime.toLocaleString("ja-JP", {year: "numeric",month: "2-digit", day: "2-digit", hour:"2-digit", minute:"2-digit"}).replaceAll('/', '').replaceAll(':','').replaceAll(' ','-');
-            outputFileName = timeString + '_rakugaki_pao(' + getElapsedTimeMinFromLastClearTime() +'min).png';
-        }
-
+        
         function showElapsedTimeFromLastClearTime(){
             const elapsedTimeMin = getElapsedTimeMinFromLastClearTime();
             showMessage(`${elapsedTimeMin} 分 お絵かきしました。` );
         }
 
-        function saveLocalstorage() {
-            saveLayeronlocalstorage(localstorageKeyBlack,blackLayer);    
-            saveLayeronlocalstorage(localstorageKeyColor,colorLayer);    
-        }
-        
-        function saveLayeronlocalstorage(localstoragekey,layer){
-            window.localStorage.setItem(localstoragekey,layer.toDataURL());
+        //マニュアル表示
+        function openManual(){
+            location.href = manualUrl;
         }
 
-        function restoreLocalstorage() {
-            restoreLayeronlocalstorage(localstorageKeyBlack,blackLayer);
-            restoreLayeronlocalstorage(localstorageKeyColor,colorLayer);
-            accessToken = window.localStorage.getItem(localstorageKeyAccessToken);
-        }
-
-        function restoreLayeronlocalstorage(localstoragekey,layer) {
-            let base64blacklayer = window.localStorage.getItem(localstoragekey);
-            if ( base64blacklayer != null) {
-                let image = new Image();
-                image.src = base64blacklayer;
-                image.onload = function(){
-                    layer.getContext('2d').drawImage(image,0,0);
-                }
+        //ペイントツール選択に関する関数
+        function setColor(color) {
+            if(color != blackPenColor){
+                ctxCurrentLayer = ctxColor;
+                colorPalette.value = color;
+                prevColor = color;
+            }else{
+                ctxCurrentLayer = ctxBlack;
             }
+            currentColor = color;
         }
 
-        function combineCanvas() {
-            ctxCombined.fillStyle = backgroundColor;
-            ctxCombined.fillRect(0,0,canvasWidth,canvasHeight);
-            ctxCombined.drawImage(colorLayer, 0, 0);
-            ctxCombined.drawImage(blackLayer, 0, 0);
+        function selectBlackPen() {
+            ctxCurrentLayer = ctxBlack;
+            isEraser = false;
+            setColor(blackPenColor);
+            updateToolsState();
         }
 
-        function copyImage() {
-            combineCanvas();
-            combinedCanvas.toBlob(async (blob) => {
-                const item = new ClipboardItem({'image/png': blob});
-                await navigator.clipboard.write([item]);
-            })
-            showMessage('画像をクリップボードにコピーしました');
-            showElapsedTimeFromLastClearTime();
+        function selectBlackEraser() {
+            ctxCurrentLayer = ctxBlack;
+            isEraser = true;
+            updateToolsState();
         }
 
-        function saveImage() {
-            combineCanvas();    
-            setOutputFileName();        
-            const dataURL = combinedCanvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = outputFileName;
-            link.href = dataURL;
-            link.click();
-            showElapsedTimeFromLastClearTime();
+        function selectChangeableColorBrushButton() {
+            ctxCurrentLayer = ctxColor;
+            isEraser = false;
+            setColor(curPaletteColor);
+            updateToolsState();
         }
 
-        function postImage(dataURL, accessToken) {
-            setOutputFileName();
-            activatePostingProgressBar();
-            closeDialog();
-            showElapsedTimeFromLastClearTime();
-            fetch(`${serverUrl}/api/v1/media`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                    body: (() => {
-                        const formData = new FormData();
-                        formData.append('file', dataURLToBlob(dataURL), outputFileName);
-                        return formData;
-                    })()
-            })
-            .then(response => { 
-                if (!response.ok) {
-                    accessToken = null;
-                    window.localStorage.removeItem(localstorageKeyAccessToken);
-                    throw "PostError";
-                }
-                return response.json()
-            })
-            .then(data => {
-                return fetch(`${serverUrl}/api/v1/statuses`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        status: postComment,
-                        media_ids: [data.id],
-                        visibility: publishingLevel,
-                        sensitive: enableCW,
-                    }),
-                });
-            })
-            .then(() => {
-                deactivatePostingProgressBar();
-                setTimeout(() => {
-                    showMessage('　投稿しましたわ！')
-                    showElapsedTimeFromLastClearTime();
-                    initializePostDialog();
-                }, 100);
-                
-            })
-            .catch(error => {
-                if (error == "PostError")
-                {
-                    deactivatePostingProgressBar();
-                    alert("ポストエラーですの。トークンが駄目みたいですのでcodeを取り直しますわ。もう一度ポストしてみてくださいね。");
-                    getAuthCodeRedirect();
-                }
-                else
-                {
-                    deactivatePostingProgressBar();
-                    console.error('Error:', error);
-                    alert('投稿中によくわからないエラーが発生しましたの‥‥');
-                }
-            });
+        function inputColorPalette() {
+            curPaletteColor = colorPalette.value;
+            ctxCurrentLayer = ctxColor;
+            setColor(curPaletteColor);
+            updateChangeableColorBrushButton(curPaletteColor);
+            updateToolsState();
         }
 
-        function activatePostingProgressBar(){
-            progressBar.style.visibility = 'visible';
-            postButton.style.display = 'none';
-            postingDummyButton.style.display = '';
-        }
-        
-        function deactivatePostingProgressBar(){
-            progressBar.style.visibility = 'hidden';
-            postButton.style.display = '';
-            postingDummyButton.style.display = 'none';
+        function selectColorEraser() {
+            ctxCurrentLayer = ctxColor;
+            isEraser = true;
+            updateToolsState();
         }
 
-        function postToDestinationServer() {
-            savePostSetting();
-            combineCanvas();
-            const dataURL = combinedCanvas.toDataURL('image/png');
-            postImage(dataURL, accessToken);
-        }
-
-        function getAuthCodeRedirect() {
-            document.location = `${serverUrl}/oauth/authorize?response_type=code&redirect_uri=${app_info.redirect_uri}&scope=write&client_id=${app_info.client_id}`;
-        }
-
-        function dataURLToBlob(dataURL) {
-            const parts = dataURL.split(';base64,');
-            const contentType = parts[0].split(':')[1];
-            const raw = window.atob(parts[1]);
-            const rawLength = raw.length;
-            const uInt8Array = new Uint8Array(rawLength);
-            for (let i = 0; i < rawLength; ++i) {
-                uInt8Array[i] = raw.charCodeAt(i);
+        function toggleTool(){
+            const originalIsEraser = isEraser;
+            if (ctxCurrentLayer === ctxBlack){
+                ctxCurrentLayer = ctxColor;
+                setColor(prevColor);
+            }else {
+                ctxCurrentLayer = ctxBlack;
+                setColor(blackPenColor);
             }
-            return new Blob([uInt8Array], { type: contentType });
-        }
-
-        function shareImage() {
-            combineCanvas();
-            setOutputFileName();           
-            const dataURL = combinedCanvas.toDataURL('image/png');
-            const blob = dataURLToBlob(dataURL);
-            const imageFile = new File([blob], outputFileName, {type: "image/png",});
-            navigator.share({
-                url: shareUrl,
-                text: hashtag,
-                title: 'rakugaki_pao',
-                files: [imageFile],
-            }).then(() => {
-                console.log("共有しましたの");
-            }).catch((error) => {
-                console.log('共有できませんでしたの‥‥');
-            });
-            showElapsedTimeFromLastClearTime();
-        }
-
-        function copyHastag() {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(hashtag).then(function () {
-                    showMessage(`ハッシュタグをコピーしました`);
-                }).catch(function (error) {
-                    console.error('ハッシュタグのコピーに失敗しました:', error);
-                    alert('ハッシュタグのコピーに失敗しましたの');
-                });
-            } else {
-                alert('テキストをコピーできませんの');
-            }
-        }
-
-        function showMessage(text) {
-            showMessage.queue = showMessage.queue || [];
-            showMessage.queue.push(text);
-            
-            async function processQueue() {
-                while (showMessage.queue.length > 0) {
-                    const message = showMessage.queue.shift();
-                    await new Promise((resolve) => {   
-                        messageLine.style.display = 'flex';
-                        hashtagLine.style.display = 'none';
-                        messageLine.textContent = message; 
-                        
-                        setTimeout(() => {
-                            messageLine.style.display = 'none';
-                            hashtagLine.style.display = 'flex';
-                            resolve();
-                        }, 1800);
-                    });
-                }
-            }
-            if (!showMessage.isProcessing) {
-                showMessage.isProcessing = true;
-                processQueue().then(() => {
-                    showMessage.isProcessing = false;
-                });
-            }
-        }
-
-        function reloadPage(){
-            saveLocalstorage();
-            location.reload()
-        }
-
-        function createColorBrushButtons() {
-            PaletteColors.forEach(color => {
-                const button = document.createElement('button');
-                button.className = 'color-brush-button';
-                button.style.backgroundColor = color;
-                button.dataset.color = color;  // データ属性を追加
-                button.addEventListener('mousedown', () => {
-                    isEraser = false;
-                    setColor(color);
-                    updateToolsState();
-                });
-                colorBrushButtonsContainer.appendChild(button);
-            });
-        }
-
-        function createChangeableColorBrushButton() {
-            changeableColorBrushButton.style.backgroundColor = curPaletteColor;
-            changeableColorBrushButton.dataset.color = curPaletteColor;
-            colorBrushButtonsContainer.appendChild(changeableColorBrushButton);
-            changeableColorBrushButton.addEventListener('mousedown', selectChangeableColorBrushButton);
-        }
-
-        function updateChangeableColorBrushButton(color){
-            changeableColorBrushButton.style.backgroundColor = `rgb(${hexToRgba(color,toolOpacity.colorBrush)})`;
-            changeableColorBrushButton.dataset.color = color;
+            isEraser = originalIsEraser;
+            updateToolsState();
         }
 
         function updateActiveToolButton() {
@@ -785,20 +698,31 @@
                 }
             }
         }
+        
+        //カラーブラシボタン生成に関する関数
+        function createColorBrushButtons() {
+            PaletteColors.forEach(color => {
+                const button = document.createElement('button');
+                button.className = 'color-brush-button';
+                button.style.backgroundColor = color;
+                button.dataset.color = color;  // データ属性を追加
+                button.addEventListener('mousedown', () => {
+                    isEraser = false;
+                    setColor(color);
+                    updateToolsState();
+                });
+                colorBrushButtonsContainer.appendChild(button);
+            });
+        }
 
-        function toggleTool(){
-            const originalIsEraser = isEraser;
-            if (ctxCurrentLayer === ctxBlack){
-                ctxCurrentLayer = ctxColor;
-                setColor(prevColor);
-            }else {
-                ctxCurrentLayer = ctxBlack;
-                setColor(blackPenColor);
-            }
-            isEraser = originalIsEraser;
-            updateToolsState();
+        function createChangeableColorBrushButton() {
+            changeableColorBrushButton.style.backgroundColor = curPaletteColor;
+            changeableColorBrushButton.dataset.color = curPaletteColor;
+            colorBrushButtonsContainer.appendChild(changeableColorBrushButton);
+            changeableColorBrushButton.addEventListener('mousedown', selectChangeableColorBrushButton);
         }
         
+        //ツールサイズ変更に関する関数
         function changeToolSize() {
             const sizeParam = parseInt(toolSizeParamInput.value);
             if (isEraser) {
@@ -873,40 +797,7 @@
             }
         }
         
-        function selectBlackPen() {
-            ctxCurrentLayer = ctxBlack;
-            isEraser = false;
-            setColor(blackPenColor);
-            updateToolsState();
-        }
-
-        function selectBlackEraser() {
-            ctxCurrentLayer = ctxBlack;
-            isEraser = true;
-            updateToolsState();
-        }
-
-        function selectChangeableColorBrushButton() {
-            ctxCurrentLayer = ctxColor;
-            isEraser = false;
-            setColor(curPaletteColor);
-            updateToolsState();
-        }
-
-        function inputColorPalette() {
-            curPaletteColor = colorPalette.value;
-            ctxCurrentLayer = ctxColor;
-            setColor(curPaletteColor);
-            updateChangeableColorBrushButton(curPaletteColor);
-            updateToolsState();
-        }
-
-        function selectColorEraser() {
-            ctxCurrentLayer = ctxColor;
-            isEraser = true;
-            updateToolsState();
-        }
-
+        //不透明度に関する関数
         function inputOpacity() {
             if (ctxCurrentLayer === ctxBlack) {
                 toolOpacity.blackPen = opacityInput.value;          
@@ -914,21 +805,6 @@
                 toolOpacity.colorBrush = opacityInput.value;
             }
             updateToolOpacity();
-        }
-        
-        function hexToRgba(inputColor, opacity) {
-            const r = parseInt(inputColor.slice(1, 3), 16);
-            const g = parseInt(inputColor.slice(3, 5), 16);
-            const b = parseInt(inputColor.slice(5, 7), 16);
-            return `${r} ${g} ${b} / ${opacity}`;
-        }
-
-        function updateButtonOpacity(){
-            blackPenButton.style.backgroundColor =`rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
-            const buttons = document.querySelectorAll('.color-brush-button');
-            buttons.forEach(button => {
-                button.style.backgroundColor = `rgb(${hexToRgba(button.dataset.color,toolOpacity.colorBrush)})`;
-            });
         }
 
         function updateToolOpacity(){
@@ -959,14 +835,28 @@
             }
         }
 
-        function updateToolsState() {
-            updateActiveToolButton();
-            setCursorBorderStyle();
-            updateToolSize();
-            updateToolOpacity();
-            previewCursorSize();
+        //ツールボタンの不透明度表示に関する関数
+        function updateButtonOpacity(){
+            blackPenButton.style.backgroundColor =`rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
+            const buttons = document.querySelectorAll('.color-brush-button');
+            buttons.forEach(button => {
+                button.style.backgroundColor = `rgb(${hexToRgba(button.dataset.color,toolOpacity.colorBrush)})`;
+            });
+        }
+        
+        function updateChangeableColorBrushButton(color){
+            changeableColorBrushButton.style.backgroundColor = `rgb(${hexToRgba(color,toolOpacity.colorBrush)})`;
+            changeableColorBrushButton.dataset.color = color;
         }
 
+        function hexToRgba(inputColor, opacity) {
+            const r = parseInt(inputColor.slice(1, 3), 16);
+            const g = parseInt(inputColor.slice(3, 5), 16);
+            const b = parseInt(inputColor.slice(5, 7), 16);
+            return `${r} ${g} ${b} / ${opacity}`;
+        }
+
+        //カーソルの見た目に関する関数
         function previewCursorSize(){
             let previewX = canvasWidth/2;
             let previewY = canvasHeight*0.875;
@@ -1002,9 +892,135 @@
             cursor.style.borderWidth = '0px';
         }
 
-        function enablePostButton() {
-            authButton.style.display = 'none';
+        //ツールの状態更新に関する関数
+        function updateToolsState() {
+            updateActiveToolButton();
+            setCursorBorderStyle();
+            updateToolSize();
+            updateToolOpacity();
+            previewCursorSize();
+        }
+
+        //絵の保存に関する関数
+        function combineCanvas() {
+            ctxCombined.fillStyle = backgroundColor;
+            ctxCombined.fillRect(0,0,canvasWidth,canvasHeight);
+            ctxCombined.drawImage(colorLayer, 0, 0);
+            ctxCombined.drawImage(blackLayer, 0, 0);
+        }
+
+        function dataURLToBlob(dataURL) {
+            const parts = dataURL.split(';base64,');
+            const contentType = parts[0].split(':')[1];
+            const raw = window.atob(parts[1]);
+            const rawLength = raw.length;
+            const uInt8Array = new Uint8Array(rawLength);
+            for (let i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+            return new Blob([uInt8Array], { type: contentType });
+        }
+
+        function setOutputFileName(){
+            const nowTime = new Date();
+            const timeString = nowTime.toLocaleString("ja-JP", {year: "numeric",month: "2-digit", day: "2-digit", hour:"2-digit", minute:"2-digit"}).replaceAll('/', '').replaceAll(':','').replaceAll(' ','-');
+            outputFileName = timeString + '_rakugaki_pao(' + getElapsedTimeMinFromLastClearTime() +'min).png';
+        }
+
+
+        function copyImage() {
+            combineCanvas();
+            combinedCanvas.toBlob(async (blob) => {
+                const item = new ClipboardItem({'image/png': blob});
+                await navigator.clipboard.write([item]);
+            })
+            showMessage('画像をクリップボードにコピーしました');
+            showElapsedTimeFromLastClearTime();
+        }
+
+        function saveImage() {
+            combineCanvas();    
+            setOutputFileName();        
+            const dataURL = combinedCanvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = outputFileName;
+            link.href = dataURL;
+            link.click();
+            showElapsedTimeFromLastClearTime();
+        }
+
+        function shareImage() {
+            combineCanvas();
+            setOutputFileName();           
+            const dataURL = combinedCanvas.toDataURL('image/png');
+            const blob = dataURLToBlob(dataURL);
+            const imageFile = new File([blob], outputFileName, {type: "image/png",});
+            navigator.share({
+                url: shareUrl,
+                text: hashtag,
+                title: 'rakugaki_pao',
+                files: [imageFile],
+            }).then(() => {
+                console.log("共有しましたの");
+            }).catch((error) => {
+                console.log('共有できませんでしたの‥‥');
+            });
+            showElapsedTimeFromLastClearTime();
+        }
+               
+        //ハッシュタグのコピーに関する関数
+        function copyHastag() {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(hashtag).then(function () {
+                    showMessage(`ハッシュタグをコピーしました`);
+                }).catch(function (error) {
+                    console.error('ハッシュタグのコピーに失敗しました:', error);
+                    alert('ハッシュタグのコピーに失敗しましたの');
+                });
+            } else {
+                alert('テキストをコピーできませんの');
+            }
+        }
+        
+        //下部情報表示に関する関数
+        function showMessage(text) {
+            showMessage.queue = showMessage.queue || [];
+            showMessage.queue.push(text);
+            
+            async function processQueue() {
+                while (showMessage.queue.length > 0) {
+                    const message = showMessage.queue.shift();
+                    await new Promise((resolve) => {   
+                        messageLine.style.display = 'flex';
+                        hashtagLine.style.display = 'none';
+                        messageLine.textContent = message; 
+                        
+                        setTimeout(() => {
+                            messageLine.style.display = 'none';
+                            hashtagLine.style.display = 'flex';
+                            resolve();
+                        }, 1800);
+                    });
+                }
+            }
+            if (!showMessage.isProcessing) {
+                showMessage.isProcessing = true;
+                processQueue().then(() => {
+                    showMessage.isProcessing = false;
+                });
+            }
+        }
+
+        function activatePostingProgressBar(){
+            progressBar.style.visibility = 'visible';
+            postButton.style.display = 'none';
+            postingDummyButton.style.display = '';
+        }
+        
+        function deactivatePostingProgressBar(){
+            progressBar.style.visibility = 'hidden';
             postButton.style.display = '';
+            postingDummyButton.style.display = 'none';
         }
 
         //投稿ダイアログ
@@ -1056,85 +1072,89 @@
                 });
             }
         }
-        
-        //イベントリスナーの登録
-        clearButton.addEventListener('click', clearCanvas);
-        manualButton.addEventListener('click', openManual);
-        
-        copyButton.addEventListener('click', copyImage);
-        saveButton.addEventListener('click', saveImage);
-        shareButton.addEventListener('click', shareImage);
 
-        blackLayer.addEventListener('mousedown', startDrawingMouse);
-        blackLayer.addEventListener('mousemove', drawMouse);
-        blackLayer.addEventListener('mouseup', stopDrawing);
-        blackLayer.addEventListener('mouseout', stopDrawingMouseOut);
-        blackLayer.addEventListener('mousemove', updateCursorMouse);
-        blackLayer.addEventListener('touchstart', startDrawingTouch);
-        blackLayer.addEventListener('touchmove', drawTouch);
-        blackLayer.addEventListener('touchend', stopDrawingTouch);
-        blackLayer.addEventListener('touchcancel', stopDrawingTouch);
-        blackLayer.addEventListener('touchmove', updateCursorTouch);
+        //投稿処理
+        function postToDestinationServer() {
+            savePostSetting();
+            combineCanvas();
+            const dataURL = combinedCanvas.toDataURL('image/png');
+            postImage(dataURL, accessToken);
+        }
 
-        undoButton.addEventListener('mousedown', undo);
-        toolSizeParamInput.addEventListener('input', changeToolSize);
-        blackPenButton.addEventListener('mousedown', selectBlackPen);
-        blackEraser.addEventListener('mousedown', selectBlackEraser);
-        createColorBrushButtons();
-        createChangeableColorBrushButton();
-        colorPalette.addEventListener('input', inputColorPalette, false);
-        colorEraser.addEventListener('mousedown', selectColorEraser);
-        opacityInput.addEventListener('input', inputOpacity);
+        function postImage(dataURL, accessToken) {
+            setOutputFileName();
+            activatePostingProgressBar();
+            closeDialog();
+            showElapsedTimeFromLastClearTime();
+            fetch(`${serverUrl}/api/v1/media`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                    body: (() => {
+                        const formData = new FormData();
+                        formData.append('file', dataURLToBlob(dataURL), outputFileName);
+                        return formData;
+                    })()
+            })
+            .then(response => { 
+                if (!response.ok) {
+                    accessToken = null;
+                    window.localStorage.removeItem(localstorageKeyAccessToken);
+                    throw "PostError";
+                }
+                return response.json()
+            })
+            .then(data => {
+                return fetch(`${serverUrl}/api/v1/statuses`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        status: postComment,
+                        media_ids: [data.id],
+                        visibility: publishingLevel,
+                        sensitive: enableCW,
+                    }),
+                });
+            })
+            .then(() => {
+                deactivatePostingProgressBar();
+                setTimeout(() => {
+                    showMessage('　投稿しましたわ！')
+                    showElapsedTimeFromLastClearTime();
+                    initializePostDialog();
+                }, 100);
+                
+            })
+            .catch(error => {
+                if (error == "PostError")
+                {
+                    deactivatePostingProgressBar();
+                    alert("ポストエラーですの。トークンが駄目みたいですのでcodeを取り直しますわ。もう一度ポストしてみてくださいね。");
+                    getAuthCodeRedirect();
+                }
+                else
+                {
+                    deactivatePostingProgressBar();
+                    console.error('Error:', error);
+                    alert('投稿中によくわからないエラーが発生しましたの‥‥');
+                }
+            });
+        }
 
-        authButton.addEventListener('click', openDestinationServerSettingDialog); 
-        destinationServerAuthButton.addEventListener('click', authDestinationServer);    
-        closeDestinationServerDialogButton.addEventListener('click',closeDialog);
-        
-        postButton.addEventListener('click', openPostDialog); 
-        destinationServerResetButton.addEventListener('click', openDestinationServerSettingDialog);
-        submitButton.addEventListener('click', postToDestinationServer);
-        closePostDialogButton.addEventListener('click',closeDialog);
+        function getAuthCodeRedirect() {
+            document.location = `${serverUrl}/oauth/authorize?response_type=code&redirect_uri=${app_info.redirect_uri}&scope=write&client_id=${app_info.client_id}`;
+        }
 
-        copyHashtagButton.addEventListener('click',copyHastag);
+        function enablePostButton() {
+            authButton.style.display = 'none';
+            postButton.style.display = '';
+        }
 
-        //ショートカットキーの登録
-        document.addEventListener('keydown', event => {
-            if (event.target.tagName === 'TEXTAREA' || event.target.tagName === 'INPUT') {
-                return;
-            }
-            if (event.code === 'KeyQ') {
-                isEraser = false;
-                updateToolsState();
-            }else if (event.code === 'KeyE') {
-                isEraser = true;
-                updateToolsState();
-            }else if (event.code === 'KeyZ') {
-                undo();
-            }else if(event.code === 'KeyX'){
-                isEraser = !isEraser;
-                updateToolsState();
-            }else if(event.code === 'KeyC'){
-                toggleTool();
-            }else if(event.code === 'KeyA'){
-                decreaseToolSize();
-            }else if(event.code === 'KeyD'){
-                increaseToolSize();
-            }else if(event.code === 'KeyW'){
-                increaseToolOpacity();
-            }else if(event.code === 'KeyS'){
-                decreaseToolOpacity();
-            }else if(event.code === 'KeyR'){
-                reloadPage();
-            }
-        });
-
-        //初期化
-        updateActiveToolButton();
-        updateToolSize();
-        restoreLocalstorage();
-        initializePostDialog();
-        initializeModal();
-
+        //読み込み時の認証処理
         if (accessToken) {
             enablePostButton();     
         } else if(code) {
