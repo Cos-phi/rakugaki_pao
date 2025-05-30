@@ -971,19 +971,19 @@
         }
 
         function previewCursorSize(){
-            let previewX = 360;
-            let previewY = 630;
+            let previewX = canvasWidth/2;
+            let previewY = canvasHeight*0.875;
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
-                    previewX = 270;
+                    previewX = canvasWidth*0.375;
                 } else {
-                    previewX = 630;
+                    previewX = canvasWidth*0.875;
                 }
             } else {
                 if (ctxCurrentLayer === ctxBlack) {
-                    previewX = 90;
+                    previewX = canvasWidth*0.125;
                 } else {
-                    previewX = 450;
+                    previewX = canvasWidth*0.625;
                 }
             }
             updateCursor(previewX, previewY);
