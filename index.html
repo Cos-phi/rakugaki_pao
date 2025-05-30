@@ -34,10 +34,9 @@
         </div>
 
         <div id="canvas-container">
-            <canvas id="background-layer" width="720" height="720"></canvas>
-            <canvas id="color-layer" width="720" height="720"></canvas>
-            <canvas id="active-stroke-layer" width="720" height="720"></canvas>
-            <canvas id="black-layer" width="720" height="720"></canvas>
+            <canvas id="color-layer"></canvas>
+            <canvas id="active-stroke-layer"></canvas>
+            <canvas id="black-layer"></canvas>
             <div id="cursor"></div>
         </div>
 
@@ -136,10 +135,10 @@
         const saveButton = document.getElementById('save-button');
         const shareButton = document.getElementById('share-button');
 
+        const canvasContainer = document.getElementById('canvas-container');
         const blackLayer = document.getElementById('black-layer');
         const colorLayer = document.getElementById('color-layer');
         const activeStrokeLayer = document.getElementById('active-stroke-layer');
-        const backgroundLayer = document.getElementById('background-layer');
         const cursor = document.getElementById('cursor');
         const combinedCanvas = document.createElement('canvas');
 
@@ -189,6 +188,7 @@
         const backgroundColor = "#F2EEE6";        
         const PaletteColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"];
         const initialChangeableColor = "#C3C3C3";
+        const [canvasWidth,canvasHeight] = [720,720];
         const undoLimit = 1;
         const smoothingFactor = 0.375;
         const hashtag = '#rakugaki_pao';
@@ -199,15 +199,17 @@
         };
 
         //キャンバスの初期化
-        combinedCanvas.width = 720;
-        combinedCanvas.height = 720;
+        canvasContainer.style.width = canvasWidth + 'px';
+        canvasContainer.style.height = canvasHeight + 'px';
+        canvasContainer.style.backgroundColor = backgroundColor;
+        [combinedCanvas.width, combinedCanvas.height] = [canvasWidth, canvasHeight];
+        [blackLayer.width, blackLayer.height] = [canvasWidth, canvasHeight];
+        [colorLayer.width, colorLayer.height] = [canvasWidth, canvasHeight];
+        [activeStrokeLayer.width, activeStrokeLayer.height] = [canvasWidth, canvasHeight];
         const ctxBlack = blackLayer.getContext('2d',{ willReadFrequently: true });
         const ctxColor = colorLayer.getContext('2d',{ willReadFrequently: true });
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
-        const ctxBg = backgroundLayer.getContext('2d');
         const ctxCombined = combinedCanvas.getContext('2d');
-        ctxBg.fillStyle = backgroundColor;
-        ctxBg.fillRect(0,0,backgroundLayer.width,backgroundLayer.height);
 
         //ローカルストレージキー
         const localstorageKeyBlack = 'blacklayerlskey';
@@ -549,7 +551,8 @@
         }
 
         function combineCanvas() {
-            ctxCombined.drawImage(backgroundLayer, 0, 0);
+            ctxCombined.fillStyle = backgroundColor;
+            ctxCombined.fillRect(0,0,canvasWidth,canvasHeight);
             ctxCombined.drawImage(colorLayer, 0, 0);
             ctxCombined.drawImage(blackLayer, 0, 0);
         }

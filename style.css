@@ -27,8 +27,6 @@ body {
 }
 #canvas-container {      
     position: relative;
-    width: 720px;
-    height: 720px;
     cursor: none !important;
 }
 canvas {
