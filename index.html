@@ -1202,10 +1202,16 @@
                     initializePostDialog();
                 }, 100);
             })
-            .catch(error => {
+            .catch(async error => {
                 deactivatePostingProgressBar();
-                alert('Misskey投稿中にエラーが発生しました');
-                console.error(error);
+                if (error instanceof Response) {
+                    const errJson = await error.json();
+                    alert('Misskey投稿中にエラー: ' + JSON.stringify(errJson));
+                    console.error(errJson);
+                } else {
+                    alert('Misskey投稿中にエラーが発生しました');
+                    console.error(error);
+                }
             });
         }
 
