@@ -256,7 +256,7 @@
             "tanoshii.site": {
                 app_type: "misskey",
                 hostname: "tanoshii.site",
-                miauth_callback: "https://cos-phi.github.io/rakugaki_pao/index.html", // MiAuthのcallback
+                redirect_uri: "https://cos-phi.github.io/rakugaki_pao/", // MiAuthのcallback
                 miauth_name: "rakugaki_pao",
                 miauth_permission: ["write:notes"],
             }
@@ -268,7 +268,7 @@
         const serverUrl = "https://" + hostName; 
         const manualUrl = "manual.html"
 
-        const shareUrl = app_info.redirect_uri.replace(/\/index\.html$/, '/');
+        const shareUrl = "https://kurajo.ivory.ne.jp/rakugaki_pao/";
         
         destinationServerSelect.value = destinationServerName;
         authButtonImg.src = "image/"+ app_info.app_type + "_disable.svg";
@@ -1229,7 +1229,7 @@
             window.localStorage.setItem('miauth_session', session);
 
             // MiAuth URL生成
-            const url = `https://${app_info.hostname}/miauth/${session}?name=${encodeURIComponent(app_info.miauth_name)}&callback=${encodeURIComponent(app_info.miauth_callback)}&permission=${encodeURIComponent(app_info.miauth_permission.join(','))}`;
+            const url = `https://${app_info.hostname}/miauth/${session}?name=${encodeURIComponent(app_info.miauth_name)}&callback=${encodeURIComponent(app_info.redirect_uri)}&permission=${encodeURIComponent(app_info.miauth_permission.join(','))}`;
             window.location.href = url;
         }
 
