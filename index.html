@@ -987,6 +987,7 @@
             }
         }
 
+        //イベントリスナーの登録
         blackLayer.addEventListener('mousedown', startDrawingMouse);
         blackLayer.addEventListener('mousemove', drawMouse);
         blackLayer.addEventListener('mouseup', stopDrawing);
@@ -1001,9 +1002,15 @@
 
         undoButton.addEventListener('mousedown', undo);
         clearButton.addEventListener('click', clearCanvas);
-        manualButton.addEventListener('click', () => {location.href=manualUrl;});
+        manualButton.addEventListener('click', openManual);
 
-        toolSizeParamInput.addEventListener('input', () => {
+        function openManual(){
+            location.href = manualUrl;
+        }
+
+        toolSizeParamInput.addEventListener('input', changeToolSize);
+
+        function changeToolSize() {
             const sizeParam = parseInt(toolSizeParamInput.value);
             if (isEraser) {
                 if (ctxCurrentLayer === ctxBlack) {
@@ -1021,7 +1028,7 @@
             toolDiameter = calcToolSize(sizeParam);
             previewCursorSize();
             updateToolSizeToolTip();
-        });
+        }
 
         blackPenButton.addEventListener('mousedown', () => {
             ctxCurrentLayer = ctxBlack;
