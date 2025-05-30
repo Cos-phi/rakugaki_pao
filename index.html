@@ -905,7 +905,7 @@
             updateToolsState();
         }
 
-        function selectEracerColor() {
+        function selectEraserColor() {
             ctxCurrentLayer = ctxColor;
             isEraser = true;
             updateToolsState();
@@ -1087,7 +1087,7 @@
         createColorButtons();
         createChangeableColorButton();
         colorPalette.addEventListener('input', inputColorPalette, false);
-        eraserColor.addEventListener('mousedown', selectEracerColor);
+        eraserColor.addEventListener('mousedown', selectEraserColor);
         opacityInput.addEventListener('input', inputOpacity);
 
         authButton.addEventListener('click', openDestinationServerSettingDialog); 
