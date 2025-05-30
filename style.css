@@ -141,6 +141,8 @@ button {
     margin-right: 16px;
 }
 #undo-button {
+    height: 42px;
+    width: 42px;
     display: flex;
     justify-content: center; 
     align-items: center;
