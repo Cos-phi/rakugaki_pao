@@ -119,6 +119,7 @@
                 <select id="destination-server-select">
                     <option value="mistodon.cloud">mistodon.cloud</option>
                     <option value="fedibird.com">fedibird.com</option>
+                    <option value="tanoshii.site">tanoshii.site</option>
                 </select>
                 <button id="destination-server-auth-button">認証</button>   
             </div>
@@ -251,6 +252,13 @@
                 client_id:"kS_5YdvHvVYor577pNlro2FXEazbp91f79QACC4gkKo",
                 client_secret:"ciPBpCvLc6UuAY5ljuKH6wXffCcVC_-9CswTmgvO7Gw",
                 redirect_uri:"https://cos-phi.github.io/rakugaki_pao/index.html",
+            },
+            "tanoshii.site": {
+                app_type: "misskey",
+                hostname: "tanoshii.site",
+                miauth_callback: "https://cos-phi.github.io/rakugaki_pao/", // MiAuthのcallback
+                miauth_name: "rakugaki_pao",
+                miauth_permission: ["write:notes"],
             }
         }
         const serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverDataMain;
@@ -1052,7 +1060,11 @@
         function authDestinationServer() {
             window.localStorage.setItem(localstorageKeyDestinationServerName,destinationServerSelect.value);
             window.localStorage.removeItem(localstorageKeyAccessToken);
-            getAuthCodeRedirect();
+            if (app_info.app_type === "misskey") {
+                startMiAuth();
+            } else {
+                getAuthCodeRedirect();
+            }
         }
 
         //ダイアログ共通
@@ -1078,7 +1090,11 @@
             savePostSetting();
             combineCanvas();
             const dataURL = combinedCanvas.toDataURL('image/png');
-            postImage(dataURL, accessToken);
+            if (app_info.app_type === "misskey") {
+                postImageToMisskey(dataURL, accessToken);
+            } else {
+                postImage(dataURL, accessToken);
+            }
         }
 
         function postImage(dataURL, accessToken) {
@@ -1145,8 +1161,76 @@
             });
         }
 
+        function postImageToMisskey(dataURL, accessToken) {
+            setOutputFileName();
+            activatePostingProgressBar();
+            closeDialog();
+            showElapsedTimeFromLastClearTime();
+
+            // 画像アップロード
+            fetch(`https://${app_info.hostname}/api/drive/files/create`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${accessToken}` },
+                body: (() => {
+                    const formData = new FormData();
+                    formData.append('file', dataURLToBlob(dataURL), outputFileName);
+                    return formData;
+                })()
+            })
+            .then(res => res.json())
+            .then(file => {
+                // ノート投稿
+                return fetch(`https://${app_info.hostname}/api/notes/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: postComment,
+                        fileIds: [file.id],
+                        visibility: convertVisibilityForMisskey(publishingLevel),
+                        cw: enableCW ? "CW" : undefined
+                    })
+                });
+            })
+            .then(() => {
+                deactivatePostingProgressBar();
+                setTimeout(() => {
+                    showMessage('　投稿しましたわ！');
+                    showElapsedTimeFromLastClearTime();
+                    initializePostDialog();
+                }, 100);
+            })
+            .catch(error => {
+                deactivatePostingProgressBar();
+                alert('Misskey投稿中にエラーが発生しました');
+                console.error(error);
+            });
+        }
+
+        function convertVisibilityForMisskey(mastodonVisibility) {
+            switch (mastodonVisibility) {
+                case "public": return "public";
+                case "unlisted": return "home";
+                case "private": return "followers";
+                case "direct": return "specified";
+                default: return "public";
+            }
+        }
+
         function getAuthCodeRedirect() {
             document.location = `${serverUrl}/oauth/authorize?response_type=code&redirect_uri=${app_info.redirect_uri}&scope=write&client_id=${app_info.client_id}`;
+        }
+
+        function startMiAuth() {
+            // ランダムなセッションIDを生成
+            const session = Math.random().toString(36).slice(2);
+            window.localStorage.setItem('miauth_session', session);
+
+            // MiAuth URL生成
+            const url = `https://${app_info.hostname}/miauth/${session}?name=${encodeURIComponent(app_info.miauth_name)}&callback=${encodeURIComponent(app_info.miauth_callback)}&permission=${encodeURIComponent(app_info.miauth_permission.join(','))}`;
+            window.location.href = url;
         }
 
         function enablePostButton() {
@@ -1154,7 +1238,25 @@
             postButton.style.display = '';
         }
 
-        //読み込み時の認証処理
+        // Misskey認証後の処理
+        const miauthSession = new URLSearchParams(window.location.search).get('session');
+        if (miauthSession && app_info.app_type === "misskey") {
+            fetch(`https://${app_info.hostname}/api/miauth/${miauthSession}/check`, {
+                method: "POST"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok && data.token) {
+                    accessToken = data.token;
+                    window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
+                    enablePostButton();
+                } else {
+                    alert("Misskey認証に失敗しました");
+                }
+            });
+        }
+
+        // Mastodon読み込み時の認証処理
         if (accessToken) {
             enablePostButton();     
         } else if(code) {
