@@ -222,19 +222,16 @@
                 hostname: "mistodon.cloud",
                 client_id:"kxcPRIOf0YfLnd_RP9kzjycaRdxiAAJfS2yPCYopB-4",
                 client_secret:"lDCqUUok59GkUUfbOcLKVU4n1H8vOM3s97bB6KC6bZ4",
-                redirect_uri:"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
             },            
             "fedibird.com": {
                 app_type: "mastodon",
                 hostname: "fedibird.com",
                 client_id:"5BeHayqwh2hVzj_rWA_JwITrUs1u5jX3nkFd32b6JTE",
                 client_secret:"PsMoMYAj4qXwBH36NGGAhJA2SjytPvbY9m9GAJ1Erl8",
-                redirect_uri:"https://kurajo.ivory.ne.jp/rakugaki_pao/index.html",
             },
             "tanoshii.site": {
                 app_type: "misskey",
                 hostname: "tanoshii.site",
-                redirect_uri: "https://kurajo.ivory.ne.jp/rakugaki_pao/", // MiAuthのcallback
                 miauth_name: "rakugaki_pao",
                 miauth_permission: ["write:notes", "write:drive"],
             },
@@ -245,24 +242,32 @@
                 hostname: "mistodon.cloud",
                 client_id:"ahEQR-_jEZYLC1UjgBx9M5yJGFtmzxunRPCjqGz-ZAY",
                 client_secret:"D9_84dg-8gDfuXe4Qp2wrEwbWfJEMxdIoNjlCHHBgt0",
-                redirect_uri:"https://cos-phi.github.io/rakugaki_pao/index.html",
             },
             "fedibird.com": {
                 app_type: "mastodon",
                 hostname: "fedibird.com",
                 client_id:"kS_5YdvHvVYor577pNlro2FXEazbp91f79QACC4gkKo",
                 client_secret:"ciPBpCvLc6UuAY5ljuKH6wXffCcVC_-9CswTmgvO7Gw",
-                redirect_uri:"https://cos-phi.github.io/rakugaki_pao/index.html",
             },
             "tanoshii.site": {
                 app_type: "misskey",
                 hostname: "tanoshii.site",
-                redirect_uri: "https://cos-phi.github.io/rakugaki_pao/", // MiAuthのcallback
+                miauth_name: "rakugaki_pao.dev",
+                miauth_permission: ["write:notes", "write:drive"],
+            }, 
+            "misskey.cloud": {
+                app_type: "misskey",
+                hostname: "misskey.cloud",
                 miauth_name: "rakugaki_pao.dev",
                 miauth_permission: ["write:notes", "write:drive"],
             },
         }
-        const serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverDataMain;
+        let serverData = serverDataMain
+        let redirect_uri = "https://kurajo.ivory.ne.jp/rakugaki_pao/index.html";
+        if( window.location.origin.includes('cos-phi.github.io') ){
+            serverData = serverDataDev;
+            redirect_uri = "https://cos-phi.github.io/rakugaki_pao/index.html";
+        }
         const destinationServerName = window.localStorage.getItem(localstorageKeyDestinationServerName) || "mistodon.cloud";
 
         let app_info = serverData[destinationServerName];
@@ -1269,7 +1274,7 @@
         }
 
         function getAuthCodeRedirect() {
-            document.location = `${serverUrl}/oauth/authorize?response_type=code&redirect_uri=${app_info.redirect_uri}&scope=write&client_id=${app_info.client_id}`;
+            document.location = `${serverUrl}/oauth/authorize?response_type=code&redirect_uri=${redirect_uri}&scope=write&client_id=${app_info.client_id}`;
         }
 
         function startMiAuth() {
@@ -1278,7 +1283,7 @@
             window.localStorage.setItem('miauth_session', session);
 
             // MiAuth URL生成
-            const url = `https://${app_info.hostname}/miauth/${session}?name=${encodeURIComponent(app_info.miauth_name)}&callback=${encodeURIComponent(app_info.redirect_uri)}&permission=${encodeURIComponent(app_info.miauth_permission.join(','))}`;
+            const url = `https://${app_info.hostname}/miauth/${session}?name=${encodeURIComponent(app_info.miauth_name)}&callback=${encodeURIComponent(redirect_uri)}&permission=${encodeURIComponent(app_info.miauth_permission.join(','))}`;
             window.location.href = url;
         }
 
@@ -1315,7 +1320,7 @@
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
                         },
-                        body: `code=${code}&client_id=${app_info.client_id}&client_secret=${app_info.client_secret}&grant_type=authorization_code&redirect_uri=${app_info.redirect_uri}&scope=write`
+                        body: `code=${code}&client_id=${app_info.client_id}&client_secret=${app_info.client_secret}&grant_type=authorization_code&redirect_uri=${redirect_uri}&scope=write`
                     }
                 )
                 .then(response => {
