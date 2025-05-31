@@ -1062,6 +1062,7 @@
         }
 
         function populateDestinationServerSelect() { //サーバーリストをselectに反映
+            destinationServerSelect.innerHTML = ''; // 既存のオプションをクリア
             for (const key in serverData) {
                 if (serverData.hasOwnProperty(key)) {
                     const server = serverData[key];
