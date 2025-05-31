@@ -216,9 +216,6 @@
         const localstorageKeyDestinationServerName = 'destinationservernamekey';
 
         //投稿に関する情報
-        const destinationServerName = window.localStorage.getItem(localstorageKeyDestinationServerName) || "mistodon.cloud";
-        console.log(destinationServerName);
-        
         const serverDataMain = {
             "mistodon.cloud": {
                 app_type: "mistodon",
@@ -266,6 +263,7 @@
             },
         }
         const serverData = window.location.origin.includes('cos-phi.github.io') ? serverDataDev : serverDataMain;
+        const destinationServerName = window.localStorage.getItem(localstorageKeyDestinationServerName) || "mistodon.cloud";
 
         let app_info = serverData[destinationServerName];
         let hostName = app_info.hostname;
@@ -280,8 +278,6 @@
         postingDummyButtonImg.src = "image/"+ app_info.app_type + "_active.svg";
         postButton.title = hostName + "に投稿";
         destinationServerResetButton.textContent = hostName;
-        populateDestinationServerSelect();
-        destinationServerSelect.value = destinationServerName;
 
 
         //変数の初期化
@@ -1058,26 +1054,26 @@
         }
 
         //投稿先選択ダイアログ
+        function openDestinationServerSettingDialog() {
+            closeDialog();
+            populateDestinationServerSelect();
+            destinationServerSelect.value = destinationServerName;
+            destinationServerSettingDialogModal.style.display = 'block';
+        }
+
         function populateDestinationServerSelect() { //サーバーリストをselectに反映
-            // serverDataは既に定義済み
-            destinationServerSelect.innerHTML = ""; // 既存のoptionをクリア
             for (const key in serverData) {
                 if (serverData.hasOwnProperty(key)) {
                     const server = serverData[key];
                     const option = document.createElement("option");
                     option.value = key;
-                    // サーバー名＋種別を表示
                     let label = key;
-                    if (server.app_type === "misskey") label += " (Misskey)";
-                    if (server.app_type === "mastodon" || server.app_type === "mistodon") label += " (Mastodon)";
+                    //if (server.app_type === "misskey") label += " (Misskey)";
+                    //if (server.app_type === "mastodon" || server.app_type === "mistodon") label += " (Mastodon)";
                     option.textContent = label;
                     destinationServerSelect.appendChild(option);
                 }
             }
-        }
-        function openDestinationServerSettingDialog() {
-            closeDialog();
-            destinationServerSettingDialogModal.style.display = 'block';
         }
 
         function authDestinationServer() {
