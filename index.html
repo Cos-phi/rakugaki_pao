@@ -117,9 +117,6 @@
             </div>
             <div class="select-container">
                 <select id="destination-server-select">
-                    <option value="mistodon.cloud">mistodon.cloud</option>
-                    <option value="fedibird.com">fedibird.com</option>
-                    <option value="tanoshii.site">tanoshii.site</option>
                 </select>
                 <button id="destination-server-auth-button">認証</button>   
             </div>
@@ -283,6 +280,8 @@
         postingDummyButtonImg.src = "image/"+ app_info.app_type + "_active.svg";
         postButton.title = hostName + "に投稿";
         destinationServerResetButton.textContent = hostName;
+        populateDestinationServerSelect();
+        destinationServerSelect.value = destinationServerName;
 
 
         //変数の初期化
@@ -1059,6 +1058,23 @@
         }
 
         //投稿先選択ダイアログ
+        function populateDestinationServerSelect() { //サーバーリストをselectに反映
+            // serverDataは既に定義済み
+            destinationServerSelect.innerHTML = ""; // 既存のoptionをクリア
+            for (const key in serverData) {
+                if (serverData.hasOwnProperty(key)) {
+                    const server = serverData[key];
+                    const option = document.createElement("option");
+                    option.value = key;
+                    // サーバー名＋種別を表示
+                    let label = key;
+                    if (server.app_type === "misskey") label += " (Misskey)";
+                    if (server.app_type === "mastodon" || server.app_type === "mistodon") label += " (Mastodon)";
+                    option.textContent = label;
+                    destinationServerSelect.appendChild(option);
+                }
+            }
+        }
         function openDestinationServerSettingDialog() {
             closeDialog();
             destinationServerSettingDialogModal.style.display = 'block';
