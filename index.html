@@ -257,10 +257,10 @@
                 miauth_permission: ["write:notes", "write:drive"],
             },
         };
-        let serverData = {mastodonServerDataMain,misskeyServerData};
+        let serverData = {...mastodonServerDataMain,...misskeyServerData};
         let redirect_uri = "https://kurajo.ivory.ne.jp/rakugaki_pao/index.html";
         if( window.location.origin.includes('cos-phi.github.io') ){
-            serverData = {mastodonServerDataDev,misskeyServerData};
+            serverData = {...mastodonServerDataDev,...misskeyServerData};
             redirect_uri = "https://cos-phi.github.io/rakugaki_pao/index.html";
         }
         const destinationServerName = window.localStorage.getItem(localstorageKeyDestinationServerName) || "mistodon.cloud";
