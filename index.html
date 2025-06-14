@@ -1077,6 +1077,7 @@
 
         //投稿ダイアログ
         function openPostDialog() {
+            showElapsedTimeFromLastClearTime();
             combineCanvas();    
             const dataURL = combinedCanvas.toDataURL('image/png');
             previewImg.src = dataURL;
