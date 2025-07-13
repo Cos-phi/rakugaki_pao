@@ -707,6 +707,7 @@
         function inputColorPalette() {
             curPaletteColor = colorPalette.value;
             ctxCurrentLayer = ctxColor;
+            isEraser = false;
             setColor(curPaletteColor);
             updateChangeableColorBrushButton(curPaletteColor);
             updateToolsState();
