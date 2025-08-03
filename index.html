@@ -605,6 +605,11 @@
             location.reload()
         }
 
+        function reloadPageWithoutParam(){
+            saveLocalstorage();
+            location.href = redirect_uri;
+        }
+
         //Undo機能に関する関数
         function saveState() {
             saveStateUnlimited();
@@ -1345,7 +1350,8 @@
                     window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
                     enablePostButton();
                 } else {
-                    alert("Misskey認証に失敗しました");
+                    //alert("Misskey認証に失敗しました");
+                    reloadPageWithoutParam();
                 }
             });
         }
