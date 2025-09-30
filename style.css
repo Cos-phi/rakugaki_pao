@@ -53,7 +53,14 @@ canvas {
 }
 .top-left-buttons {
     display: flex;
-    gap: 0px;
+    margin-right: auto;
+}
+.top-center-buttons {
+    display: flex;
+}
+.top-right-buttons {
+    display: flex;
+    margin-left: auto;
 }
 .top-right-buttons {
     display: flex;
