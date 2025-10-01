@@ -685,7 +685,7 @@
 
         //キャンバス回転に関する関数
         function getCenterOfCanvas(){
-            const rect = canvasContainer.getBoundingClientRect();
+            const rect = app.getBoundingClientRect();
             return {
                 x: rect.left + rect.width / 2,
                 y: rect.top + rect.height / 2
@@ -695,10 +695,7 @@
             const center = getCenterOfCanvas();
             const dx = e.clientX - center.x;
             const dy = e.clientY - center.y;
-            let angle = Math.atan2(dy, Math.abs(dx)) * (180 / Math.PI);
-            if (dx < 0) {
-                angle = 180-angle;
-            }
+            let angle = Math.atan2(dy,dx) * (180 / Math.PI);
             return angle;
         }
         function applyRotation(angle) {
