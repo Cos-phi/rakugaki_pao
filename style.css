@@ -24,6 +24,7 @@ body {
     -khtml-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+    transition: transform 0.1s ease-out;
 }
 #canvas-container {      
     position: relative;
@@ -57,6 +58,16 @@ canvas {
 }
 .top-center-buttons {
     display: flex;
+}
+#rotation-handle {
+    cursor: grab;
+}
+#rotation-handle:hover {
+    transform: scale(1.2);
+}
+#rotation-handle:active {
+      cursor: grabbing;
+      transform: scale(1.1);
 }
 .top-right-buttons {
     display: flex;
