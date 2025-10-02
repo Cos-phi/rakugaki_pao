@@ -342,13 +342,6 @@
 
         const reloadTime = new Date().getTime();
 
-        const app = document.getElementById('app');
-        const rotationHandle = document.getElementById('rotation-handle');
-        let currentCanvasRotationAngle = 0;
-        let isRotationDragging = false;
-        let startCanvasRotationAngle = 0;
-        let dragType = null;
-
         let publishingLevel = defaultSettings.publishingLevel;
         let enableCW = defaultSettings.enableCW;
         let postComment = defaultSettings.postComment;
@@ -684,6 +677,13 @@
         }
 
         //キャンバス回転に関する関数
+        const app = document.getElementById('app');
+        const rotationHandle = document.getElementById('rotation-handle');
+        let currentCanvasRotationAngle = 0;
+        let isRotationDragging = false;
+        let startCanvasRotationAngle = 0;
+        let dragType = null;
+        
         function getCenterOfCanvas(){
             const rect = app.getBoundingClientRect();
             return {

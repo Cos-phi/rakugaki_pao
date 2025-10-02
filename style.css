@@ -59,14 +59,16 @@ canvas {
     display: flex;
 }
 #rotation-handle {
+    opacity: 0.1;
     cursor: grab;
 }
 #rotation-handle:hover {
-    transform: scale(1.2);
+    opacity: 1;
 }
 #rotation-handle:active {
-      cursor: grabbing;
-      transform: scale(1.1);
+    opacity: 1;
+    cursor: grabbing;
+    transform: scale(1.5);
 }
 .top-right-buttons {
     display: flex;
