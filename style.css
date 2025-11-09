@@ -14,8 +14,8 @@ body {
     background-color: #f0f0f0;
 }
 #app {
-    margin-top: 16px;
-    margin-bottom: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
     user-drag: none;
     -webkit-user-drag: none;
     -moz-user-select: none;
@@ -45,7 +45,6 @@ canvas {
     mix-blend-mode: difference;
 }
 #controls-top {
-    margin-top: 24px;
     margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
