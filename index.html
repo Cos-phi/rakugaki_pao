@@ -1244,7 +1244,7 @@
             showElapsedTimeFromLastClearTime();
 
             // 画像アップロード
-            fetch(`https://${app_info.hostname}/api/drive/files/create`, {
+            fetch(`${serverUrl}/api/drive/files/create`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${accessToken}` },
                 body: (() => {
@@ -1262,7 +1262,7 @@
             })
             .then(file => {
                 // ノート投稿
-                return fetch(`https://${app_info.hostname}/api/notes/create`, {
+                return fetch(`${serverUrl}/api/notes/create`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
@@ -1331,7 +1331,7 @@
             window.localStorage.setItem('miauth_session', session);
 
             // MiAuth URL生成
-            const url = `https://${app_info.hostname}/miauth/${session}?name=${encodeURIComponent(app_info.miauth_name)}&callback=${encodeURIComponent(redirect_uri)}&permission=${encodeURIComponent(app_info.miauth_permission.join(','))}`;
+            const url = `${serverUrl}/miauth/${session}?name=${encodeURIComponent(app_info.miauth_name)}&callback=${encodeURIComponent(redirect_uri)}&permission=${encodeURIComponent(app_info.miauth_permission.join(','))}`;
             window.location.href = url;
         }
 
@@ -1367,7 +1367,7 @@
                     enablePostButton();
                 })
         } else if (miauthSession && app_info.app_type === "misskey") { // Misskey認証後の処理
-            fetch(`https://${app_info.hostname}/api/miauth/${miauthSession}/check`, 
+            fetch(`${serverUrl}/api/miauth/${miauthSession}/check`, 
                     {
                         method: "POST"
                     }
