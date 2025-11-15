@@ -608,9 +608,15 @@
             location.reload()
         }
 
-        function reloadPageWithoutParam(){
+        function cleanUrlAndReload(){
             saveLocalstorage();
-            location.href = redirect_uri;
+            location.href = toDirectoryPathSimple(redirect_uri);
+        }
+        
+        function toDirectoryPathSimple(fullUrl) {
+            const urlObj = new URL(fullUrl);
+            const directoryPathname = urlObj.pathname.substring(0,urlObj.pathname.lastIndexOf('/') + 1);
+            return urlObj.protocol + '//' + urlObj.host + directoryPathname;
         }
 
         //Undo機能に関する関数
@@ -1343,9 +1349,6 @@
 
         // 読み込み時の認証処理
         if (accessToken) { //MastodonもしくはMisskey認証済みの場合
-            if(params.size > 0){
-                reloadPageWithoutParam(); // 不要なパラメータを消すためリロード
-            }
             enablePostButton();
         } else if(code && app_info.app_type === "mastodon") { // Mastodon認証後の処理
             fetch(`${serverUrl}/oauth/token`, 
@@ -1367,7 +1370,7 @@
                 .then(data =>{
                     accessToken = data.access_token;
                     window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
-                    enablePostButton();
+                    cleanUrlAndReload();
                 })
         } else if (miauthSession && app_info.app_type === "misskey") { // Misskey認証後の処理
             fetch(`${serverUrl}/api/miauth/${miauthSession}/check`, 
@@ -1380,10 +1383,10 @@
                     if (data.ok && data.token) {
                         accessToken = data.token;
                         window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
-                        enablePostButton();
+                        cleanUrlAndReload();
                     } else {
                         //alert("Misskey認証に失敗しました");
-                        reloadPageWithoutParam();
+                        cleanUrlAndReload();
                     }
                 });
         } else{
