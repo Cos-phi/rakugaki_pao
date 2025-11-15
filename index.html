@@ -313,7 +313,7 @@
         let serverUrl = "https://" + hostName; 
         const manualUrl = "manual.html"
 
-        const shareUrl = "https://kurajo.ivory.ne.jp/rakugaki_pao/";
+        const shareUrl = toDirectoryPathSimple(redirect_uri);
         
         destinationServerSelect.value = destinationServerName;
         authButtonImg.src = "image/"+ app_info.app_type + "_disable.svg";
@@ -603,6 +603,7 @@
             }
         }
         
+        //リロード・URLクリーンアップに関する関数
         function reloadPage(){
             saveLocalstorage();
             location.reload()
