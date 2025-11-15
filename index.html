@@ -178,6 +178,7 @@
         //引数の取得
         const params = new URLSearchParams(document.location.search);
         const code = params.get('code');
+        const miauthSession = params.get('session');
 
         //重要な設定
         const blackPenColor = "#36364A";
@@ -1339,29 +1340,11 @@
             postButton.style.display = '';
         }
 
-        // Misskey認証後の処理
-        const miauthSession = new URLSearchParams(window.location.search).get('session');
-        if (miauthSession && app_info.app_type === "misskey") {
-            fetch(`https://${app_info.hostname}/api/miauth/${miauthSession}/check`, {
-                method: "POST"
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok && data.token) {
-                    accessToken = data.token;
-                    window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
-                    enablePostButton();
-                } else {
-                    //alert("Misskey認証に失敗しました");
-                    reloadPageWithoutParam();
-                }
-            });
-        }
 
-        // Mastodon読み込み時の認証処理
-        if (accessToken) {
-            enablePostButton();     
-        } else if(code) {
+        // 読み込み時の認証処理
+        if (accessToken) { //MastodonもしくはMisskey認証済みの場合
+            enablePostButton();  
+        } else if(code && app_info.app_type === "mastodon") { // Mastodon認証後の処理
             fetch(`${serverUrl}/oauth/token`, 
                     {
                         method: 'POST',
@@ -1378,12 +1361,29 @@
                     }
                     return response.json()
                 })
-                .then(data=>{
+                .then(data =>{
                     accessToken = data.access_token;
                     window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
                     enablePostButton();
                 })
-        } else {
+        } else if (miauthSession && app_info.app_type === "misskey") { // Misskey認証後の処理
+            fetch(`https://${app_info.hostname}/api/miauth/${miauthSession}/check`, 
+                    {
+                        method: "POST"
+                    }
+                )
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok && data.token) {
+                        accessToken = data.token;
+                        window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
+                        enablePostButton();
+                    } else {
+                        //alert("Misskey認証に失敗しました");
+                        reloadPageWithoutParam();
+                    }
+                });
+        } else{
             // 未認証。何もしません。
         }
     </script>
