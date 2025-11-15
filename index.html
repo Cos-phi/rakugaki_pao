@@ -207,11 +207,11 @@
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxCombined = combinedCanvas.getContext('2d');
 
-        //ローカルストレージキー
+        //ストレージキー
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
-        const localstorageKeyLastClearTime = 'lastcleartimekey';
+        const sessionstorageKeyLastClearTime = 'lastcleartimekey';
         const localstorageKeyDestinationServerName = 'destinationservernamekey';
 
         //投稿に関する情報
@@ -336,8 +336,10 @@
         let undoStack = [];
         let accessToken = null;
 
-        const reloadTime = new Date().getTime();
-
+        if(null === window.sessionStorage.getItem(sessionstorageKeyLastClearTime)){
+            setLastClearTime();
+        }
+        
         let publishingLevel = defaultSettings.publishingLevel;
         let enableCW = defaultSettings.enableCW;
         let postComment = defaultSettings.postComment;
@@ -657,11 +659,11 @@
 
         function setLastClearTime(){
             const nowTime = new Date();
-            window.localStorage.setItem(localstorageKeyLastClearTime,nowTime.getTime());
+            window.sessionStorage.setItem(sessionstorageKeyLastClearTime,nowTime.getTime());
         }
 
         function getElapsedTimeMinFromLastClearTime(){
-            const lastClearTime = window.localStorage.getItem(localstorageKeyLastClearTime) || reloadTime;
+            const lastClearTime = window.sessionStorage.getItem(sessionstorageKeyLastClearTime);
             const nowTime = new Date();
             const elapsedTimeMin = Math.trunc((nowTime.getTime() - lastClearTime)/1000/60);
             return elapsedTimeMin;
