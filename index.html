@@ -1343,7 +1343,10 @@
 
         // 読み込み時の認証処理
         if (accessToken) { //MastodonもしくはMisskey認証済みの場合
-            enablePostButton();  
+            if(params.size > 0){
+                reloadPageWithoutParam(); // 不要なパラメータを消すためリロード
+            }
+            enablePostButton();
         } else if(code && app_info.app_type === "mastodon") { // Mastodon認証後の処理
             fetch(`${serverUrl}/oauth/token`, 
                     {
