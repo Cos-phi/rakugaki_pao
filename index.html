@@ -260,44 +260,30 @@
             "tanoshii.site": {
                 app_type: "misskey",
                 hostname: "tanoshii.site",
-                miauth_name: "rakugaki_pao",
-                miauth_permission: ["write:notes", "write:drive"],
             },
             "sushi.ski": {
                 app_type: "misskey",
                 hostname: "sushi.ski",
-                miauth_name: "rakugaki_pao",
-                miauth_permission: ["write:notes", "write:drive"],
             },
             "misskey.io": {
                 app_type: "misskey",
                 hostname: "misskey.io",
-                miauth_name: "rakugaki_pao",
-                miauth_permission: ["write:notes", "write:drive"],
             },
             "misskey.design": {
                 app_type: "misskey",
                 hostname: "misskey.design",
-                miauth_name: "rakugaki_pao",
-                miauth_permission: ["write:notes", "write:drive"],
             },
             "misskey.favskey.online": {
                 app_type: "misskey",
                 hostname: "misskey.favskey.online",
-                miauth_name: "rakugaki_pao",
-                miauth_permission: ["write:notes", "write:drive"],
             },
             "misskey.noellabo.jp": {
                 app_type: "misskey",
                 hostname: "misskey.noellabo.jp",
-                miauth_name: "rakugaki_pao",
-                miauth_permission: ["write:notes", "write:drive"],
             },
             "misskey.cloud": {
                 app_type: "misskey",
                 hostname: "misskey.cloud",
-                miauth_name: "rakugaki_pao",
-                miauth_permission: ["write:notes", "write:drive"],
             },
         };
         let serverData = {...mastodonServerDataMain,...misskeyServerData};
@@ -307,12 +293,13 @@
             redirect_uri = "https://cos-phi.github.io/rakugaki_pao/index.html";
         }
         const destinationServerName = window.localStorage.getItem(localstorageKeyDestinationServerName) || "mistodon.cloud";
-
         let app_info = serverData[destinationServerName];
         let hostName = app_info.hostname;
         let serverUrl = "https://" + hostName; 
-        const manualUrl = "manual.html"
+        const miauth_name = "rakugaki_pao";
+        const miauth_permission = ["write:notes", "write:drive"];
 
+        const manualUrl = "manual.html"
         const shareUrl = toDirectoryPathSimple(redirect_uri);
         
         destinationServerSelect.value = destinationServerName;
@@ -1338,7 +1325,7 @@
             window.localStorage.setItem('miauth_session', session);
 
             // MiAuth URL生成
-            const url = `${serverUrl}/miauth/${session}?name=${encodeURIComponent(app_info.miauth_name)}&callback=${encodeURIComponent(redirect_uri)}&permission=${encodeURIComponent(app_info.miauth_permission.join(','))}`;
+            const url = `${serverUrl}/miauth/${session}?name=${encodeURIComponent(miauth_name)}&callback=${encodeURIComponent(redirect_uri)}&permission=${encodeURIComponent(miauth_permission.join(','))}`;
             window.location.href = url;
         }
 
