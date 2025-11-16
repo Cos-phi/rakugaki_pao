@@ -117,7 +117,21 @@
             </div>
             <div class="select-container">
                 <select id="destination-server-select"></select>
-                <button id="destination-server-auth-button">✔</button>   
+                <button id="add-destination-server-button" class="destination-server-setting-toggle-button">+</button>
+                <button id="destination-server-auth-button" class="desitination-server-auth-button">✔</button>   
+            </div>
+        </div>
+    </div>
+
+    <div id="add-destination-server-dialog-modal" class="modal"  style="display: none;"> <!-- none -->
+        <div class="modal-content">
+            <div class="dialog-title-container">
+                <button id="close-add-destination-server-dialog-button" class="close-dialog-button">×</button>
+            </div>
+            <div class="select-container">
+                <input type="url" id="destination-server-url-input" placeholder="Enter misskey server URL">
+                <button id="back-destination-server-button" class="destination-server-setting-toggle-button">☰</button>
+                <button id="add-auth-destination-server-button" class="desitination-server-auth-button">✔</button>   
             </div>
         </div>
     </div>
@@ -165,6 +179,12 @@
         const closeDestinationServerDialogButton = document.getElementById('close-destination-server-dialog-button');
         const destinationServerSelect = document.getElementById('destination-server-select');
         const destinationServerAuthButton = document.getElementById('destination-server-auth-button');
+        const addDestinationServerButton = document.getElementById('add-destination-server-button');
+        const addDestinationServerDialogModal = document.getElementById('add-destination-server-dialog-modal');
+        const destinationServerUrlInput = document.getElementById('destination-server-url-input');
+        const addAuthDestinationServerButton = document.getElementById('add-auth-destination-server-button');
+        const closeAddDestinationServerDialogButton = document.getElementById('close-add-destination-server-dialog-button');
+        const backDestinationServerButton = document.getElementById('back-destination-server-button');
 
         const postDialogModal = document.getElementById('post-dialog-modal');
         const closePostDialogButton = document.getElementById('close-post-dialog-button');
@@ -269,21 +289,9 @@
                 app_type: "misskey",
                 hostname: "misskey.io",
             },
-            "misskey.design": {
-                app_type: "misskey",
-                hostname: "misskey.design",
-            },
             "misskey.favskey.online": {
                 app_type: "misskey",
                 hostname: "misskey.favskey.online",
-            },
-            "misskey.noellabo.jp": {
-                app_type: "misskey",
-                hostname: "misskey.noellabo.jp",
-            },
-            "misskey.cloud": {
-                app_type: "misskey",
-                hostname: "misskey.cloud",
             },
         };
         let serverData = {...mastodonServerDataMain,...misskeyServerData};
@@ -292,8 +300,9 @@
             serverData = {...mastodonServerDataDev,...misskeyServerData};
             redirect_uri = "https://cos-phi.github.io/rakugaki_pao/index.html";
         }
+
         const destinationServerName = window.localStorage.getItem(localstorageKeyDestinationServerName) || "mistodon.cloud";
-        let app_info = serverData[destinationServerName];
+        let app_info = serverData[destinationServerName] ?? {app_type: "misskey", hostname: destinationServerName};
         let hostName = app_info.hostname;
         let serverUrl = "https://" + hostName; 
         const miauth_name = "rakugaki_pao";
@@ -377,6 +386,11 @@
         authButton.addEventListener('click', openDestinationServerSettingDialog); 
         destinationServerAuthButton.addEventListener('click', authDestinationServer);    
         closeDestinationServerDialogButton.addEventListener('click',closeDialog);
+
+        addDestinationServerButton.addEventListener('click',openAddDestinationServerDialog);
+        addAuthDestinationServerButton.addEventListener('click',authAddDestinationServer);
+        closeAddDestinationServerDialogButton.addEventListener('click',closeDialog);
+        backDestinationServerButton.addEventListener('click',openDestinationServerSettingDialog);
         
         postButton.addEventListener('click', openPostDialog); 
         destinationServerResetButton.addEventListener('click', openDestinationServerSettingDialog);
@@ -1137,6 +1151,63 @@
                 getAuthCodeRedirect();
             }
         }
+
+        //投稿先追加ダイアログ
+        function openAddDestinationServerDialog() {
+            closeDialog();
+            addDestinationServerDialogModal.style.display = 'block';
+        }
+
+        async function authAddDestinationServer() {
+            addAuthDestinationServerButton.disabled = true;
+            const inputUrlString = normalizeUrl(destinationServerUrlInput.value);
+            let newUrl;
+            try {
+                newUrl = new URL(inputUrlString);
+            } catch (e) {
+                alert('MisskeyサーバーのURLを入力してくださいまし。');
+                addAuthDestinationServerButton.disabled = false;
+                return; 
+            }
+            const isMisskey = await isMisskeyUrl(newUrl.origin);
+            if (isMisskey) {
+                console.log('Misskey server!');
+                window.localStorage.setItem(localstorageKeyDestinationServerName,newUrl.hostname);
+                window.localStorage.removeItem(localstorageKeyAccessToken);
+                serverUrl = newUrl.origin;           
+                startMiAuth();
+            }else{
+                alert('このURLはMisskeyサーバーではないみたいですの。MisskeyサーバーのURLを入力してくださいまし。/ True URL is not Misskey server. Please input Misskey server URL.');
+                addAuthDestinationServerButton.disabled = false;
+                return;
+            }
+        }
+
+        async function isMisskeyUrl(url) {
+            const apiMetaUrl = `${url}/api/meta`;
+            try {
+                const response = await fetch(apiMetaUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: "{}"
+                });
+                if (!response.ok) return false;
+                const data = await response.json();
+                const misskeyKeys = ["version", "name", "features"];
+                const hitCount = misskeyKeys.filter(key => key in data).length;
+                return hitCount >= 2;   // Misskey 固有のキーが複数存在していれば Misskey と判定
+            } catch (e) {
+                return false; // fetch 失敗 → Misskey でない
+            }
+        }
+        
+        function normalizeUrl(input) {
+            if (input.startsWith("https://")) {
+                return inpu.trim();
+            }
+            return "https://" + input.trim();
+        }
+
 
         //ダイアログ共通
         function closeDialog() {

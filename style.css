@@ -309,7 +309,7 @@ button {
     font-size: 16px;
     color: #DDD9E8;
     border: 0px solid #36364A;
-    background-color: rgb(29, 29, 38);
+    background-color: rgb(41, 41, 56);
     border-radius: 4px;
 }
 #destination-server-select {
@@ -317,16 +317,16 @@ button {
     height: 42px;
     border: 0px solid #ddd;
     border-radius: 4px;
-    background-color: rgb(29, 29, 38);
+    background-color: rgb(41, 41, 56);
     text-align-last: center;
     font-size: 16px;
     font-weight: bold;    
     color: #DDD9E8;
     cursor: pointer;
 }
-#destination-server-auth-button {
+.desitination-server-auth-button {
     padding: 0px;
-    width: 100px;
+    width: 80px;
     height: 42px;
     background-color: #6364ff;
     color: white;
@@ -335,6 +335,35 @@ button {
     border: none;
     border-radius: 4px;
 }
+.desitination-server-auth-button:disabled {
+    background-color: #9999ff;
+    cursor: wait;
+}
+.destination-server-setting-toggle-button {
+    padding: 0px;
+    margin-left:4px;
+    margin-right: 4px;
+    width: 21px;
+    height: 42px;
+    background-color: rgb(41, 41, 56);;
+    color: #DDD9E8;
+    font-size: 16px; 
+    border: none;
+    border-radius: 4px;
+}
+#destination-server-url-input {
+    width: 240px;
+    height: 42px;
+    padding: 0px;
+    border: 0px solid #ddd;
+    border-radius: 4px;
+    background-color: rgb(41, 41, 56);
+    text-align-last: center;
+    font-size: 16px;   
+    color: #DDD9E8;
+    cursor: text;
+}
+
 #preview-img {
     border-radius: 8px;
     border: 0px solid  rgb(18, 18, 21);
@@ -344,7 +373,7 @@ textarea {
     margin-top: 8px;
     width: 344px;
     padding: 8px;
-    background-color: rgb(29, 29, 38);
+    background-color: rgb(41, 41, 56);
     border: 0px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
@@ -356,7 +385,7 @@ textarea {
     width: 48px;
     border: 0px solid #ddd;
     border-radius: 4px;
-    background-color: rgb(29, 29, 38);
+    background-color: rgb(41, 41, 56);
     font-size: 16px;
     color: #DDD9E8;
     cursor: pointer;
@@ -381,7 +410,7 @@ input[type="checkbox"] {
 
     border: 0px solid #ddd;
     border-radius: 4px;
-    background-color: rgb(29, 29, 38);
+    background-color: rgb(41, 41, 56);
     filter: grayscale();
 }
 #enable-CW-checkbox:checked ~ .checkbox-label{
