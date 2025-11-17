@@ -228,6 +228,16 @@
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxCombined = combinedCanvas.getContext('2d');
 
+                
+        //ストレージキー
+        const localstorageKeyBlack = 'blacklayerlskey';
+        const localstorageKeyColor = 'colorlayerlskey';
+        const localstorageKeyAccessToken = 'accesstokenkey';
+        const localstorageKeyMisskeyAccessTokenPrefix = 'destinationmisskeyserveraccesstokenkey_';
+        const sessionstorageKeyLastClearTime = 'lastcleartimekey';
+        const localstorageKeyDestinationServerName = 'destinationservernamekey';
+
+
         //投稿に関する情報
         const mastodonServerDataMain = {
             "mistodon.cloud": {
@@ -299,6 +309,7 @@
         let app_info = serverData[destinationServerName] ?? {app_type: "misskey", hostname: destinationServerName};
         let hostName = app_info.hostname;
         let serverUrl = "https://" + hostName; 
+        const localstorageKeyMisskeyAccessToken = localstorageKeyMisskeyAccessToken + destinationServerName;
         const miauth_name = "rakugaki_pao";
         const miauth_permission = ["write:notes", "write:drive"];
 
@@ -311,15 +322,7 @@
         postingDummyButtonImg.src = "image/"+ app_info.app_type + "_active.svg";
         postButton.title = hostName + "に投稿";
         destinationServerResetButton.textContent = hostName;
-        
-        //ストレージキー
-        const localstorageKeyBlack = 'blacklayerlskey';
-        const localstorageKeyColor = 'colorlayerlskey';
-        const localstorageKeyAccessToken = 'accesstokenkey';
-        const localstorageKeyMisskeyAccessTokenPrefix = 'destinationmisskeyserveraccesstokenkey_';
-        const localstorageKeyMisskeyAccessToken = localstorageKeyMisskeyAccessToken + destinationServerName;
-        const sessionstorageKeyLastClearTime = 'lastcleartimekey';
-        const localstorageKeyDestinationServerName = 'destinationservernamekey';
+
 
         //変数の初期化
         let outputFileName = 'rakugaki_pao.png';
