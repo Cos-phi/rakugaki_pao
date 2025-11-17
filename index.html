@@ -309,7 +309,7 @@
         let app_info = serverData[destinationServerName] ?? {app_type: "misskey", hostname: destinationServerName};
         let hostName = app_info.hostname;
         let serverUrl = "https://" + hostName; 
-        const localstorageKeyMisskeyAccessToken = localstorageKeyMisskeyAccessToken + destinationServerName;
+        const localstorageKeyMisskeyAccessToken = localstorageKeyMisskeyAccessTokenPrefix + destinationServerName;
         const miauth_name = "rakugaki_pao";
         const miauth_permission = ["write:notes", "write:drive"];
 
