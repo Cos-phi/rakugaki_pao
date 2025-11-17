@@ -233,7 +233,6 @@
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
-        const localstorageKeyMisskeyAccessTokenPrefix = 'destinationmisskeyserveraccesstokenkey_';
         const sessionstorageKeyLastClearTime = 'lastcleartimekey';
         const localstorageKeyDestinationServerName = 'destinationservernamekey';
 
@@ -309,6 +308,8 @@
         let app_info = serverData[destinationServerName] ?? {app_type: "misskey", hostname: destinationServerName};
         let hostName = app_info.hostname;
         let serverUrl = "https://" + hostName; 
+        
+        const localstorageKeyMisskeyAccessTokenPrefix = 'destinationmisskeyserveraccesstokenkey_';
         const localstorageKeyMisskeyAccessToken = localstorageKeyMisskeyAccessTokenPrefix + destinationServerName;
         const miauth_name = "rakugaki_pao";
         const miauth_permission = ["write:notes", "write:drive"];
