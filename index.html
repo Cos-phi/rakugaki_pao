@@ -1186,8 +1186,12 @@
                 console.log('Misskey server!');
                 window.localStorage.setItem(localstorageKeyDestinationServerName,newUrl.hostname);
                 window.localStorage.removeItem(localstorageKeyAccessToken);
-                serverUrl = newUrl.origin;           
-                startMiAuth();
+                serverUrl = newUrl.origin;     
+                if (window.localStorage.getItem(localstorageKeyMisskeyAccessTokenPrefix + newUrl.hostname) != null) {
+                    reloadPage();
+                }else{       
+                    startMiAuth();
+                }
             }else{
                 alert('このURLはMisskeyサーバーではないみたいですの。MisskeyサーバーのURLを入力してくださいまし。/ True URL is not Misskey server. Please input Misskey server URL.');
                 addAuthDestinationServerButton.disabled = false;
