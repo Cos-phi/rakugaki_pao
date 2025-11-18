@@ -1147,14 +1147,17 @@
         }
 
         function authDestinationServer() {
-            window.localStorage.setItem(localstorageKeyDestinationServerName,destinationServerSelect.value);
-            window.localStorage.removeItem(localstorageKeyAccessToken);
             const newServerName = destinationServerSelect.value;
             const newAppInfo = serverData[newServerName];
+            
             app_info = newAppInfo;
             hostName = app_info.hostname;
             serverUrl = "https://" + hostName;
-            if (app_info.app_type === "misskey") {
+            window.localStorage.setItem(localstorageKeyDestinationServerName,destinationServerSelect.value);
+            window.localStorage.removeItem(localstorageKeyAccessToken);
+            if (window.localStorage.getItem(localstorageKeyMisskeyAccessTokenPrefix + hostName) != null) {
+                reloadPage();
+            } else if (app_info.app_type === "misskey") {
                 startMiAuth();
             } else {
                 getAuthCodeRedirect();
