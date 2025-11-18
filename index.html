@@ -228,12 +228,14 @@
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxCombined = combinedCanvas.getContext('2d');
 
+                
         //ストレージキー
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
         const sessionstorageKeyLastClearTime = 'lastcleartimekey';
         const localstorageKeyDestinationServerName = 'destinationservernamekey';
+
 
         //投稿に関する情報
         const mastodonServerDataMain = {
@@ -302,9 +304,13 @@
         }
 
         const destinationServerName = window.localStorage.getItem(localstorageKeyDestinationServerName) || "mistodon.cloud";
+        
         let app_info = serverData[destinationServerName] ?? {app_type: "misskey", hostname: destinationServerName};
         let hostName = app_info.hostname;
         let serverUrl = "https://" + hostName; 
+        
+        const localstorageKeyMisskeyAccessTokenPrefix = 'destinationmisskeyserveraccesstokenkey_';
+        const localstorageKeyMisskeyAccessToken = localstorageKeyMisskeyAccessTokenPrefix + destinationServerName;
         const miauth_name = "rakugaki_pao";
         const miauth_permission = ["write:notes", "write:drive"];
 
@@ -591,6 +597,10 @@
             restoreLayeronlocalstorage(localstorageKeyBlack,blackLayer);
             restoreLayeronlocalstorage(localstorageKeyColor,colorLayer);
             accessToken = window.localStorage.getItem(localstorageKeyAccessToken);
+            const misskeyAccessToken = window.localStorage.getItem(localstorageKeyMisskeyAccessToken);
+            if( misskeyAccessToken != null ){
+                accessToken = misskeyAccessToken;
+            }
         }
 
         function restoreLayeronlocalstorage(localstoragekey,layer) {
@@ -1360,7 +1370,7 @@
                 if (error.type === "MisskeyAuthError") {
                     // アクセストークン無効時の処理
                     accessToken = null;
-                    window.localStorage.removeItem(localstorageKeyAccessToken);
+                    window.localStorage.removeItem(localstorageKeyMisskeyAccessToken);
                     authButton.style.display = '';
                     postButton.style.display = 'none';
                     showMessage('Misskey認証が無効になっていますの。再認証してもういちど試してくださいませ。');
@@ -1440,7 +1450,7 @@
                 .then(data => {
                     if (data.ok && data.token) {
                         accessToken = data.token;
-                        window.localStorage.setItem(localstorageKeyAccessToken, accessToken);
+                        window.localStorage.setItem(localstorageKeyMisskeyAccessToken, accessToken);
                         cleanUrlAndReload();
                     } else {
                         //alert("Misskey認証に失敗しました");
