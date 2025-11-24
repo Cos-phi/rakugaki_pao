@@ -103,8 +103,8 @@
                     <option value="private">🔒　フォロワー Followers　</option>
                     <option value="direct">✉️　特定の人 Specific people　</option>
                 </select>
-                <input type="checkbox" id="enable-CW-checkbox">
-                <label for="enable-CW-checkbox" class="checkbox-label">⚠️CW </label>
+                <input type="checkbox" id="is-sensitive-checkbox">
+                <label for="is-sensitive-checkbox" class="checkbox-label">⚠️Sensitive </label>
                 <button id="submit-button" class="submit-button">Post</button>   
             </div>
         </div>
@@ -192,7 +192,7 @@
         const previewImg = document.getElementById("preview-img");
         const commentTextarea = document.getElementById('comment-textarea');
         const visibilitySelect = document.getElementById('visibility-select');
-        const enableCWCheckbox = document.getElementById('enable-CW-checkbox')
+        const isSensitiveCheckbox = document.getElementById('is-sensitive-checkbox')
         const submitButton = document.getElementById('submit-button');
 
         //引数の取得
@@ -211,7 +211,7 @@
         const hashtag = '#rakugaki_pao';
         const defaultSettings = {
             publishingLevel: 'public',
-            enableCW: false,
+            isSensitive: false,
             postComment: "\n\n"+hashtag+" "
         };
 
@@ -344,7 +344,7 @@
         }
         
         let publishingLevel = defaultSettings.publishingLevel;
-        let enableCW = defaultSettings.enableCW;
+        let isSensitive = defaultSettings.isSensitive;
         let postComment = defaultSettings.postComment;
 
         let toolSizesParam = {
@@ -1113,13 +1113,13 @@
 
         function initializePostDialog() {
             visibilitySelect.value = defaultSettings.publishingLevel;
-            enableCWCheckbox.checked = defaultSettings.enableCW;
+            isSensitiveCheckbox.checked = defaultSettings.isSensitive;
             commentTextarea.value = defaultSettings.postComment;
         }
 
         function savePostSetting() {
             publishingLevel = visibilitySelect.value;
-            enableCW = enableCWCheckbox.checked;
+            isSensitive = isSensitiveCheckbox.checked;
             postComment = commentTextarea.value.trim() || defaultSettings.postComment;
         }
 
@@ -1290,7 +1290,7 @@
                         status: postComment,
                         media_ids: [data.id],
                         visibility: publishingLevel,
-                        sensitive: enableCW,
+                        sensitive: isSensitive,
                     }),
                 });
             })
@@ -1331,7 +1331,7 @@
                 body: (() => {
                     const formData = new FormData();
                     formData.append('file', dataURLToBlob(dataURL), outputFileName);
-                    formData.append('isSensitive', enableCW);
+                    formData.append('isSensitive', isSensitive);
                     return formData;
                 })()
             })
@@ -1354,7 +1354,7 @@
                         text: postComment,
                         fileIds: [file.id],
                         visibility: convertVisibilityForMisskey(publishingLevel),
-                        //cw: enableCW ? "CW message" : undefined
+                        //cw: CWFLAG ? "CW message" : undefined
                     })
                 });
             })

@@ -413,7 +413,7 @@ input[type="checkbox"] {
     background-color: rgb(41, 41, 56);
     filter: grayscale();
 }
-#enable-CW-checkbox:checked ~ .checkbox-label{
+#is-sensitive-checkbox:checked ~ .checkbox-label{
     background-color:#6364ff;
     color:#EBECFF;
     filter: none;
