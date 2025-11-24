@@ -1346,14 +1346,14 @@
                 return fetch(`${serverUrl}/api/notes/create`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${accessToken}`,
+                        //'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
+                        i: accessToken,
                         text: postComment,
                         fileIds: [file.id],
                         visibility: convertVisibilityForMisskey(publishingLevel),
-                        sensitive: enableCW,
                         isSensitive: enableCW,
                     })
                 });
