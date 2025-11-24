@@ -1353,7 +1353,8 @@
                         text: postComment,
                         fileIds: [file.id],
                         visibility: convertVisibilityForMisskey(publishingLevel),
-                        sensitive: true,
+                        sensitive: enableCW,
+                        isSensitive: enableCW,
                     })
                 });
             })
