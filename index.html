@@ -1290,7 +1290,7 @@
                         status: postComment,
                         media_ids: [data.id],
                         visibility: publishingLevel,
-                        isSensitive: enableCW,
+                        sensitive: enableCW,
                     }),
                 });
             })
@@ -1353,7 +1353,7 @@
                         text: postComment,
                         fileIds: [file.id],
                         visibility: convertVisibilityForMisskey(publishingLevel),
-                        isSensitive: enableCW,
+                        isSensitive: true,
                     })
                 });
             })
