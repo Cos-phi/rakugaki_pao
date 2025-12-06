@@ -454,16 +454,17 @@
         //引数があればインポート処理を行う
         if( importKeyBlack != null && window.localStorage.getItem(importKeyBlack) != null ){
             clearCanvas();
-            saveLocalstorage();
             restoreLayeronlocalstorage(importKeyBlack, blackLayer);
-            window.localStorage.removeItem(importKeyBlack);
+            saveLocalstorage();
+            //window.localStorage.removeItem(importKeyBlack);
             cleanUrlAndReload();
         }
         if( importKeyColor != null && window.localStorage.getItem(importKeyColor) != null ){
             clearCanvas();
             saveLocalstorage();
             restoreLayeronlocalstorage(importKeyColor, colorLayer);
-            window.localStorage.removeItem(importKeyColor);
+            saveLocalstorage();
+            //window.localStorage.removeItem(importKeyColor);
             cleanUrlAndReload();
         }
 
