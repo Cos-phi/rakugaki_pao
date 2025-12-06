@@ -456,14 +456,14 @@
             clearCanvas();
             saveLocalstorage();
             restoreLayeronlocalstorage(importKeyBlack, blackLayer);
-            localstorage.removeItem(importKeyBlack);
+            window.localStorage.removeItem(importKeyBlack);
             cleanUrlAndReload();
         }
         if( importKeyColor != null && window.localStorage.getItem(importKeyColor) != null ){
             clearCanvas();
             saveLocalstorage();
             restoreLayeronlocalstorage(importKeyColor, colorLayer);
-            localstorage.removeItem(importKeyColor);
+            window.localStorage.removeItem(importKeyColor);
             cleanUrlAndReload();
         }
 
