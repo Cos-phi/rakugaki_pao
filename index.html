@@ -199,6 +199,10 @@
         const params = new URLSearchParams(document.location.search);
         const code = params.get('code');
         const miauthSession = params.get('session');
+        const importKeyBlack = params.get('importblacklayer');
+        const importKeyColor = params.get('importcolorlayer');
+        console.log("importKeyBlack:",importKeyBlack);
+        console.log("importKeyColor:",importKeyColor);
 
         //重要な設定
         const blackPenColor = "#36364A";
@@ -443,6 +447,23 @@
         initializePostDialog();
         initializeModal();
 
+        //引数があればインポート処理を行う
+        if( importKeyBlack != null && window.localStorage.getItem(importKeyBlack) != null ){
+            clearCanvas();
+            // restoreLayeronlocalstorage は Promise を返すので、完了後にキー削除と保存を行います
+            restoreLayeronlocalstorage(importKeyBlack, blackLayer).then(() => {
+                window.localStorage.removeItem(importKeyBlack);
+                saveLocalstorage();
+            });
+        }
+        if( importKeyColor != null && window.localStorage.getItem(importKeyColor) != null ){
+            clearCanvas();
+            restoreLayeronlocalstorage(importKeyColor, colorLayer).then(() => {
+                window.localStorage.removeItem(importKeyColor);
+                saveLocalstorage();
+            });
+        }
+
 
         //関数
 
@@ -604,14 +625,23 @@
         }
 
         function restoreLayeronlocalstorage(localstoragekey,layer) {
-            let base64blacklayer = window.localStorage.getItem(localstoragekey);
-            if ( base64blacklayer != null) {
-                let image = new Image();
-                image.src = base64blacklayer;
-                image.onload = function(){
-                    layer.getContext('2d').drawImage(image,0,0);
+            return new Promise((resolve) => {
+                let base64 = window.localStorage.getItem(localstoragekey);
+                if (base64 != null) {
+                    let image = new Image();
+                    const ctx = layer.getContext('2d');
+                    // onload を先にセットしてから src を設定します（同期的に読み切られるブラウザ対策）
+                    image.onload = function(){
+                        // 描画前に念のためレイヤーをクリアして重ね合わせを防ぐ
+                        ctx.clearRect(0, 0, layer.width, layer.height);
+                        ctx.drawImage(image,0,0);
+                        resolve();
+                    }
+                    image.src = base64;
+                } else {
+                    resolve();
                 }
-            }
+            });
         }
         
         //リロード・URLクリーンアップに関する関数
