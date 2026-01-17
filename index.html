@@ -423,33 +423,53 @@
 
         //ショートカットキーの登録
         document.addEventListener('keydown', event => {
-            if (event.target.tagName === 'TEXTAREA' || event.target.tagName === 'INPUT') {
+            const target = event.target;
+            if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
                 return;
             }
-            if (event.code === 'KeyQ') {
-                isEraser = false;
-                updateToolsState();
-            }else if (event.code === 'KeyE') {
-                isEraser = true;
-                updateToolsState();
-            }else if (event.code === 'KeyZ') {
-                undo();
-            }else if(event.code === 'KeyX'){
-                isEraser = !isEraser;
-                updateToolsState();
-            }else if(event.code === 'KeyC'){
-                toggleTool();
-            }else if(event.code === 'KeyA'){
-                decreaseToolSize();
-            }else if(event.code === 'KeyD'){
-                increaseToolSize();
-            }else if(event.code === 'KeyW'){
-                increaseToolOpacity();
-            }else if(event.code === 'KeyS'){
-                decreaseToolOpacity();
-            }else if(event.code === 'KeyR'){
-                reloadPage();
+
+            // キーコードによる分岐
+            switch (event.code) {
+                case 'KeyQ':
+                    isEraser = false;
+                    updateToolsState();
+                    break;
+                case 'KeyE':
+                    isEraser = true;
+                    updateToolsState();
+                    break;
+                case 'KeyX':
+                    isEraser = !isEraser;
+                    updateToolsState();
+                    break;
+                case 'KeyZ':
+                    undo();
+                    break;
+                case 'KeyC':
+                    toggleTool();
+                    break;
+                case 'KeyA':
+                    decreaseToolSize();
+                    break;
+                case 'KeyD':
+                    increaseToolSize();
+                    break;
+                case 'KeyW':
+                    increaseToolOpacity();
+                    break;
+                case 'KeyS':
+                    decreaseToolOpacity();
+                    break;
+                case 'KeyR':
+                    reloadPage();
+                    break;
+                default:
+                    // 割り当てられていないキーの場合は何もしない
+                    return;
             }
+
+            // ブラウザ標準のショートカット（保存や検索など）を無効化したい場合はここに追加
+            // event.preventDefault(); 
         });
 
         //初期化
