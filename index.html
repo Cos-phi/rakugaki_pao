@@ -424,6 +424,16 @@
         //ショートカットキーの登録
         document.addEventListener('keydown', event => {
             const target = event.target;
+            // コメント入力欄での投稿ショートカット
+            if (target.id === 'comment-textarea') {
+                if (event.code === 'Enter' && (event.ctrlKey || event.metaKey)) {
+                    postToDestinationServer();
+                    event.preventDefault();
+                }
+                return;
+            }
+
+            // テキストエリアや入力欄での操作を妨げないようにする
             if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
                 return;
             }
@@ -464,7 +474,6 @@
                     reloadPage();
                     break;
                 default:
-                    // 割り当てられていないキーの場合は何もしない
                     return;
             }
 
