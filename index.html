@@ -453,7 +453,12 @@
                     updateToolsState();
                     break;
                 case 'KeyZ':
-                    undo();
+                    if (event.ctrlKey || event.metaKey) {
+                        event.preventDefault(); 
+                        undo();
+                    } else {
+                        undo();
+                    }
                     break;
                 case 'KeyC':
                     toggleTool();
