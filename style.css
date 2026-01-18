@@ -24,6 +24,7 @@ body {
     -khtml-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+    transition: transform 0.25s ease-out;
 }
 #canvas-container {      
     position: relative;

@@ -138,6 +138,8 @@
 
     <script>
         //HTML要素の取得
+        const app = document.getElementById('app');
+
         const clearButton = document.getElementById('clear');
         const manualButton = document.getElementById('manual');
         
@@ -441,12 +443,10 @@
             // キーコードによる分岐
             switch (event.code) {
                 case 'KeyQ':
-                    isEraser = false;
-                    updateToolsState();
+                    rotateCanvasCounterClockwise();
                     break;
                 case 'KeyE':
-                    isEraser = true;
-                    updateToolsState();
+                    rotateCanvasClockwise();
                     break;
                 case 'KeyX':
                     isEraser = !isEraser;
@@ -1083,6 +1083,22 @@
             updateToolOpacity();
             previewCursorSize();
         }
+
+        //画面回転に関する関数
+        let currentCanvasRotationAngle = 0;
+        
+        function applyRotation(angle) {
+            currentCanvasRotationAngle += angle;
+            app.style.transform = `rotate(${currentCanvasRotationAngle}deg)`;
+        }
+
+        function rotateCanvasClockwise() {
+            applyRotation(15);
+        }
+        function rotateCanvasCounterClockwise() {
+            applyRotation(-15);
+        }
+
 
         //絵の保存に関する関数
         function combineCanvas() {
