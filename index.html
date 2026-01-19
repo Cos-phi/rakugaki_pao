@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=21"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=22"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
 </head>
 <body>
     <div id="app">
@@ -94,17 +94,21 @@
                 <button id="close-post-dialog-button" class="close-dialog-button">×</button>
                 <button id="destination-server-reset-button"></button>
             </div>
-            <img id="preview-img" width="360" height="360" alt="Preview Image" src="image/dummy_preview.png">
+            <div class="preview-img-container">
+                <img id="preview-img" width="360" height="360" alt="Preview Image" src="image/dummy_preview.png">
+            </div>
             <textarea id="comment-textarea" rows="3" maxlength="483"></textarea>
             <div class="select-container">
-                <select id="visibility-select">
+                <select id="visibility-select" title="公開範囲 / Visibility">
                     <option value="public">🌐　公開 Public　</option>
                     <option value="unlisted">🌙　ひかえめな公開 Quiet public　</option>
                     <option value="private">🔒　フォロワー Followers　</option>
                     <option value="direct">✉️　特定の人 Specific people　</option>
                 </select>
                 <input type="checkbox" id="is-sensitive-checkbox">
-                <label for="is-sensitive-checkbox" class="checkbox-label">⚠️Sensitive </label>
+                <label for="is-sensitive-checkbox" class="checkbox-label" title="閲覧注意 / Sensitive">⚠️</label>
+                <input type="checkbox" id="add-url-checkbox">
+                <label for="add-url-checkbox" class="checkbox-label" title="URL">🔗</label>
                 <button id="submit-button" class="submit-button">Post</button>   
             </div>
         </div>
@@ -195,6 +199,7 @@
         const commentTextarea = document.getElementById('comment-textarea');
         const visibilitySelect = document.getElementById('visibility-select');
         const isSensitiveCheckbox = document.getElementById('is-sensitive-checkbox')
+        const addUrlCheckbox = document.getElementById('add-url-checkbox');
         const submitButton = document.getElementById('submit-button');
 
         // 引数の取得
@@ -422,6 +427,8 @@
         destinationServerResetButton.addEventListener('click', openDestinationServerSettingDialog);
         submitButton.addEventListener('click', postToDestinationServer);
         closePostDialogButton.addEventListener('click',closeDialog);
+        addUrlCheckbox.addEventListener('change', toggleAddUrl);
+        isSensitiveCheckbox.addEventListener('change', toggleSensitiveBlur);
 
         copyHashtagButton.addEventListener('click',copyHastag);
 
@@ -1252,7 +1259,25 @@
         function initializePostDialog() {
             visibilitySelect.value = defaultSettings.publishingLevel;
             isSensitiveCheckbox.checked = defaultSettings.isSensitive;
+            addUrlCheckbox.checked = false;
             commentTextarea.value = defaultSettings.postComment;
+            toggleSensitiveBlur();
+        }
+
+        function toggleAddUrl() {
+            if (addUrlCheckbox.checked) {
+                commentTextarea.value = shareUrl + "\n" + commentTextarea.value;
+            } else {
+                commentTextarea.value = commentTextarea.value.replace(shareUrl+"\n", '');
+            }
+        }
+
+        function toggleSensitiveBlur() {
+            if (isSensitiveCheckbox.checked) {
+                previewImg.style.filter = 'blur(16px)';
+            } else {
+                previewImg.style.filter = 'none';
+            }
         }
 
         function savePostSetting() {
