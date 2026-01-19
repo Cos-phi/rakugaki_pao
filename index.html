@@ -428,7 +428,18 @@
         //ショートカットキーの登録
         document.addEventListener('keydown', event => {
             const target = event.target;
-            // コメント入力欄での投稿ショートカット
+
+            // 全画面共通のショートカット
+            if (event.code === 'Escape') {
+                // 日本語変換中（未確定）なら、無視する
+                if (event.isComposing) {
+                    return;
+                }
+                closeDialog();
+                return;
+            }
+
+            // コメント入力欄でのショートカット
             if (target.id === 'comment-textarea') {
                 if (event.code === 'Enter' && (event.ctrlKey || event.metaKey)) {
                     postToDestinationServer();
@@ -437,12 +448,12 @@
                 return;
             }
 
-            // テキストエリアや入力欄での操作を妨げないようにする
+            // テキストエリア・入力欄での操作無効化
             if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
                 return;
             }
 
-            // キーコードによる分岐
+            // おえかき画面でのショートカット
             switch (event.code) {
                 case 'KeyQ':
                     rotateCanvasCounterClockwise();
@@ -489,9 +500,6 @@
                 default:
                     return;
             }
-
-            // ブラウザ標準のショートカット（保存や検索など）を無効化したい場合はここに追加
-            // event.preventDefault(); 
         });
 
         //初期化
