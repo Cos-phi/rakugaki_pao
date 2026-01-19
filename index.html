@@ -137,7 +137,7 @@
     </div>
 
     <script>
-        //HTML要素の取得
+        // HTML要素の取得
         const app = document.getElementById('app');
 
         const clearButton = document.getElementById('clear');
@@ -197,7 +197,7 @@
         const isSensitiveCheckbox = document.getElementById('is-sensitive-checkbox')
         const submitButton = document.getElementById('submit-button');
 
-        //引数の取得
+        // 引数の取得
         const params = new URLSearchParams(document.location.search);
         const code = params.get('code');
         const miauthSession = params.get('session');
@@ -206,7 +206,7 @@
         console.log("importKeyBlack:",importKeyBlack);
         console.log("importKeyColor:",importKeyColor);
 
-        //重要な設定
+        // 重要な設定
         const blackPenColor = "#36364A";
         const backgroundColor = "#F2EEE6";        
         const PaletteColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"];
@@ -221,7 +221,7 @@
             postComment: "\n\n"+hashtag+" "
         };
 
-        //キャンバスの初期化
+        // キャンバスの初期化
         canvasContainer.style.width = canvasWidth + 'px';
         canvasContainer.style.height = canvasHeight + 'px';
         canvasContainer.style.backgroundColor = backgroundColor;
@@ -235,7 +235,7 @@
         const ctxCombined = combinedCanvas.getContext('2d');
 
                 
-        //ストレージキー
+        // ストレージキー
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
@@ -243,7 +243,7 @@
         const localstorageKeyDestinationServerName = 'destinationservernamekey';
 
 
-        //投稿に関する情報
+        // 投稿に関する情報
         const mastodonServerDataMain = {
             "mistodon.cloud": {
                 app_type: "mistodon",
@@ -345,7 +345,7 @@
         destinationServerResetButton.textContent = hostName;
 
 
-        //変数の初期化
+        // 変数の初期化
         let outputFileName = 'rakugaki_pao.png';
         let isDrawing = false;
         let [lastX,lastY] =[0,0];
@@ -380,7 +380,7 @@
             colorBrush: 1,
         };
 
-        //イベントリスナーの登録
+        // イベントリスナーの登録
         clearButton.addEventListener('click', clearCanvas);
         manualButton.addEventListener('click', openManual);
         
@@ -425,7 +425,7 @@
 
         copyHashtagButton.addEventListener('click',copyHastag);
 
-        //ショートカットキーの登録
+        // ショートカットキーの登録
         document.addEventListener('keydown', event => {
             const target = event.target;
 
@@ -448,12 +448,11 @@
                 return;
             }
 
-            // テキストエリア・入力欄での操作無効化
+            // おえかき画面でのショートカット
             if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+                // テキストエリア・入力欄での操作無効化
                 return;
             }
-
-            // おえかき画面でのショートカット
             switch (event.code) {
                 case 'KeyQ':
                     rotateCanvasCounterClockwise();
@@ -502,7 +501,7 @@
             }
         });
 
-        //初期化
+        // 初期化
         updateActiveToolButton();
         updateToolSize(); 
         initializePostDialog();
@@ -513,11 +512,7 @@
             console.log('restoreLocalstorage skipped due to import params');
         }
 
-        //引数があればインポート処理を行う
-        // 重要: 画像は非同期で読み込まれるため、読み込み前にすぐ保存やリロードを行うと
-        // ローカルストレージが空の状態で上書きされてしまい、インポート画像が消えることがあります。
-        // ここではまずすべての import 画像を読み込み、読み込み完了後に一度だけキャンバスをクリアして描画、
-        // 保存（saveLocalstorage）→ URL クリーン（cleanUrlAndReload）を行います。
+        // Import引数があればインポート処理を行う
         (async function(){
             const items = [];
             if (importKeyColor != null && window.localStorage.getItem(importKeyColor) != null) {
@@ -567,11 +562,15 @@
             saveLocalstorage();
             cleanUrlAndReload();
         })();
+        // 重要: 画像は非同期で読み込まれるため、読み込み前にすぐ保存やリロードを行うと
+        // ローカルストレージが空の状態で上書きされてしまい、インポート画像が消えることがあります。
+        // ここではまずすべての import 画像を読み込み、読み込み完了後に一度だけキャンバスをクリアして描画、
+        // 保存（saveLocalstorage）→ URL クリーン（cleanUrlAndReload）を行います。
 
 
-        //関数
+        // 関数
 
-        //描画に関する関数
+        // 描画に関する関数
         function startDrawing(x, y) {
             isDrawing = true;
             [lastX, lastY] = [x, y];
@@ -598,7 +597,7 @@
                 const travelSquared = (x-lastX)**2 + (y-lastY)**2;
                 if(64 < travelSquared){
                     const [xM,yM] = [lastX + (x - beforeLastX)/4, lastY + (y - beforeLastY)/4]; 
-                    ctxActiveStroke.lineTo(xM, yM); //移動量が多いとき、補間点を作って経由します
+                    ctxActiveStroke.lineTo(xM, yM); // 移動量が多いとき、補間点を作って経由します
                     [lastX,lastY] = [xM,yM];
                 }else if( ctxCurrentLayer === ctxBlack ){
                     x = x*(1-smoothingFactor) + lastX*smoothingFactor;
@@ -708,7 +707,7 @@
             updateCursor(...touchToOffsetXY(e));
         }
         
-        //製作中の絵の保存・読込に関する関数
+        // 製作中の絵の保存・読込に関する関数
         function saveLocalstorage() {
             saveLayeronlocalstorage(localstorageKeyBlack,blackLayer);    
             saveLayeronlocalstorage(localstorageKeyColor,colorLayer);    
@@ -739,7 +738,7 @@
             }
         }
         
-        //リロード・URLクリーンアップに関する関数
+        // リロード・URLクリーンアップに関する関数
         function reloadPage(){
             saveLocalstorage();
             location.reload()
@@ -756,7 +755,7 @@
             return urlObj.protocol + '//' + urlObj.host + directoryPathname;
         }
 
-        //Undo機能に関する関数
+        // Undo機能に関する関数
         function saveState() {
             saveStateUnlimited();
             while (undoStack.length > undoLimit) {
@@ -792,7 +791,7 @@
             undoButton.style.pointerEvents = 'none';
         }
 
-        //キャンバスクリア・経過時間表示に関する関数
+        // キャンバスクリア・経過時間表示に関する関数
         function clearCanvas() {
             saveStateUnlimited();
             saveLocalstorage();
@@ -818,12 +817,12 @@
             showMessage(`${elapsedTimeMin} 分 お絵かきしました。` );
         }
 
-        //マニュアル表示
+        // マニュアル表示
         function openManual(){
             location.href = manualUrl;
         }
 
-        //ペイントツール選択に関する関数
+        // ペイントツール選択に関する関数
         function setColor(color) {
             if(color != blackPenColor){
                 ctxCurrentLayer = ctxColor;
@@ -903,7 +902,7 @@
             }
         }
         
-        //カラーブラシボタン生成に関する関数
+        // カラーブラシボタン生成に関する関数
         function createColorBrushButtons() {
             PaletteColors.forEach(color => {
                 const button = document.createElement('button');
@@ -926,7 +925,7 @@
             changeableColorBrushButton.addEventListener('mousedown', selectChangeableColorBrushButton);
         }
         
-        //ツールサイズ変更に関する関数
+        // ツールサイズ変更に関する関数
         function changeToolSize() {
             const sizeParam = parseInt(toolSizeParamInput.value);
             if (isEraser) {
@@ -1001,7 +1000,7 @@
             }
         }
         
-        //不透明度に関する関数
+        // 不透明度に関する関数
         function inputOpacity() {
             if (ctxCurrentLayer === ctxBlack) {
                 toolOpacity.blackPen = opacityInput.value;          
@@ -1039,7 +1038,7 @@
             }
         }
 
-        //ツールボタンの不透明度表示に関する関数
+        // ツールボタンの不透明度表示に関する関数
         function updateButtonOpacity(){
             blackPenButton.style.backgroundColor =`rgb(${hexToRgba(blackPenColor,toolOpacity.blackPen)})`;
             const buttons = document.querySelectorAll('.color-brush-button');
@@ -1060,7 +1059,7 @@
             return `${r} ${g} ${b} / ${opacity}`;
         }
 
-        //カーソルの見た目に関する関数
+        // カーソルの見た目に関する関数
         function previewCursorSize(){
             let previewX = canvasWidth/2;
             let previewY = canvasHeight*0.875;
@@ -1096,7 +1095,7 @@
             cursor.style.borderWidth = '0px';
         }
 
-        //ツールの状態更新に関する関数
+        // ツールの状態更新に関する関数
         function updateToolsState() {
             updateActiveToolButton();
             setCursorBorderStyle();
@@ -1105,7 +1104,7 @@
             previewCursorSize();
         }
 
-        //画面回転に関する関数
+        // 画面回転に関する関数
         function applyRotation(angle) {
             currentCanvasRotationAngle += angle;
             app.style.transform = `rotate(${currentCanvasRotationAngle}deg)`;
@@ -1119,7 +1118,7 @@
         }
 
 
-        //絵の保存に関する関数
+        // 絵の保存に関する関数
         function combineCanvas() {
             ctxCombined.fillStyle = backgroundColor;
             ctxCombined.fillRect(0,0,canvasWidth,canvasHeight);
@@ -1186,7 +1185,7 @@
             showElapsedTimeFromLastClearTime();
         }
                
-        //ハッシュタグのコピーに関する関数
+        // ハッシュタグのコピーに関する関数
         function copyHastag() {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(hashtag).then(function () {
@@ -1200,7 +1199,7 @@
             }
         }
         
-        //下部情報表示に関する関数
+        // 下部情報表示に関する関数
         function showMessage(text) {
             showMessage.queue = showMessage.queue || [];
             showMessage.queue.push(text);
@@ -1241,7 +1240,7 @@
             postingDummyButton.style.display = 'none';
         }
 
-        //投稿ダイアログ
+        // 投稿ダイアログ
         function openPostDialog() {
             showElapsedTimeFromLastClearTime();
             combineCanvas();    
@@ -1262,14 +1261,14 @@
             postComment = commentTextarea.value.trim() || defaultSettings.postComment;
         }
 
-        //投稿先選択ダイアログ
+        // 投稿先選択ダイアログ
         function openDestinationServerSettingDialog() {
             closeDialog();
             populateDestinationServerSelect();
             destinationServerSettingDialogModal.style.display = 'block';
         }
 
-        function populateDestinationServerSelect() { //サーバーリストをselectに反映
+        function populateDestinationServerSelect() { // サーバーリストをselectに反映
             destinationServerSelect.innerHTML = ''; // 既存のオプションをクリア
             for (const key in serverData) {
                 if (serverData.hasOwnProperty(key)) {
@@ -1277,8 +1276,8 @@
                     const option = document.createElement("option");
                     option.value = key;
                     let label = key;
-                    //if (server.app_type === "misskey") label += " (Misskey)";
-                    //if (server.app_type === "mastodon" || server.app_type === "mistodon") label += " (Mastodon)";
+                    // if (server.app_type === "misskey") label += " (Misskey)";
+                    // if (server.app_type === "mastodon" || server.app_type === "mistodon") label += " (Mastodon)";
                     option.textContent = label;
                     destinationServerSelect.appendChild(option);
                 }
@@ -1303,7 +1302,7 @@
             }
         }
 
-        //投稿先追加ダイアログ
+        // 投稿先追加ダイアログ
         function openAddDestinationServerDialog() {
             closeDialog();
             addDestinationServerDialogModal.style.display = 'block';
@@ -1364,7 +1363,7 @@
         }
 
 
-        //ダイアログ共通
+        // ダイアログ共通
         function closeDialog() {
             for (let i = 0; i < modals.length; i++) {
                 modals[i].style.display = 'none'; 
@@ -1373,7 +1372,7 @@
 
         function initializeModal(){
             for (let i = 0; i < modals.length; i++) {
-                //modals[i].style.display = 'none'; // 各要素を非表示にする
+                // modals[i].style.display = 'none'; // 各要素を非表示にする
                 modals[i].addEventListener('click', (event) => {
                     if (event.target === modals[i]) {
                         closeDialog();
@@ -1382,7 +1381,7 @@
             }
         }
 
-        //投稿処理
+        // 投稿処理
         function postToDestinationServer() {
             savePostSetting();
             combineCanvas();
@@ -1493,7 +1492,7 @@
                         text: postComment,
                         fileIds: [file.id],
                         visibility: convertVisibilityForMisskey(publishingLevel),
-                        //cw: CWFLAG ? "CW message" : undefined
+                        // cw: CWFLAG ? "CW message" : undefined
                     })
                 });
             })
@@ -1563,7 +1562,7 @@
 
 
         // 読み込み時の認証処理
-        if (accessToken) { //MastodonもしくはMisskey認証済みの場合
+        if (accessToken) { // MastodonもしくはMisskey認証済みの場合
             enablePostButton();
         } else if(code) { // Mastodon認証後の処理
             fetch(`${serverUrl}/oauth/token`, 
@@ -1600,7 +1599,7 @@
                         window.localStorage.setItem(localstorageKeyMisskeyAccessToken, accessToken);
                         cleanUrlAndReload();
                     } else {
-                        //alert("Misskey認証に失敗しました");
+                        // alert("Misskey認証に失敗しました");
                         cleanUrlAndReload();
                     }
                 });
