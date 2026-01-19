@@ -335,6 +335,8 @@
         const manualUrl = "manual.html"
         const shareUrl = toDirectoryPathSimple(redirect_uri);
         
+        let currentCanvasRotationAngle = 0;
+
         destinationServerSelect.value = destinationServerName;
         authButtonImg.src = "image/"+ app_info.app_type + "_disable.svg";
         postButtonImg.src = "image/"+ app_info.app_type + ".svg";
@@ -1093,8 +1095,6 @@
         }
 
         //画面回転に関する関数
-        let currentCanvasRotationAngle = 0;
-        
         function applyRotation(angle) {
             currentCanvasRotationAngle += angle;
             app.style.transform = `rotate(${currentCanvasRotationAngle}deg)`;
