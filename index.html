@@ -519,6 +519,7 @@
             console.log('restoreLocalstorage skipped due to import params');
         }
 
+
         // Import引数があればインポート処理を行う
         (async function(){
             const items = [];
@@ -725,8 +726,19 @@
         }
 
         function restoreLocalstorage() {
-            restoreLayeronlocalstorage(localstorageKeyBlack,blackLayer);
-            restoreLayeronlocalstorage(localstorageKeyColor,colorLayer);
+            // 絵の復元
+            let loadCount = 0;
+            const checkComplete = () => {
+                loadCount++;
+                if (loadCount === 2) {
+                    // black.color両方のレイヤー読み込み完了後に判定
+                    console.log("isCanvasEmpty:", isCanvasEmpty());
+                }
+            };
+            restoreLayeronlocalstorage(localstorageKeyBlack, blackLayer, checkComplete);
+            restoreLayeronlocalstorage(localstorageKeyColor, colorLayer, checkComplete);
+
+            // アクセストークンの復元
             accessToken = window.localStorage.getItem(localstorageKeyAccessToken);
             const misskeyAccessToken = window.localStorage.getItem(localstorageKeyMisskeyAccessToken);
             if( misskeyAccessToken != null ){
@@ -734,14 +746,17 @@
             }
         }
 
-        function restoreLayeronlocalstorage(localstoragekey,layer) {
+        function restoreLayeronlocalstorage(localstoragekey, layer, callback) {
             let base64blacklayer = window.localStorage.getItem(localstoragekey);
-            if ( base64blacklayer != null) {
+            if (base64blacklayer != null) {
                 let image = new Image();
                 image.src = base64blacklayer;
-                image.onload = function(){
-                    layer.getContext('2d').drawImage(image,0,0);
+                image.onload = function() {
+                    layer.getContext('2d').drawImage(image, 0, 0);
+                    if (callback) callback();
                 }
+            } else {
+                if (callback) callback();  // 画像がない場合も呼び出す
             }
         }
         
@@ -822,6 +837,22 @@
         function showElapsedTimeFromLastClearTime(){
             const elapsedTimeMin = getElapsedTimeMinFromLastClearTime();
             showMessage(`${elapsedTimeMin} 分 お絵かきしました。` );
+        }
+
+        function isCanvasEmpty(){
+            const blackData = ctxBlack.getImageData(0,0,blackLayer.width, blackLayer.height).data;
+            const colorData = ctxColor.getImageData(0,0,colorLayer.width, colorLayer.height).data;
+            for(let i=0; i<blackData.length; i++){
+                if( blackData[i] !== 0 ){
+                    return false;
+                }
+            }
+            for(let i=0; i<colorData.length; i++){
+                if( colorData[i] !== 0 ){
+                    return false;
+                }
+            }
+            return true;
         }
 
         // マニュアル表示
