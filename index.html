@@ -208,8 +208,6 @@
         const miauthSession = params.get('session');
         const importKeyBlack = params.get('importblacklayer');
         const importKeyColor = params.get('importcolorlayer');
-        console.log("importKeyBlack:",importKeyBlack);
-        console.log("importKeyColor:",importKeyColor);
 
         // 重要な設定
         const blackPenColor = "#36364A";
@@ -512,15 +510,9 @@
         updateActiveToolButton();
         updateToolSize(); 
         initializePostDialog();
-        initializeModal();       
-        if (importKeyBlack == null && importKeyColor == null) {
-            restoreLocalstorage();
-        } else {
-            console.log('restoreLocalstorage skipped due to import params');
-        }
+        initializeModal();
 
-
-        // Import引数があればインポート処理を行う
+        // Import引数があればインポート処理を行う、ない場合はlocalstorageから復元する
         (async function(){
             const items = [];
             if (importKeyColor != null && window.localStorage.getItem(importKeyColor) != null) {
@@ -529,15 +521,9 @@
             if (importKeyBlack != null && window.localStorage.getItem(importKeyBlack) != null) {
                 items.push({ key: importKeyBlack, layerElem: blackLayer, name: 'black' });
             }
-            if (items.length === 0) return;
-
-            function loadImageFromDataURL(dataURL){
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => resolve(img);
-                    img.onerror = (e) => reject(e);
-                    img.src = dataURL;
-                });
+            if (items.length === 0) {
+                await restoreLocalstorage().catch(e => console.error('Error restoring from localstorage', e));
+                return;
             }
 
             const loaders = items.map(item => {
@@ -545,35 +531,28 @@
                 return loadImageFromDataURL(data).then(img => ({ ...item, img }));
             });
 
-            let results;
             try {
-                results = await Promise.all(loaders);
+                const results = await Promise.all(loaders);
+                // 読み込み完了後、既存のキャンバスを直接クリアして描画する（clearCanvas は saveLocalstorage を呼ぶため使用しない）
+                ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
+                ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
+
+                const colorResult = results.find(x => x.name === 'color');
+                if (colorResult) {
+                    ctxColor.drawImage(colorResult.img, 0, 0);
+                    window.localStorage.removeItem(colorResult.key);
+                }
+                const blackResult = results.find(x => x.name === 'black');
+                if (blackResult) {
+                    ctxBlack.drawImage(blackResult.img, 0, 0);
+                    window.localStorage.removeItem(blackResult.key);
+                }
+                saveLocalstorage();
+                cleanUrlAndReload();
             } catch (e) {
                 console.error('Import image load failed', e);
-                return;
             }
-
-            // 読み込み完了後、既存のキャンバスを直接クリアして描画する（clearCanvas は saveLocalstorage を呼ぶため使用しない）
-            ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
-            ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
-
-            const order = ['color','black'];
-            for (const layerName of order) {
-                const r = results.find(x => x.name === layerName);
-                if (!r) continue;
-                const ctx = r.layerElem.getContext('2d');
-                ctx.clearRect(0, 0, r.layerElem.width, r.layerElem.height);
-                ctx.drawImage(r.img, 0, 0);
-                window.localStorage.removeItem(r.key);
-            }
-
-            saveLocalstorage();
-            cleanUrlAndReload();
         })();
-        // 重要: 画像は非同期で読み込まれるため、読み込み前にすぐ保存やリロードを行うと
-        // ローカルストレージが空の状態で上書きされてしまい、インポート画像が消えることがあります。
-        // ここではまずすべての import 画像を読み込み、読み込み完了後に一度だけキャンバスをクリアして描画、
-        // 保存（saveLocalstorage）→ URL クリーン（cleanUrlAndReload）を行います。
 
 
         // 関数
@@ -724,39 +703,46 @@
         function saveLayeronlocalstorage(localstoragekey,layer){
             window.localStorage.setItem(localstoragekey,layer.toDataURL());
         }
+               
+        function loadImageFromDataURL(dataURL) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = (e) => reject(e);
+                img.src = dataURL;
+            });
+        }   
 
-        function restoreLocalstorage() {
-            // 絵の復元
-            let loadCount = 0;
-            const checkComplete = () => {
-                loadCount++;
-                if (loadCount === 2) {
-                    // black.color両方のレイヤー読み込み完了後に判定
-                    console.log("isCanvasEmpty:", isCanvasEmpty());
+        async function restoreLocalstorage() {
+            // レイヤー画像の復元
+            const restoreLayerAsync = async (localstoragekey, layer) => {
+                const dataURL = window.localStorage.getItem(localstoragekey);
+                if (dataURL == null) return;
+
+                try {
+                    const img = await loadImageFromDataURL(dataURL);
+                    const ctx = layer.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                } catch (e) {
+                    console.error(`Failed to restore layer for ${localstoragekey}`, e);
                 }
             };
-            restoreLayeronlocalstorage(localstorageKeyBlack, blackLayer, checkComplete);
-            restoreLayeronlocalstorage(localstorageKeyColor, colorLayer, checkComplete);
+
+            try {
+                await Promise.all([
+                    restoreLayerAsync(localstorageKeyBlack, blackLayer),
+                    restoreLayerAsync(localstorageKeyColor, colorLayer)
+                ]);
+                console.log("Canvas restoration complete. isCanvasEmpty:", isCanvasEmpty());
+            } catch (e) {
+                console.error('Layer restoration failed', e);
+            }
 
             // アクセストークンの復元
             accessToken = window.localStorage.getItem(localstorageKeyAccessToken);
             const misskeyAccessToken = window.localStorage.getItem(localstorageKeyMisskeyAccessToken);
-            if( misskeyAccessToken != null ){
+            if (misskeyAccessToken != null) {
                 accessToken = misskeyAccessToken;
-            }
-        }
-
-        function restoreLayeronlocalstorage(localstoragekey, layer, callback) {
-            let base64blacklayer = window.localStorage.getItem(localstoragekey);
-            if (base64blacklayer != null) {
-                let image = new Image();
-                image.src = base64blacklayer;
-                image.onload = function() {
-                    layer.getContext('2d').drawImage(image, 0, 0);
-                    if (callback) callback();
-                }
-            } else {
-                if (callback) callback();  // 画像がない場合も呼び出す
             }
         }
         
