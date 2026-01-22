@@ -511,6 +511,7 @@
         updateToolSize(); 
         initializePostDialog();
         initializeModal();
+        restoreAccessTokenOnLocalstorage();
 
         // Import引数があればインポート処理を行う、ない場合はlocalstorageから復元する
         (async function(){
@@ -522,7 +523,7 @@
                 items.push({ key: importKeyBlack, layerElem: blackLayer, name: 'black' });
             }
             if (items.length === 0) {
-                await restoreLocalstorage().catch(e => console.error('Error restoring from localstorage', e));
+                await restoreLayerOnLocalstorage().catch(e => console.error('Error restoring from localstorage', e));
                 return;
             }
 
@@ -694,7 +695,7 @@
             updateCursor(...touchToOffsetXY(e));
         }
         
-        // 製作中の絵の保存・読込に関する関数
+        // ローカルストレージへの絵の保存・読込に関する関数
         function saveLocalstorage() {
             saveLayeronlocalstorage(localstorageKeyBlack,blackLayer);    
             saveLayeronlocalstorage(localstorageKeyColor,colorLayer);    
@@ -713,7 +714,7 @@
             });
         }   
 
-        async function restoreLocalstorage() {
+        async function restoreLayerOnLocalstorage() {
             // レイヤー画像の復元
             const restoreLayerAsync = async (localstoragekey, layer) => {
                 const dataURL = window.localStorage.getItem(localstoragekey);
@@ -733,12 +734,14 @@
                     restoreLayerAsync(localstorageKeyBlack, blackLayer),
                     restoreLayerAsync(localstorageKeyColor, colorLayer)
                 ]);
+                // レイヤー復元後にキャンバスが空かどうか判定
                 console.log("Canvas restoration complete. isCanvasEmpty:", isCanvasEmpty());
             } catch (e) {
                 console.error('Layer restoration failed', e);
             }
+        }
 
-            // アクセストークンの復元
+        function restoreAccessTokenOnLocalstorage() {
             accessToken = window.localStorage.getItem(localstorageKeyAccessToken);
             const misskeyAccessToken = window.localStorage.getItem(localstorageKeyMisskeyAccessToken);
             if (misskeyAccessToken != null) {
