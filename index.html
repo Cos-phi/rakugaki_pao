@@ -534,19 +534,15 @@
 
             try {
                 const results = await Promise.all(loaders);
-                // 読み込み完了後、既存のキャンバスを直接クリアして描画する（clearCanvas は saveLocalstorage を呼ぶため使用しない）
-                ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
-                ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
-
-                const colorResult = results.find(x => x.name === 'color');
-                if (colorResult) {
-                    ctxColor.drawImage(colorResult.img, 0, 0);
-                    window.localStorage.removeItem(colorResult.key);
-                }
-                const blackResult = results.find(x => x.name === 'black');
-                if (blackResult) {
-                    ctxBlack.drawImage(blackResult.img, 0, 0);
-                    window.localStorage.removeItem(blackResult.key);
+                const order = ['color','black'];
+                for (const layerName of order) {
+                    const result = results.find(x => x.name === layerName);
+                    ctx.clearRect(0, 0, result.layerElem.width, result.layerElem.height);
+                    if (result) {
+                        const ctx = result.layerElem.getContext('2d');
+                        ctx.drawImage(result.img, 0, 0);
+                    }
+                    window.localStorage.removeItem(result.key);
                 }
                 saveLocalstorage();
                 cleanUrlAndReload();
