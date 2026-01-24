@@ -537,11 +537,10 @@
                 const order = ['color','black'];
                 for (const layerName of order) {
                     const result = results.find(x => x.name === layerName);
+                    if (!result) continue;
+                    const ctx = result.layerElem.getContext('2d');
                     ctx.clearRect(0, 0, result.layerElem.width, result.layerElem.height);
-                    if (result) {
-                        const ctx = result.layerElem.getContext('2d');
-                        ctx.drawImage(result.img, 0, 0);
-                    }
+                    ctx.drawImage(result.img, 0, 0);
                     window.localStorage.removeItem(result.key);
                 }
                 saveLocalstorage();
