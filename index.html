@@ -242,7 +242,7 @@
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
-        const sessionstorageKeyLastClearTime = 'lastcleartimekey';
+        const localstorageKeyFirstStrokeTime = 'FirstStrokeTimekey';
         const localstorageKeyDestinationServerName = 'destinationservernamekey';
 
 
@@ -362,9 +362,7 @@
         let undoStack = [];
         let accessToken = null;
 
-        if(null === window.sessionStorage.getItem(sessionstorageKeyLastClearTime)){
-            setLastClearTime();
-        }
+        let isWaitingFirstStroke = window.localStorage.getItem(localstorageKeyFirstStrokeTime) == null;
         
         let publishingLevel = defaultSettings.publishingLevel;
         let isSensitive = defaultSettings.isSensitive;
@@ -499,7 +497,7 @@
                     clearCanvas();
                     break;
                 case 'KeyT':
-                    showElapsedTimeFromLastClearTime();
+                    showElapsedTimeFromFirstStrokeTime();
                     break;
                 default:
                     return;
@@ -543,6 +541,7 @@
                     ctx.drawImage(result.img, 0, 0);
                     window.localStorage.removeItem(result.key);
                 }
+                resetFirstStrokeState();
                 saveLocalstorage();
                 cleanUrlAndReload();
             } catch (e) {
@@ -558,6 +557,9 @@
             isDrawing = true;
             [lastX, lastY] = [x, y];
             [beforeLastX,beforeLastY] = [x,y]
+            if (isWaitingFirstStroke){
+                onFirstStrokeDetected();
+            }
             saveState();
             stipple(x,y);
         }
@@ -729,8 +731,9 @@
                     restoreLayerAsync(localstorageKeyBlack, blackLayer),
                     restoreLayerAsync(localstorageKeyColor, colorLayer)
                 ]);
-                // レイヤー復元後にキャンバスが空かどうか判定
-                console.log("Canvas restoration complete. isCanvasEmpty:", isCanvasEmpty());
+                if (isCanvasEmpty()) {  // レイヤー復元後にキャンバスが空かどうか判定
+                    resetFirstStrokeState();
+                }
             } catch (e) {
                 console.error('Layer restoration failed', e);
             }
@@ -803,24 +806,39 @@
             saveLocalstorage();
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
-            setLastClearTime();
+            resetFirstStrokeState();
         }
 
-        function setLastClearTime(){
+        function setFirstStrokeTime(){
             const nowTime = new Date();
-            window.sessionStorage.setItem(sessionstorageKeyLastClearTime,nowTime.getTime());
+            const firstStrokeTime = nowTime.getTime();
+            window.localStorage.setItem(localstorageKeyFirstStrokeTime, firstStrokeTime);
         }
 
-        function getElapsedTimeMinFromLastClearTime(){
-            const lastClearTime = window.sessionStorage.getItem(sessionstorageKeyLastClearTime);
+        function getElapsedTimeMinFromFirstStrokeTime(){
+            const firstStrokeTime = window.localStorage.getItem(localstorageKeyFirstStrokeTime) || null
             const nowTime = new Date();
-            const elapsedTimeMin = Math.trunc((nowTime.getTime() - lastClearTime)/1000/60);
+            const elapsedTimeMin = Math.trunc((nowTime.getTime() - firstStrokeTime)/1000/60);
             return elapsedTimeMin;
         }
+
+        function getElapsedTimeSecFromFirstStrokeTime(){
+            const firstStrokeTime = window.localStorage.getItem(localstorageKeyFirstStrokeTime) || null
+            const nowTime = new Date();
+            const elapsedTimeSec = Math.trunc((nowTime.getTime() - firstStrokeTime)/1000);
+            return elapsedTimeSec;
+        }
         
-        function showElapsedTimeFromLastClearTime(){
-            const elapsedTimeMin = getElapsedTimeMinFromLastClearTime();
-            showMessage(`${elapsedTimeMin} 分 お絵かきしました。` );
+        function showElapsedTimeFromFirstStrokeTime(){
+            const elapsedTimeMin = getElapsedTimeMinFromFirstStrokeTime();
+            const sec = getElapsedTimeSecFromFirstStrokeTime() - elapsedTimeMin * 60;
+            if( isWaitingFirstStroke ){
+                showMessage("まだお絵かきしていません。");
+            }else if( elapsedTimeMin < 1) {
+                showMessage(`${sec}秒 お絵かきしました。` );
+            }else{
+                showMessage(`${elapsedTimeMin}分 お絵かきしました。` );
+            }
         }
 
         function isCanvasEmpty(){
@@ -837,6 +855,16 @@
                 }
             }
             return true;
+        }
+
+        function onFirstStrokeDetected(){
+            setFirstStrokeTime();
+            isWaitingFirstStroke = false;
+        }
+
+        function resetFirstStrokeState(){
+            window.localStorage.removeItem(localstorageKeyFirstStrokeTime);
+            isWaitingFirstStroke = true;
         }
 
         // マニュアル表示
@@ -1163,7 +1191,7 @@
         function setOutputFileName(){
             const nowTime = new Date();
             const timeString = nowTime.toLocaleString("ja-JP", {year: "numeric",month: "2-digit", day: "2-digit", hour:"2-digit", minute:"2-digit"}).replaceAll('/', '').replaceAll(':','').replaceAll(' ','-');
-            outputFileName = timeString + '_rakugaki_pao(' + getElapsedTimeMinFromLastClearTime() +'min).png';
+            outputFileName = timeString + '_rakugaki_pao(' + getElapsedTimeMinFromFirstStrokeTime() +'min).png';
         }
 
 
@@ -1174,7 +1202,7 @@
                 await navigator.clipboard.write([item]);
             })
             showMessage('画像をクリップボードにコピーしました');
-            showElapsedTimeFromLastClearTime();
+            showElapsedTimeFromFirstStrokeTime();
         }
 
         function saveImage() {
@@ -1185,7 +1213,7 @@
             link.download = outputFileName;
             link.href = dataURL;
             link.click();
-            showElapsedTimeFromLastClearTime();
+            showElapsedTimeFromFirstStrokeTime();
         }
 
         function shareImage() {
@@ -1204,7 +1232,7 @@
             }).catch((error) => {
                 console.log('共有できませんでしたの‥‥');
             });
-            showElapsedTimeFromLastClearTime();
+            showElapsedTimeFromFirstStrokeTime();
         }
                
         // ハッシュタグのコピーに関する関数
@@ -1264,7 +1292,7 @@
 
         // 投稿ダイアログ
         function openPostDialog() {
-            showElapsedTimeFromLastClearTime();
+            showElapsedTimeFromFirstStrokeTime();
             combineCanvas();    
             const dataURL = combinedCanvas.toDataURL('image/png');
             previewImg.src = dataURL;
@@ -1437,7 +1465,7 @@
             setOutputFileName();
             activatePostingProgressBar();
             closeDialog();
-            showElapsedTimeFromLastClearTime();
+            showElapsedTimeFromFirstStrokeTime();
             fetch(`${serverUrl}/api/v1/media`, {
                     method: 'POST',
                     headers: {
@@ -1476,7 +1504,7 @@
                 deactivatePostingProgressBar();
                 setTimeout(() => {
                     showMessage('　投稿しましたわ！')
-                    showElapsedTimeFromLastClearTime();
+                    showElapsedTimeFromFirstStrokeTime();
                     initializePostDialog();
                 }, 100);
                 
@@ -1500,7 +1528,7 @@
             setOutputFileName();
             activatePostingProgressBar();
             closeDialog();
-            showElapsedTimeFromLastClearTime();
+            showElapsedTimeFromFirstStrokeTime();
 
             // 画像アップロード
             fetch(`${serverUrl}/api/drive/files/create`, {
@@ -1547,7 +1575,7 @@
                 deactivatePostingProgressBar();
                 setTimeout(() => {
                     showMessage('　投稿しましたわ！');
-                    showElapsedTimeFromLastClearTime();
+                    showElapsedTimeFromFirstStrokeTime();
                     initializePostDialog();
                 }, 100);
             })
