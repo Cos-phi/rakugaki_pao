@@ -12,22 +12,22 @@
     <div id="app">
         <div id="controls-top">
             <div class="top-left-buttons">
-                <button id="clear" class="controls-top-button" title="キャンバスのクリア / Clear Canvas">
+                <button id="clear" class="controls-top-button">
                     <img src="image/new.svg" style="height: 100%;" alt="Clear">
                 </button>
             </div>
 
             <div class="top-right-buttons">
-                <button id="copy-button" class="controls-top-button" title="クリップボードにコピー / Copy to Clipboard">
+                <button id="copy-button" class="controls-top-button">
                     <img src="image/copytoclipboard.svg" style="height: 100%;" alt="Copy">
                 </button>
-                <button id="save-button" class="controls-top-button" title="ダウンロードして保存 / Save to Download">
+                <button id="save-button" class="controls-top-button">
                     <img src="image/download.svg" style="height: 100%;" alt="Download">
                 </button>
-                <button id="share-button" class="controls-top-button" title="共有 / Share">
+                <button id="share-button" class="controls-top-button">
                     <img src="image/share.svg" style="height: 100%;" alt="Share">
                 </button>
-                <button id="manual" class="controls-top-button" title="rakugaki_paoについて / About rakugaki_pao">
+                <button id="manual" class="controls-top-button">
                     <img src="image/manual.svg" style="height: 100%;" alt="Manual">
                 </button>
             </div>
@@ -41,28 +41,28 @@
         </div>
 
         <div id="controls_bottom">  
-            <button id="undo-button" title="元に戻す / Undo"  style="opacity: 0.3; pointer-events: none;">
+            <button id="undo-button" style="opacity: 0.3; pointer-events: none;">
                 <img src="image/undo.svg" style="height: 100%;" alt="Undo">
             </button>
                      
-            <input type="range" id="tool-size" min="0" max="7" title="ペン・ブラシのサイズ / Tool Size">
-            <button id="black-pen-button" class="paint-tool-button" title="黒ペン / Black Pen">
+            <input type="range" id="tool-size" min="0" max="7">
+            <button id="black-pen-button" class="paint-tool-button">
                 <img src="image/pen_w.svg" style="height: 100%;" alt="Pen">
             </button>
-            <button id="black-eraser-button" class="paint-tool-button" title="黒ペン消し / Black Pen Eraser">
+            <button id="black-eraser-button" class="paint-tool-button">
                 <img src="image/eraser.svg" style="height: 100%;" alt="Eraser">    
             </button>
 
-            <div id="color-brush-buttons-container" title="色ブラシ / Color Brush"></div>
-            <button id="changeable-color-brush-button" class="color-brush-button" title="選択色ブラシ / Changeable Color Brush"></button>
-            <input id="palette" type="color" title="色の選択 / Select Color">
-            <button id="color-eraser-button" class="paint-tool-button" title="色ブラシ消し / Color Brush Eraser"></button>
+            <div id="color-brush-buttons-container"></div>
+            <button id="changeable-color-brush-button" class="color-brush-button"></button>
+            <input id="palette" type="color">
+            <button id="color-eraser-button" class="paint-tool-button"></button>
              
-            <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1" title="ペン・ブラシの不透明度 / Opacity of Pen&Brush">
+            <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1">
         </div>
 
         <div id="logo-button-container">
-            <button id="auth-button" class="logo-button" title="認証 / Authentication">
+            <button id="auth-button" class="logo-button">
                 <img id="auth-button-img" style="height: 100%;" alt="Authentication" src="image/mistodon_disable.svg">
             </button>
             <button id="post-button" class="logo-button" style="display: none;">
@@ -74,7 +74,7 @@
         </div>
 
         <div id="hashtag-line">
-            <button id="copy-hashtag" class="copy-hashtag-button" title="ハッシュタグをコピー / Copy Hashtag">
+            <button id="copy-hashtag" class="copy-hashtag-button">
                 <span id="hashtag-text">#rakugaki_pao</span>
                 <img src="image/copytoclipboard.svg" class="icon" alt="Copy hashtag">
             </button>
@@ -98,16 +98,16 @@
             </div>
             <textarea id="comment-textarea" rows="3" maxlength="483"></textarea>
             <div class="select-container">
-                <select id="visibility-select" title="公開範囲 / Visibility">
+                <select id="visibility-select">
                     <option value="public">🌐　公開 Public　</option>
                     <option value="unlisted">🌙　ひかえめな公開 Quiet public　</option>
                     <option value="private">🔒　フォロワー Followers　</option>
                     <option value="direct">✉️　特定の人 Specific people　</option>
                 </select>
                 <input type="checkbox" id="is-sensitive-checkbox">
-                <label for="is-sensitive-checkbox" class="checkbox-label" title="閲覧注意 / Sensitive">⚠️</label>
+                <label for="is-sensitive-checkbox" class="checkbox-label">⚠️</label>
                 <input type="checkbox" id="add-url-checkbox">
-                <label for="add-url-checkbox" class="checkbox-label" title="URL">🔗</label>
+                <label for="add-url-checkbox" class="checkbox-label">🔗</label>
                 <button id="submit-button" class="submit-button">Post</button>   
             </div>
         </div>
@@ -140,6 +140,7 @@
     </div>
 
     <script>
+
         // HTML要素の取得
         const app = document.getElementById('app');
 
@@ -200,6 +201,9 @@
         const isSensitiveCheckbox = document.getElementById('is-sensitive-checkbox')
         const addUrlCheckbox = document.getElementById('add-url-checkbox');
         const submitButton = document.getElementById('submit-button');
+        
+        // ブラウザの言語設定検出
+        const browserLanguage = navigator.language.startsWith('ja') ? 'ja' : 'en';
 
         // 引数の取得
         const params = new URLSearchParams(document.location.search);
@@ -236,14 +240,12 @@
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxCombined = combinedCanvas.getContext('2d');
 
-                
         // ストレージキー
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
         const localstorageKeyFirstStrokeTime = 'FirstStrokeTimekey';
         const localstorageKeyDestinationServerName = 'destinationservernamekey';
-
 
         // 投稿に関する情報
         const mastodonServerDataMain = {
@@ -343,7 +345,6 @@
         authButtonImg.src = "image/"+ app_info.app_type + "_disable.svg";
         postButtonImg.src = "image/"+ app_info.app_type + ".svg";
         postingDummyButtonImg.src = "image/"+ app_info.app_type + "_active.svg";
-        postButton.title = hostName + "に投稿";
         destinationServerResetButton.textContent = hostName;
 
 
@@ -379,6 +380,56 @@
             blackPen: 1,
             colorBrush: 1,
         };
+
+        // ボタン類のツールチップ設定
+        const translations = {
+            ja: {
+                clear: "キャンバスのクリア",
+                copyButton: "クリップボードにコピー",
+                saveButton: "ダウンロードして保存",
+                shareButton: "共有",
+                manual: "rakugaki_paoについて",
+                undoButton: "元に戻す",
+                toolSize: "ペン・ブラシのサイズ",
+                blackPenButton: "黒ペン",
+                blackEraserButton: "黒ペン消し",
+                colorBrushButtonsContainer: "色ブラシ",
+                changeableColorBrushButton: "選択色ブラシ",
+                palette: "色の選択",
+                colorEraserButton: "色ブラシ消し",
+                opacity: "ペン・ブラシの不透明度",
+                authButton: "認証",
+                copyHashtagButton: "ハッシュタグをコピー",
+                visibilitySelect: "公開範囲",
+                isSensitiveCheckbox: "閲覧注意",
+                addUrlCheckbox: "URL",
+                postButton: hostName + "に投稿"
+            },
+            en: {
+                clear: "Clear Canvas",
+                copyButton: "Copy to Clipboard",
+                saveButton: "Save to Download",
+                shareButton: "Share",
+                manual: "About rakugaki_pao",
+                undoButton: "Undo",
+                toolSize: "Tool Size",
+                blackPenButton: "Black Pen",
+                blackEraserButton: "Black Pen Eraser",
+                colorBrushButtonsContainer: "Color Brush",
+                changeableColorBrushButton: "Changeable Color Brush",
+                palette: "Select Color",
+                colorEraserButton: "Color Brush Eraser",
+                opacity: "Opacity of Pen & Brush",
+                authButton: "Authentication",
+                copyHashtagButton: "Copy Hashtag",
+                visibilitySelect: "Visibility",
+                isSensitiveCheckbox: "Sensitive",
+                addUrlCheckbox: "URL",
+                postButton: "Post" + " to " + hostName  
+            }
+        };
+        const currentTranslations = translations[browserLanguage];
+
 
         // イベントリスナーの登録
         clearButton.addEventListener('click', clearCanvas);
@@ -504,6 +555,7 @@
         });
 
         // 初期化
+        setTooltips();
         updateActiveToolButton();
         updateToolSize(); 
         initializePostDialog();
@@ -869,6 +921,30 @@
         // マニュアル表示
         function openManual(){
             location.href = manualUrl;
+        }
+
+        // ツールチップを設定
+        function setTooltips() {
+            clearButton.title = currentTranslations.clear;
+            copyButton.title = currentTranslations.copyButton;
+            saveButton.title = currentTranslations.saveButton;
+            shareButton.title = currentTranslations.shareButton;
+            manualButton.title = currentTranslations.manual;
+            undoButton.title = currentTranslations.undoButton;
+            toolSizeParamInput.title = currentTranslations.toolSize;
+            blackPenButton.title = currentTranslations.blackPenButton;
+            blackEraser.title = currentTranslations.blackEraserButton;
+            colorBrushButtonsContainer.title = currentTranslations.colorBrushButtonsContainer;
+            changeableColorBrushButton.title = currentTranslations.changeableColorBrushButton;
+            colorPalette.title = currentTranslations.palette;
+            colorEraser.title = currentTranslations.colorEraserButton;
+            opacityInput.title = currentTranslations.opacity;
+            authButton.title = currentTranslations.authButton;
+            postButton.title = currentTranslations.postButton;
+            copyHashtagButton.title = currentTranslations.copyHashtagButton;
+            visibilitySelect.title = currentTranslations.visibilitySelect;
+            isSensitiveCheckbox.nextElementSibling.title = currentTranslations.isSensitiveCheckbox;
+            addUrlCheckbox.nextElementSibling.title = currentTranslations.addUrlCheckbox;
         }
 
         // ペイントツール選択に関する関数
