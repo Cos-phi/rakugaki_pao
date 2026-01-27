@@ -99,16 +99,16 @@
             <textarea id="comment-textarea" rows="3" maxlength="483"></textarea>
             <div class="select-container">
                 <select id="visibility-select">
-                    <option value="public">🌐　公開 Public　</option>
-                    <option value="unlisted">🌙　ひかえめな公開 Quiet public　</option>
-                    <option value="private">🔒　フォロワー Followers　</option>
-                    <option value="direct">✉️　特定の人 Specific people　</option>
+                    <option value="public">🌐</option>
+                    <option value="unlisted">🌙</option>
+                    <option value="private">🔒</option>
+                    <option value="direct">✉️</option>
                 </select>
                 <input type="checkbox" id="is-sensitive-checkbox">
                 <label for="is-sensitive-checkbox" class="checkbox-label">⚠️</label>
                 <input type="checkbox" id="add-url-checkbox">
                 <label for="add-url-checkbox" class="checkbox-label">🔗</label>
-                <button id="submit-button" class="submit-button">Post</button>   
+                <button id="submit-button" class="submit-button"></button>   
             </div>
         </div>
     </div>
@@ -403,7 +403,23 @@
                 visibilitySelect: "公開範囲",
                 isSensitiveCheckbox: "閲覧注意",
                 addUrlCheckbox: "URL",
-                postButton: hostName + "に投稿"
+                postButton: hostName + "に投稿",
+                submitButton: "投稿",
+                visibilityOptions: {
+                    public: "🌐　公開　",
+                    unlisted: "🌙　ひかえめな公開　",
+                    private: "🔒　フォロワー　",
+                    direct: "✉️　特定の人　"
+                },
+                messages: {
+                    noDrawing: "まだお絵かきしていません。",
+                    drawingSeconds: "{sec}秒 お絵かきしました。",
+                    drawingMinutes: "{min}分 お絵かきしました。",
+                    imageCopied: "画像をクリップボードにコピーしました",
+                    hashtagCopied: "ハッシュタグをコピーしました",
+                    postedSuccess: "　投稿しましたわ！",
+                    misskeyAuthError: "Misskey認証が無効になっていますの。再認証してもういちど試してくださいませ。"
+                }
             },
             en: {
                 clear: "Clear Canvas",
@@ -425,11 +441,26 @@
                 visibilitySelect: "Visibility",
                 isSensitiveCheckbox: "Sensitive",
                 addUrlCheckbox: "URL",
-                postButton: "Post" + " to " + hostName  
+                postButton: "Post" + " to " + hostName,
+                submitButton: "Post",
+                visibilityOptions: {
+                    public: "🌐　Public　",
+                    unlisted: "🌙　Quiet public　",
+                    private: "🔒　Followers　",
+                    direct: "✉️　Specific people　"
+                },
+                messages: {
+                    noDrawing: "No drawing has been made yet.",
+                    drawingSeconds: "Drew for {sec} seconds.",
+                    drawingMinutes: "Drew for {min} minutes.",
+                    imageCopied: "Image copied to clipboard",
+                    hashtagCopied: "Hashtag copied to clipboard",
+                    postedSuccess: "Posted successfully!",
+                    misskeyAuthError: "Misskey authentication is no longer valid. Please re-authenticate and try again."
+                }
             }
         };
         const currentTranslations = translations[browserLanguage];
-
 
         // イベントリスナーの登録
         clearButton.addEventListener('click', clearCanvas);
@@ -556,6 +587,7 @@
 
         // 初期化
         setTooltips();
+        setVisibilitySelectOptions();
         updateActiveToolButton();
         updateToolSize(); 
         initializePostDialog();
@@ -884,11 +916,11 @@
             const elapsedTimeMin = getElapsedTimeMinFromFirstStrokeTime();
             const sec = getElapsedTimeSecFromFirstStrokeTime() - elapsedTimeMin * 60;
             if( isWaitingFirstStroke ){
-                showMessage("まだお絵かきしていません。");
+                showMessage(currentTranslations.messages.noDrawing);
             }else if( elapsedTimeMin < 1) {
-                showMessage(`${sec}秒 お絵かきしました。` );
+                showMessage(currentTranslations.messages.drawingSeconds.replace('{sec}', sec));
             }else{
-                showMessage(`${elapsedTimeMin}分 お絵かきしました。` );
+                showMessage(currentTranslations.messages.drawingMinutes.replace('{min}', elapsedTimeMin));
             }
         }
 
@@ -923,7 +955,7 @@
             location.href = manualUrl;
         }
 
-        // ツールチップを設定
+        // ボタンのツールチップ・ラベルを設定
         function setTooltips() {
             clearButton.title = currentTranslations.clear;
             copyButton.title = currentTranslations.copyButton;
@@ -945,6 +977,16 @@
             visibilitySelect.title = currentTranslations.visibilitySelect;
             isSensitiveCheckbox.nextElementSibling.title = currentTranslations.isSensitiveCheckbox;
             addUrlCheckbox.nextElementSibling.title = currentTranslations.addUrlCheckbox;
+            submitButton.textContent = currentTranslations.submitButton;
+        }
+
+        // visibility-selectのオプションを更新する関数
+        function setVisibilitySelectOptions() {
+            const options = visibilitySelect.querySelectorAll('option');
+            options[0].textContent = currentTranslations.visibilityOptions.public;
+            options[1].textContent = currentTranslations.visibilityOptions.unlisted;
+            options[2].textContent = currentTranslations.visibilityOptions.private;
+            options[3].textContent = currentTranslations.visibilityOptions.direct;
         }
 
         // ペイントツール選択に関する関数
@@ -1276,7 +1318,7 @@
                 const item = new ClipboardItem({'image/png': blob});
                 await navigator.clipboard.write([item]);
             })
-            showMessage('画像をクリップボードにコピーしました');
+            showMessage(currentTranslations.messages.imageCopied);
             showElapsedTimeFromFirstStrokeTime();
         }
 
@@ -1314,13 +1356,13 @@
         function copyHastag() {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(hashtag).then(function () {
-                    showMessage(`ハッシュタグをコピーしました`);
+                    showMessage(currentTranslations.messages.hashtagCopied);
                 }).catch(function (error) {
                     console.error('ハッシュタグのコピーに失敗しました:', error);
-                    alert('ハッシュタグのコピーに失敗しましたの');
+                    alert('ハッシュタグのコピーに失敗しましたの / Failed to copy hashtag');
                 });
             } else {
-                alert('テキストをコピーできませんの');
+                alert('テキストをコピーできませんの / Cannot copy text');
             }
         }
         
@@ -1458,7 +1500,7 @@
             try {
                 newUrl = new URL(inputUrlString);
             } catch (e) {
-                alert('MisskeyサーバーのURLを入力してくださいまし。');
+                alert('Misskeyサーバーの URL を入力してくださいまし。 / Please input Misskey server URL');
                 addAuthDestinationServerButton.disabled = false;
                 return; 
             }
@@ -1578,7 +1620,7 @@
             .then(() => {
                 deactivatePostingProgressBar();
                 setTimeout(() => {
-                    showMessage('　投稿しましたわ！')
+                    showMessage(currentTranslations.messages.postedSuccess)
                     showElapsedTimeFromFirstStrokeTime();
                     initializePostDialog();
                 }, 100);
@@ -1588,14 +1630,14 @@
                 if (error == "PostError")
                 {
                     deactivatePostingProgressBar();
-                    alert("ポストエラーですの。トークンが駄目みたいですのでcodeを取り直しますわ。もう一度ポストしてみてくださいね。");
+                    alert("ポストエラーですの。トークンが駄目みたいですのでcodeを取り直しますわ。もう一度ポストしてみてくださいね。 / Post error. Token is invalid. Please try posting again after re-authentication.");
                     getAuthCodeRedirect();
                 }
                 else
                 {
                     deactivatePostingProgressBar();
                     console.error('Error:', error);
-                    alert('投稿中によくわからないエラーが発生しましたの‥‥');
+                    alert('投稿中によくわからないエラーが発生しましたの‥‥ / An unknown error occurred while posting');
                 }
             });
         }
@@ -1649,7 +1691,7 @@
             .then(() => {
                 deactivatePostingProgressBar();
                 setTimeout(() => {
-                    showMessage('　投稿しましたわ！');
+                    showMessage(currentTranslations.messages.postedSuccess);
                     showElapsedTimeFromFirstStrokeTime();
                     initializePostDialog();
                 }, 100);
@@ -1662,13 +1704,13 @@
                     window.localStorage.removeItem(localstorageKeyMisskeyAccessToken);
                     authButton.style.display = '';
                     postButton.style.display = 'none';
-                    showMessage('Misskey認証が無効になっていますの。再認証してもういちど試してくださいませ。');
+                    showMessage(currentTranslations.messages.misskeyAuthError);
                 } else if (error instanceof Response) {
                     const errJson = await error.json();
-                    alert('Misskey投稿中にエラー: ' + JSON.stringify(errJson));
+                    alert('Misskey投稿中にエラー: ' + JSON.stringify(errJson) + ' / Error during Misskey post: ' + JSON.stringify(errJson));
                     console.error(errJson);
                 } else {
-                    alert('Misskey投稿中にエラーが発生しました');
+                    alert('Misskey投稿中にエラーが発生しました / An error occurred during Misskey post');
                     console.error(error);
                 }
             });
