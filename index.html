@@ -1053,34 +1053,28 @@
 
         function updateActiveToolButton() {
             document.querySelectorAll('.color-brush-button, #black-pen-button, #black-eraser-button, #color-eraser-button,#changeable-color-brush-button').forEach(btn => btn.classList.remove('active'));
-            
-            // すべてのアイコンを非表示
-            const allIcons = document.querySelectorAll('#black-pen-icon, #black-eraser-icon, .color-brush-icon, #color-eraser-icon');
-            allIcons.forEach(icon => icon.style.display = 'none');
+            const blackIcons = document.querySelectorAll('#black-pen-icon, #black-eraser-icon');
+            const colorIcons = document.querySelectorAll('#color-eraser-icon');
             
             if (ctxCurrentLayer === ctxBlack) {
-                document.getElementById('black-eraser-icon').style.display = 'block';
-                document.getElementById('black-pen-icon').style.display = 'block';
-                if(isEraser){
+                if( isEraser ){
                     blackEraser.classList.add('active');
-                }else{
+                } else {
                     blackPenButton.classList.add('active');
                 }
+                blackIcons.forEach(icon => icon.style.opacity = '1.0');
+                colorIcons.forEach(icon => icon.style.opacity = '0.125');
             } else {
                 const activeColorBtn = document.querySelector(`.color-brush-button[data-color="${currentColor}"]`);
-                document.getElementById('color-eraser-icon').style.display = 'block';
-                if (activeColorBtn) {
+                if( isEraser ){
+                    colorEraser.classList.add('active');
+                }else if (activeColorBtn) {
                     activeColorBtn.classList.add('active');
-                    activeColorBtn.querySelector('.color-brush-icon').style.display = 'block';
                 }else{
                     changeableColorBrushButton.classList.add('active');
-                    document.getElementById('changeable-color-brush-icon').style.display = 'block';
                 }
-                if(isEraser){
-                    activeColorBtn.classList.remove('active');
-                    changeableColorBrushButton.classList.remove('active');
-                    colorEraser.classList.add('active');   
-                } 
+                blackIcons.forEach(icon => icon.style.opacity = '0.125');
+                colorIcons.forEach(icon => icon.style.opacity = '1.0');
             }
         }
         
@@ -1097,7 +1091,6 @@
                     updateToolsState();
                 });
                 
-                button.innerHTML = '<img src="image/brush.svg" alt="brush" class="paint-tool-icon color-brush-icon">';
                 colorBrushButtonsContainer.appendChild(button);
             });
         }
@@ -1105,7 +1098,6 @@
         function createChangeableColorBrushButton() {
             changeableColorBrushButton.style.backgroundColor = curPaletteColor;
             changeableColorBrushButton.dataset.color = curPaletteColor;
-            changeableColorBrushButton.innerHTML = '<img id="changeable-color-brush-icon" src="image/brush.svg" alt="brush" class="paint-tool-icon color-brush-icon">';
             colorBrushButtonsContainer.appendChild(changeableColorBrushButton);
             changeableColorBrushButton.addEventListener('mousedown', selectChangeableColorBrushButton);
         }
