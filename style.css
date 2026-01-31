@@ -109,6 +109,10 @@ button {
     border: 1px solid #36364A;
     border-radius: 4px;
 }
+.paint-tool-icon {
+    height: 100%;
+    width: 100%;
+}
 .color-brush-button {
     height: 42px;
     width: 42px;

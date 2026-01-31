@@ -47,16 +47,18 @@
                      
             <input type="range" id="tool-size" min="0" max="7">
             <button id="black-pen-button" class="paint-tool-button">
-                <img src="image/pen_w.svg" style="height: 100%;" alt="Pen">
+                <img id="black-pen-icon" src="image/pen_w.svg" style="height: 100%;" alt="Pen">
             </button>
             <button id="black-eraser-button" class="paint-tool-button">
-                <img src="image/eraser.svg" style="height: 100%;" alt="Eraser">    
+                <img id="black-eraser-icon" src="image/eraser.svg" style="height: 100%;" alt="Eraser">    
             </button>
 
             <div id="color-brush-buttons-container"></div>
             <button id="changeable-color-brush-button" class="color-brush-button"></button>
             <input id="palette" type="color">
-            <button id="color-eraser-button" class="paint-tool-button"></button>
+            <button id="color-eraser-button" class="paint-tool-button">
+                <img id="color-eraser-icon" src="image/eraser.svg" style="height: 100%;" alt="Eraser"> 
+            </button>
              
             <input type="range" id="opacity" min="0.2" max="1" step="0.4" value="1">
         </div>
@@ -1051,21 +1053,34 @@
 
         function updateActiveToolButton() {
             document.querySelectorAll('.color-brush-button, #black-pen-button, #black-eraser-button, #color-eraser-button,#changeable-color-brush-button').forEach(btn => btn.classList.remove('active'));
-            if (isEraser) {
-                if (ctxCurrentLayer === ctxBlack) {
+            
+            // すべてのアイコンを非表示
+            const allIcons = document.querySelectorAll('#black-pen-icon, #black-eraser-icon, .color-brush-icon, #color-eraser-icon');
+            allIcons.forEach(icon => icon.style.display = 'none');
+            
+            if (ctxCurrentLayer === ctxBlack) {
+                document.getElementById('black-eraser-icon').style.display = 'block';
+                document.getElementById('black-pen-icon').style.display = 'block';
+                if(isEraser){
                     blackEraser.classList.add('active');
-                } else {
-                    colorEraser.classList.add('active');
+                }else{
+                    blackPenButton.classList.add('active');
                 }
-            } else if (currentColor === blackPenColor) {
-                blackPenButton.classList.add('active');
             } else {
                 const activeColorBtn = document.querySelector(`.color-brush-button[data-color="${currentColor}"]`);
+                document.getElementById('color-eraser-icon').style.display = 'block';
                 if (activeColorBtn) {
                     activeColorBtn.classList.add('active');
+                    activeColorBtn.querySelector('.color-brush-icon').style.display = 'block';
                 }else{
                     changeableColorBrushButton.classList.add('active');
+                    document.getElementById('changeable-color-brush-icon').style.display = 'block';
                 }
+                if(isEraser){
+                    activeColorBtn.classList.remove('active');
+                    changeableColorBrushButton.classList.remove('active');
+                    colorEraser.classList.add('active');   
+                } 
             }
         }
         
@@ -1081,6 +1096,8 @@
                     setColor(color);
                     updateToolsState();
                 });
+                
+                button.innerHTML = '<img src="image/brush.svg" alt="brush" class="paint-tool-icon color-brush-icon">';
                 colorBrushButtonsContainer.appendChild(button);
             });
         }
@@ -1088,6 +1105,7 @@
         function createChangeableColorBrushButton() {
             changeableColorBrushButton.style.backgroundColor = curPaletteColor;
             changeableColorBrushButton.dataset.color = curPaletteColor;
+            changeableColorBrushButton.innerHTML = '<img id="changeable-color-brush-icon" src="image/brush.svg" alt="brush" class="paint-tool-icon color-brush-icon">';
             colorBrushButtonsContainer.appendChild(changeableColorBrushButton);
             changeableColorBrushButton.addEventListener('mousedown', selectChangeableColorBrushButton);
         }
