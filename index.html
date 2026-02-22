@@ -472,16 +472,13 @@
         saveButton.addEventListener('click', saveImage);
         shareButton.addEventListener('click', shareImage);
 
-        blackLayer.addEventListener('mousedown', startDrawingMouse);
-        blackLayer.addEventListener('mousemove', drawMouse);
-        blackLayer.addEventListener('mouseup', stopDrawing);
-        blackLayer.addEventListener('mouseout', stopDrawingMouseOut);
-        blackLayer.addEventListener('mousemove', updateCursorMouse);
-        blackLayer.addEventListener('touchstart', startDrawingTouch);
-        blackLayer.addEventListener('touchmove', drawTouch);
-        blackLayer.addEventListener('touchend', stopDrawingTouch);
-        blackLayer.addEventListener('touchcancel', stopDrawingTouch);
-        blackLayer.addEventListener('touchmove', updateCursorTouch);
+        // pointer events: use Pointer Events + getCoalescedEvents() for higher sampling
+        blackLayer.addEventListener('pointerdown', pointerDownHandler, { passive: false });
+        blackLayer.addEventListener('pointermove', pointerMoveHandler, { passive: false });
+        blackLayer.addEventListener('pointerup', pointerUpHandler);
+        blackLayer.addEventListener('pointercancel', pointerUpHandler);
+        blackLayer.addEventListener('pointerout', pointerUpHandler);
+        blackLayer.addEventListener('pointermove', updateCursorPointer);
 
         undoButton.addEventListener('mousedown', undo);
         toolSizeParamInput.addEventListener('input', changeToolSize);
@@ -663,13 +660,8 @@
             }else { 
                 ctxActiveStroke.beginPath();
                 ctxActiveStroke.moveTo(lastX, lastY);
-
-                const travelSquared = (x-lastX)**2 + (y-lastY)**2;
-                if(64 < travelSquared){
-                    const [xM,yM] = [lastX + (x - beforeLastX)/4, lastY + (y - beforeLastY)/4]; 
-                    ctxActiveStroke.lineTo(xM, yM); // 移動量が多いとき、補間点を作って経由します
-                    [lastX,lastY] = [xM,yM];
-                }else if( ctxCurrentLayer === ctxBlack ){
+                // 補完点の挿入を除き、黒ペンの場合は加重平均による手振れ補正のみ行う
+                if (ctxCurrentLayer === ctxBlack) {
                     x = x*(1-smoothingFactor) + lastX*smoothingFactor;
                     y = y*(1-smoothingFactor) + lastY*smoothingFactor;
                 }
@@ -739,42 +731,55 @@
             cursor.style.top = `${y - toolDiameter * 0.5}px`;
         }
 
-        function startDrawingMouse(e) {
-            startDrawing(e.offsetX, e.offsetY);
-        }
-
-        function drawMouse(e) {
-            draw(e.offsetX, e.offsetY);
-        }
-            
-        function updateCursorMouse(e) {
-            updateCursor(e.offsetX, e.offsetY);
-        }
-
-        function touchToOffsetXY(e) {
-            const target = e.touches[0].target;
+        // --- Pointer-based input handlers using coalesced events ---
+        function clientToOffsetXY(clientX, clientY, target) {
             const r = target.getBoundingClientRect();
-            return [e.touches[0].clientX - r.left, e.touches[0].clientY - r.top];
+            return [clientX - r.left, clientY - r.top];
         }
 
-        function startDrawingTouch(e) {
+        function pointerDownHandler(e) {
+            // capture pointer so we continue receiving events
+            try { e.target.setPointerCapture(e.pointerId); } catch(_) {}
             e.preventDefault();
-            startDrawing(...touchToOffsetXY(e));
+            const [x, y] = clientToOffsetXY(e.clientX, e.clientY, e.target);
+            startDrawing(x, y);
         }
 
-        function drawTouch(e) {
+        function pointerMoveHandler(e) {
+            if (!isDrawing) return;
             e.preventDefault();
-            draw(...touchToOffsetXY(e));
+
+            // Try DelegatedInkTrailPresenter if available to reduce latency (best-effort)
+            if (window.DelegatedInkTrailPresenter) {
+                try {
+                    if (!window._delegatedInkPresenter) {
+                        try { window._delegatedInkPresenter = new DelegatedInkTrailPresenter(); } catch(_) { window._delegatedInkPresenter = null; }
+                    }
+                    if (window._delegatedInkPresenter) {
+                        // try common method names in a safe manner; if it fails, we fallback below
+                        try { window._delegatedInkPresenter.present?.(e); return; } catch(_) {}
+                        try { window._delegatedInkPresenter.append?.(e); return; } catch(_) {}
+                    }
+                } catch (_) {}
+            }
+
+            const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
+            for (const ev of events) {
+                const [x, y] = clientToOffsetXY(ev.clientX, ev.clientY, ev.target);
+                draw(x, y);
+            }
         }
-        
-        function stopDrawingTouch() {
+
+        function pointerUpHandler(e) {
+            try { e.target.releasePointerCapture(e.pointerId); } catch(_) {}
             stopDrawing();
             setCursorInvisible();
         }
-            
-        function updateCursorTouch(e) {
+
+        function updateCursorPointer(e) {
             e.preventDefault();
-            updateCursor(...touchToOffsetXY(e));
+            const [x, y] = clientToOffsetXY(e.clientX, e.clientY, e.target);
+            updateCursor(x, y);
         }
         
         // ローカルストレージへの絵の保存・読込に関する関数
