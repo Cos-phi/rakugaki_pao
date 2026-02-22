@@ -1055,6 +1055,8 @@
             document.querySelectorAll('.color-brush-button, #black-pen-button, #black-eraser-button, #color-eraser-button,#changeable-color-brush-button').forEach(btn => btn.classList.remove('active'));
             const blackIcons = document.querySelectorAll('#black-pen-icon, #black-eraser-icon');
             const colorIcons = document.querySelectorAll('#color-eraser-icon');
+            const activeOpacity = 1;
+            const nonactiveOpacity = 1/12;
             
             if (ctxCurrentLayer === ctxBlack) {
                 if( isEraser ){
@@ -1062,8 +1064,8 @@
                 } else {
                     blackPenButton.classList.add('active');
                 }
-                blackIcons.forEach(icon => icon.style.opacity = '1.0');
-                colorIcons.forEach(icon => icon.style.opacity = '0.125');
+                blackIcons.forEach(icon => icon.style.opacity = activeOpacity);
+                colorIcons.forEach(icon => icon.style.opacity = nonactiveOpacity);
             } else {
                 const activeColorBtn = document.querySelector(`.color-brush-button[data-color="${currentColor}"]`);
                 if( isEraser ){
@@ -1073,8 +1075,8 @@
                 }else{
                     changeableColorBrushButton.classList.add('active');
                 }
-                blackIcons.forEach(icon => icon.style.opacity = '0.125');
-                colorIcons.forEach(icon => icon.style.opacity = '1.0');
+                blackIcons.forEach(icon => icon.style.opacity = nonactiveOpacity);
+                colorIcons.forEach(icon => icon.style.opacity = activeOpacity);
             }
         }
         
