@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=750">
+    <title>パレット編集 - rakugaki_pao</title>
+    <link rel="stylesheet" type="text/css" href="style.css?v=22">
+    <style>
+        .palette-row { margin-bottom: 12px; }
+        .palette-label { display: inline-block; width: 120px; }
+        .palette-input { width: 120px; }
+        .color-list { display: flex; gap: 8px; margin-bottom: 8px; }
+        .color-item { display: flex; flex-direction: column; align-items: center; }
+        .color-remove { margin-top: 2px; color: #c00; cursor: pointer; font-size: 12px; }
+        .add-color-btn { margin-left: 8px; }
+        .output-row { margin-top: 24px; }
+        .output-box { width: 100%; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div id="app" style="max-width: 480px; margin: 32px auto;">
+        <h2>パレット編集</h2>
+        <div class="palette-row">
+            <span class="palette-label">黒ペン色</span>
+            <input type="color" id="blackPenColor" value="#36364A">
+        </div>
+        <div class="palette-row">
+            <span class="palette-label">背景色</span>
+            <input type="color" id="backgroundColor" value="#F2EEE6">
+        </div>
+        <div class="palette-row">
+            <span class="palette-label">パレット色</span>
+            <div id="paletteColors" class="color-list"></div>
+            <button id="addPaletteColor" class="add-color-btn">色を追加</button>
+            <button id="resetColors" class="add-color-btn">色リセット</button>
+        </div>
+        <div class="palette-row">
+            <span class="palette-label">変更可能色</span>
+            <input type="color" id="changeableColor" value="#C3C3C3">
+        </div>
+        <div class="output-row">
+            <button id="saveToLocal">rakugaki_paoに反映</button>
+        </div>
+
+    </div>
+    <script>
+        // 初期値
+        const defaultColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4", "#F0C6F0"];
+        let blackPenColor = "#36364A";
+        let backgroundColor = "#F2EEE6";
+        let paletteColors = [...defaultColors];
+        let changeableColor = "#C3C3C3";
+        let paletteStr = '';
+
+        // 要素取得
+        const blackPenColorInput = document.getElementById('blackPenColor');
+        const backgroundColorInput = document.getElementById('backgroundColor');
+        const paletteColorsDiv = document.getElementById('paletteColors');
+        const addPaletteColorBtn = document.getElementById('addPaletteColor');
+        const resetColorsBtn = document.getElementById('resetColors');
+        const changeableColorInput = document.getElementById('changeableColor');
+        const saveToLocal = document.getElementById('saveToLocal');
+
+        const localstorageKeyPalette = 'palettecolorskey';
+
+        // ローカルストレージから初期値を復元
+        (function(){
+            let paletteStr = window.localStorage.getItem(localstorageKeyPalette);
+            if(paletteStr){
+                let [mainPart, palettePart, changeablePart] = paletteStr.split('|');
+                let [bpc, bgc] = (mainPart || '').split(',');
+                if(bpc) blackPenColor = bpc;
+                if(bgc) backgroundColor = bgc;
+                if(palettePart) paletteColors = palettePart.split(',');
+                if(changeablePart) changeableColor = changeablePart;
+            } else {
+                paletteColors = [...defaultColors];
+            }
+        })();
+
+        // 色リセット
+        resetColorsBtn.addEventListener('click', () => {
+            blackPenColor = "#36364A";
+            backgroundColor = "#F2EEE6";
+            paletteColors = [...["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4", "#F0C6F0"]];
+            changeableColor = "#C3C3C3";
+            updateAll();
+        });
+
+        // 色リスト描画
+        function renderPaletteColors() {
+            paletteColorsDiv.innerHTML = '';
+            paletteColors.forEach((color, idx) => {
+                const item = document.createElement('div');
+                item.className = 'color-item';
+                const colorInput = document.createElement('input');
+                colorInput.type = 'color';
+                colorInput.value = color;
+                colorInput.addEventListener('input', e => {
+                    paletteColors[idx] = e.target.value;
+                });
+                colorInput.addEventListener('change', e => {
+                    paletteColors[idx] = e.target.value;
+                    updateAll();
+                });
+                // 並び替えボタン
+                const leftBtn = document.createElement('button');
+                leftBtn.textContent = '<';
+                leftBtn.style.margin = '2px';
+                leftBtn.disabled = (idx === 0);
+                leftBtn.addEventListener('click', () => {
+                    if(idx > 0){
+                        [paletteColors[idx-1], paletteColors[idx]] = [paletteColors[idx], paletteColors[idx-1]];
+                        updateAll();
+                    }
+                });
+                const rightBtn = document.createElement('button');
+                rightBtn.textContent = '>';
+                rightBtn.style.margin = '2px';
+                rightBtn.disabled = (idx === paletteColors.length-1);
+                rightBtn.addEventListener('click', () => {
+                    if(idx < paletteColors.length-1){
+                        [paletteColors[idx+1], paletteColors[idx]] = [paletteColors[idx], paletteColors[idx+1]];
+                        updateAll();
+                    }
+                });
+                const removeBtn = document.createElement('span');
+                removeBtn.textContent = '削除';
+                removeBtn.className = 'color-remove';
+                removeBtn.addEventListener('click', () => {
+                    paletteColors.splice(idx, 1);
+                    updateAll();
+                });
+                item.appendChild(colorInput);
+                item.appendChild(leftBtn);
+                item.appendChild(rightBtn);
+                if (paletteColors.length > 1) item.appendChild(removeBtn);
+                paletteColorsDiv.appendChild(item);
+            });
+            // 追加ボタン制御
+            addPaletteColorBtn.disabled = paletteColors.length >= 7;
+        }
+
+        // パレット色重複除去（後ろを消す）
+        function mergePaletteColors() {
+            let seen = new Set();
+            paletteColors = paletteColors.filter((color, idx) => {
+                if (seen.has(color)) return false;
+                seen.add(color);
+                return true;
+            });
+        }
+
+        // 出力更新
+        function updateAll() {
+            mergePaletteColors();
+            renderPaletteColors();
+            paletteStr = `${blackPenColor},${backgroundColor}|${paletteColors.join(',')}|${changeableColor}`;
+        }
+        saveToLocal.addEventListener('click', () => {
+            window.localStorage.setItem(localstorageKeyPalette, paletteStr);
+            alert('rakugaki_paoに反映しました');
+        });
+
+        // 追加ボタンのイベント
+        addPaletteColorBtn.addEventListener('click', () => {
+            if (paletteColors.length < 7) {
+                const used = new Set(paletteColors);
+                const candidate = defaultColors.find(c => !used.has(c));
+                paletteColors.push(candidate || '#FFFFFF');
+                updateAll();
+            }
+        });
+
+        // 初期描画
+        updateAll();
+    </script>
+</body>
+</html>

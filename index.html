@@ -245,6 +245,7 @@
             let paletteStr = window.localStorage.getItem(localstorageKeyPalette);
             if (paletteStr) {
                 // 形式: blackPenColor,backgroundColor|color1,color2,..|initialChangeableColor
+                console.log(paletteStr);
                 let [mainPart, palettePart, changeablePart] = paletteStr.split('|');
                 let [bpc, bgc] = (mainPart || '').split(',');
                 blackPenColor = bpc || defaultBlackPenColor;
