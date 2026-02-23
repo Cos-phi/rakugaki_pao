@@ -215,10 +215,6 @@
         const importKeyColor = params.get('importcolorlayer');
 
         // 重要な設定
-        const blackPenColor = "#36364A";
-        const backgroundColor = "#F2EEE6";        
-        const PaletteColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"];
-        const initialChangeableColor = "#C3C3C3";
         const [canvasWidth,canvasHeight] = [720,720];
         const undoLimit = 1;
         const smoothingFactor = 0.375;
@@ -228,6 +224,40 @@
             isSensitive: false,
             postComment: "\n\n"+hashtag+" "
         };
+        
+        // ストレージキー
+        const localstorageKeyBlack = 'blacklayerlskey';
+        const localstorageKeyColor = 'colorlayerlskey';
+        const localstorageKeyAccessToken = 'accesstokenkey';
+        const localstorageKeyFirstStrokeTime = 'FirstStrokeTimekey';
+        const localstorageKeyDestinationServerName = 'destinationservernamekey';
+        const localstorageKeyPalette = 'palettecolorskey';
+
+        // デフォルト色設定
+        const defaultBlackPenColor = "#36364A";
+        const defaultBackgroundColor = "#F2EEE6";
+        const defaultPaletteColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4","#F0C6F0"];
+        const defaultChangeableColor = "#C3C3C3";
+
+        // ローカルストレージから色設定を復元（なければデフォルト）
+        let blackPenColor, backgroundColor, paletteColors, initialChangeableColor;
+        (function(){
+            let paletteStr = window.localStorage.getItem(localstorageKeyPalette);
+            if (paletteStr) {
+                // 形式: blackPenColor,backgroundColor|color1,color2,..|initialChangeableColor
+                let [mainPart, palettePart, changeablePart] = paletteStr.split('|');
+                let [bpc, bgc] = (mainPart || '').split(',');
+                blackPenColor = bpc || defaultBlackPenColor;
+                backgroundColor = bgc || defaultBackgroundColor;
+                paletteColors = (palettePart ? palettePart.split(',') : [...defaultPaletteColors]);
+                initialChangeableColor = changeablePart || defaultChangeableColor;
+            } else {
+                blackPenColor = defaultBlackPenColor;
+                backgroundColor = defaultBackgroundColor;
+                paletteColors = [...defaultPaletteColors];
+                initialChangeableColor = defaultChangeableColor;
+            }
+        })();
 
         // キャンバスの初期化
         canvasContainer.style.width = canvasWidth + 'px';
@@ -241,13 +271,6 @@
         const ctxColor = colorLayer.getContext('2d',{ willReadFrequently: true });
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
         const ctxCombined = combinedCanvas.getContext('2d');
-
-        // ストレージキー
-        const localstorageKeyBlack = 'blacklayerlskey';
-        const localstorageKeyColor = 'colorlayerlskey';
-        const localstorageKeyAccessToken = 'accesstokenkey';
-        const localstorageKeyFirstStrokeTime = 'FirstStrokeTimekey';
-        const localstorageKeyDestinationServerName = 'destinationservernamekey';
 
         // 投稿に関する情報
         const mastodonServerDataMain = {
@@ -358,7 +381,7 @@
         let ctxCurrentLayer = ctxBlack;
         let currentColor = blackPenColor;
         let curPaletteColor = initialChangeableColor;
-        let prevColor = PaletteColors[0];
+        let prevColor = paletteColors[0];
         colorPalette.value = curPaletteColor;
         let isEraser = false;
         let undoStack = [];
@@ -781,6 +804,8 @@
         function saveLocalstorage() {
             saveLayeronlocalstorage(localstorageKeyBlack,blackLayer);    
             saveLayeronlocalstorage(localstorageKeyColor,colorLayer);    
+            const paletteStr = `${blackPenColor},${backgroundColor}|${paletteColors.join(',')}|${curPaletteColor}`;
+            window.localStorage.setItem(localstorageKeyPalette, paletteStr);
         }
         
         function saveLayeronlocalstorage(localstoragekey,layer){
@@ -1082,7 +1107,7 @@
         
         // カラーブラシボタン生成に関する関数
         function createColorBrushButtons() {
-            PaletteColors.forEach(color => {
+            paletteColors.forEach(color => {
                 const button = document.createElement('button');
                 button.className = 'color-brush-button';
                 button.style.backgroundColor = color;
