@@ -19,6 +19,8 @@
 </head>
 <body>
     <div id="app" style="max-width: 480px; margin: 32px auto;">
+
+
         <h2>パレット編集</h2>
         <div class="palette-row">
             <span class="palette-label">黒ペン色</span>
@@ -32,14 +34,19 @@
             <span class="palette-label">パレット色</span>
             <div id="paletteColors" class="color-list"></div>
             <button id="addPaletteColor" class="add-color-btn">色を追加</button>
-            <button id="resetColors" class="add-color-btn">色リセット</button>
         </div>
         <div class="palette-row">
             <span class="palette-label">変更可能色</span>
             <input type="color" id="changeableColor" value="#C3C3C3">
         </div>
         <div class="output-row">
+            <button id="addToList">パレットリストに保存</button>
             <button id="saveToLocal">rakugaki_paoに反映</button>
+        </div>
+        <hr>
+        <h2>保存済みパレットセット</h2>
+        <div class="output-row" id="paletteSetListContainer">
+            <div id="paletteSetList"></div>
         </div>
 
     </div>
@@ -48,22 +55,12 @@
         const defaultColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4", "#F0C6F0"];
         let blackPenColor = "#36364A";
         let backgroundColor = "#F2EEE6";
-        let paletteColors = [...defaultColors];
+        let paletteColors;
         let changeableColor = "#C3C3C3";
         let paletteStr = '';
-
-        // 要素取得
-        const blackPenColorInput = document.getElementById('blackPenColor');
-        const backgroundColorInput = document.getElementById('backgroundColor');
-        const paletteColorsDiv = document.getElementById('paletteColors');
-        const addPaletteColorBtn = document.getElementById('addPaletteColor');
-        const resetColorsBtn = document.getElementById('resetColors');
-        const changeableColorInput = document.getElementById('changeableColor');
-        const saveToLocal = document.getElementById('saveToLocal');
-
         const localstorageKeyPalette = 'palettecolorskey';
 
-        // ローカルストレージから初期値を復元
+        // paletteColorsの初期値をlocalstorageKeyPaletteから読み込み
         (function(){
             let paletteStr = window.localStorage.getItem(localstorageKeyPalette);
             if(paletteStr){
@@ -71,21 +68,146 @@
                 let [bpc, bgc] = (mainPart || '').split(',');
                 if(bpc) blackPenColor = bpc;
                 if(bgc) backgroundColor = bgc;
-                if(palettePart) paletteColors = palettePart.split(',');
+                paletteColors = palettePart ? palettePart.split(',') : [...defaultColors];
                 if(changeablePart) changeableColor = changeablePart;
             } else {
                 paletteColors = [...defaultColors];
             }
         })();
 
-        // 色リセット
-        resetColorsBtn.addEventListener('click', () => {
-            blackPenColor = "#36364A";
-            backgroundColor = "#F2EEE6";
-            paletteColors = [...["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4", "#F0C6F0"]];
-            changeableColor = "#C3C3C3";
+        // 要素取得
+        const blackPenColorInput = document.getElementById('blackPenColor');
+        const backgroundColorInput = document.getElementById('backgroundColor');
+        const paletteColorsDiv = document.getElementById('paletteColors');
+        const addPaletteColorBtn = document.getElementById('addPaletteColor');
+        const changeableColorInput = document.getElementById('changeableColor');
+        const addToListBtn = document.getElementById('addToList');
+        const saveToLocal = document.getElementById('saveToLocal');
+        const paletteSetList = document.getElementById('paletteSetList');
+        const paletteSetListContainer = document.getElementById('paletteSetListContainer');
+        const paletteSetStorageKey = 'paletteSetList';
+
+        // デフォルトサンプル3セット
+        const defaultPaletteSets = [
+            {
+                name: 'デフォルト',
+                str: '#36364A,#F2EEE6|#FBA9A7,#FAC48D,#F9F19A,#7BB07F,#9DBEEA,#D4C8F4,#F0C6F0|#C3C3C3'
+            },
+            {
+                name: 'サンプル2',
+                str: '#222222,#FFFFFF|#FF0000,#00FF00,#0000FF,#FFFF00,#FF00FF,#00FFFF,#888888|#EEEEEE'
+            },
+            {
+                name: 'サンプル3',
+                str: '#3C3320,#F2EEE6|#FFD700,#FF8C00,#FF69B4,#8A2BE2,#00CED1,#228B22,#DC143C|#FFFFFF'
+            }
+        ];
+
+        // パレットセットリスト取得
+        function getPaletteSetList() {
+            let list = JSON.parse(window.localStorage.getItem(paletteSetStorageKey) || '[]');
+            if(list.length === 0) {
+                list = [...defaultPaletteSets];
+                window.localStorage.setItem(paletteSetStorageKey, JSON.stringify(list));
+            }
+            return list;
+        }
+        // パレットセットリスト保存
+        function setPaletteSetList(list) {
+            window.localStorage.setItem(paletteSetStorageKey, JSON.stringify(list));
+        }
+        // パレットセット追加
+        function addPaletteSet(str) {
+            let list = getPaletteSetList();
+            const name = 'セット' + (list.length+1);
+            list.push({name, str});
+            setPaletteSetList(list);
+            renderPaletteSetList();
+        }
+        // パレットセット削除
+        function deletePaletteSet(idx) {
+            let list = getPaletteSetList();
+            list.splice(idx,1);
+            setPaletteSetList(list);
+            renderPaletteSetList();
+        }
+        // パレットセット反映
+        function applyPaletteSet(str) {
+            let [mainPart, palettePart, changeablePart] = str.split('|');
+            let [bpc, bgc] = (mainPart || '').split(',');
+            if(bpc) blackPenColor = bpc;
+            if(bgc) backgroundColor = bgc;
+            paletteColors = palettePart ? palettePart.split(',') : [...defaultColors];
+            changeableColor = changeablePart || defaultChangeableColor;
+            syncInputs();
             updateAll();
+        }
+        // パレットセットリスト描画
+        function renderPaletteSetList() {
+            let list = getPaletteSetList();
+            paletteSetList.innerHTML = '';
+            list.forEach((set, idx) => {
+                const div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.marginBottom = '8px';
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = set.name;
+                nameSpan.style.width = '120px';
+                nameSpan.style.marginRight = '8px';
+                const applyBtn = document.createElement('button');
+                applyBtn.textContent = '読込';
+                applyBtn.style.marginRight = '4px';
+                applyBtn.addEventListener('click', () => applyPaletteSet(set.str));
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '削除';
+                deleteBtn.style.marginRight = '4px';
+                deleteBtn.addEventListener('click', () => deletePaletteSet(idx));
+                // 色プレビュー
+                const previewDiv = document.createElement('div');
+                previewDiv.style.display = 'flex';
+                previewDiv.style.marginLeft = '8px';
+                previewDiv.style.marginRight = '8px';
+                let [mainPart, palettePart, changeablePart] = set.str.split('|');
+                let [bpc, bgc] = (mainPart || '').split(',');
+                let colors = [];
+                if(bpc) colors.push(bpc);
+                if(bgc) colors.push(bgc);
+                if(palettePart) colors = colors.concat(palettePart.split(','));
+                if(changeablePart) colors.push(changeablePart);
+                colors.slice(0,10).forEach(color => {
+                    const box = document.createElement('div');
+                    box.style.width = '42px';
+                    box.style.height = '42px';
+                    box.style.background = color;
+                    box.style.border = '1px solid #36364A';
+                    box.style.marginRight = '2px';
+                    previewDiv.appendChild(box);
+                });
+                div.appendChild(nameSpan);
+                div.appendChild(applyBtn);
+                div.appendChild(deleteBtn);
+                div.appendChild(previewDiv);
+                paletteSetList.appendChild(div);
+            });
+        }
+        // 保存ボタンでセット追加
+        addToListBtn.addEventListener('click', () => {
+            addPaletteSet(paletteStr);
+            alert('パレットリストに保存しました');
         });
+        // rakugaki_pao反映ボタン
+        saveToLocal.addEventListener('click', () => {
+            // input要素の値を変数に反映
+            blackPenColor = blackPenColorInput.value;
+            backgroundColor = backgroundColorInput.value;
+            changeableColor = changeableColorInput.value;
+            updateAll(); // 最新のpaletteStrを生成
+            window.localStorage.setItem(localstorageKeyPalette, paletteStr);
+            alert('rakugaki_paoに反映しました');
+        });
+
+
 
         // 色リスト描画
         function renderPaletteColors() {
@@ -157,10 +279,6 @@
             renderPaletteColors();
             paletteStr = `${blackPenColor},${backgroundColor}|${paletteColors.join(',')}|${changeableColor}`;
         }
-        saveToLocal.addEventListener('click', () => {
-            window.localStorage.setItem(localstorageKeyPalette, paletteStr);
-            alert('rakugaki_paoに反映しました');
-        });
 
         // 追加ボタンのイベント
         addPaletteColorBtn.addEventListener('click', () => {
@@ -172,8 +290,40 @@
             }
         });
 
+        // 入力イベント
+        blackPenColorInput.addEventListener('input', e => {
+            blackPenColor = e.target.value;
+        });
+        backgroundColorInput.addEventListener('input', e => {
+            backgroundColor = e.target.value;
+        });
+        changeableColorInput.addEventListener('input', e => {
+            changeableColor = e.target.value;
+        });
+
+        // 変数→input要素へ反映
+        function syncInputs() {
+            blackPenColorInput.value = blackPenColor;
+            backgroundColorInput.value = backgroundColor;
+            changeableColorInput.value = changeableColor;
+        }
+
+        // パレットセット反映
+        function applyPaletteSet(str) {
+            let [mainPart, palettePart, changeablePart] = str.split('|');
+            let [bpc, bgc] = (mainPart || '').split(',');
+            if(bpc) blackPenColor = bpc;
+            if(bgc) backgroundColor = bgc;
+            paletteColors = palettePart ? palettePart.split(',') : [...defaultColors];
+            changeableColor = changeablePart || defaultChangeableColor;
+            syncInputs();
+            updateAll();
+        }
+
         // 初期描画
+        syncInputs();
         updateAll();
+        renderPaletteSetList();
     </script>
 </body>
 </html>

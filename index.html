@@ -252,6 +252,7 @@
                 backgroundColor = bgc || defaultBackgroundColor;
                 paletteColors = (palettePart ? palettePart.split(',') : [...defaultPaletteColors]);
                 initialChangeableColor = changeablePart || defaultChangeableColor;
+                colorEraser.style.backgroundColor = backgroundColor;
             } else {
                 blackPenColor = defaultBlackPenColor;
                 backgroundColor = defaultBackgroundColor;
@@ -615,7 +616,8 @@
         setTooltips();
         setVisibilitySelectOptions();
         updateActiveToolButton();
-        updateToolSize(); 
+        updateToolSize();
+        updateToolsState(); 
         initializePostDialog();
         initializeModal();
         restoreAccessTokenOnLocalstorage();
