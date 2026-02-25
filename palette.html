@@ -20,7 +20,6 @@
 <body>
     <div id="app" style="max-width: 480px; margin: 32px auto;">
 
-
         <h2>パレット編集</h2>
         <div class="palette-row">
             <span class="palette-label">黒ペン色</span>
@@ -42,8 +41,10 @@
         <div class="output-row">
             <button id="addToList">パレットリストに保存</button>
             <button id="saveToLocal">rakugaki_paoに反映</button>
+            <button id="copyPaletteUrl">パレットをコピー</button>
         </div>
-        <hr>
+        <div class="output-row" id="paletteUrlPreview" style="margin-top:8px;"></div>
+        
         <h2>保存済みパレットセット</h2>
         <div class="output-row" id="paletteSetListContainer">
             <div id="paletteSetList"></div>
@@ -83,9 +84,12 @@
         const changeableColorInput = document.getElementById('changeableColor');
         const addToListBtn = document.getElementById('addToList');
         const saveToLocal = document.getElementById('saveToLocal');
+        const copyPaletteUrlBtn = document.getElementById('copyPaletteUrl');
         const paletteSetList = document.getElementById('paletteSetList');
         const paletteSetListContainer = document.getElementById('paletteSetListContainer');
         const paletteSetStorageKey = 'paletteSetList';
+
+
 
         // デフォルトサンプル3セット
         const defaultPaletteSets = [
@@ -102,6 +106,13 @@
                 str: '#3C3320,#F2EEE6|#FFD700,#FF8C00,#FF69B4,#8A2BE2,#00CED1,#228B22,#DC143C|#FFFFFF'
             }
         ];
+
+        // 初期描画
+        
+        loadPaletteFromUrl();
+        syncInputs();
+        updateAll();
+        renderPaletteSetList();
 
         // パレットセットリスト取得
         function getPaletteSetList() {
@@ -206,8 +217,102 @@
             window.localStorage.setItem(localstorageKeyPalette, paletteStr);
             alert('rakugaki_paoに反映しました');
         });
+        // パレットURL生成
+        function getPaletteUrl() {
+            const url = `${location.origin}${location.pathname}?palette=${encodePalette(paletteStr)}`;
+            return url;
+        }
+        // パレットURLコピー
+        copyPaletteUrlBtn.addEventListener('click', () => {
+            const url = getPaletteUrl();
+            navigator.clipboard.writeText(url);
+            alert('パレットURLをコピーしました');
+        });
 
+        function encodePalette(str) {
+            return str.split('|').map(section => {
+                // # を除去し、カンマで分割。空要素を除去
+                const hexes = section.replace(/#/g, '').split(',').filter(h => h.length === 6);
+                
+                const bytes = new Uint8Array(hexes.length * 3);
+                hexes.forEach((hex, idx) => {
+                    for (let i = 0; i < 3; i++) {
+                        bytes[idx * 3 + i] = parseInt(hex.substr(i * 2, 2), 16);
+                    }
+                });
 
+                // Uint8ArrayからBase64へ変換 (URL安全な形式に置換)
+                const binary = String.fromCharCode(...bytes);
+                return btoa(binary)
+                    .replace(/\+/g, '.')
+                    .replace(/\//g, '_')
+                    .replace(/=/g, ''); // 末尾のパディング = は不要なので除去
+            }).join('-');
+        }
+
+        function decodePalette(encodedStr) {
+            return encodedStr.split('-').map(part => {
+                // Base64を復元
+                let base64 = part.replace(/\./g, '+').replace(/_/g, '/');
+                while (base64.length % 4) base64 += '=';
+                
+                let binary;
+                try {
+                    binary = atob(base64);
+                } catch (e) {
+                    return ''; // デコード失敗時は空を返す
+                }
+
+                const hexes = [];
+                // 3バイト(24bit)揃っている時のみ色として抽出
+                // 端数（1〜2バイト）はループの条件 i + 2 < binary.length で自動的に捨てられます
+                for (let i = 0; i + 2 < binary.length; i += 3) {
+                    const r = binary.charCodeAt(i).toString(16).padStart(2, '0');
+                    const g = binary.charCodeAt(i + 1).toString(16).padStart(2, '0');
+                    const b = binary.charCodeAt(i + 2).toString(16).padStart(2, '0');
+                    hexes.push(`#${r}${g}${b}`.toUpperCase());
+                }
+                return hexes.join(',');
+            }).join('|');
+        }
+        
+
+        // --- テスト ---
+        const encoded = encodePalette(paletteStr);
+        console.log("Encoded:", encoded); 
+        
+        // URL引数paletteがあれば最優先で読み込む（要素取得後に実行）
+        function loadPaletteFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const paletteParam = params.get('palette');
+            if(paletteParam){
+                let paletteStr = decodePalette(paletteParam);
+                let [mainPart, palettePart, changeablePart] = paletteStr.split('|');
+                let [bpc, bgc] = (mainPart || '').split(',');
+                if(bpc) blackPenColor = bpc;
+                if(bgc) backgroundColor = bgc;
+                paletteColors = palettePart ? palettePart.split(',') : [...defaultColors];
+                if(changeablePart) changeableColor = changeablePart;
+            }
+            syncInputs();
+            updateAll();
+        }
+
+        // パレットURLプレビュー表示＋OGP用画像
+        function renderPaletteUrlPreview() {
+            const url = getPaletteUrl();
+            const svg = generatePaletteSVG();
+            const svgBase64 = btoa(unescape(encodeURIComponent(svg)));
+            const svgDataUri = `data:image/svg+xml;base64,${svgBase64}`;
+            paletteUrlPreview.innerHTML = `<input type="text" value="${url}" style="width:90%" readonly>\n` +
+                `<img src='${svgDataUri}' width='420' height='42' style='vertical-align:middle;margin-left:8px;'>`;
+        }
+        // SVG生成（10色横並び）
+        function generatePaletteSVG() {
+            let colors = [blackPenColor, backgroundColor, ...paletteColors, changeableColor].slice(0,10);
+            let rects = colors.map((c,i)=>`<rect x='${i*42}' y='0' width='42' height='42' fill='${c}' stroke='#36364A'/>`).join('');
+            return `<svg xmlns='http://www.w3.org/2000/svg' width='420' height='42'>${rects}</svg>`;
+        }
 
         // 色リスト描画
         function renderPaletteColors() {
@@ -278,6 +383,7 @@
             mergePaletteColors();
             renderPaletteColors();
             paletteStr = `${blackPenColor},${backgroundColor}|${paletteColors.join(',')}|${changeableColor}`;
+            renderPaletteUrlPreview();
         }
 
         // 追加ボタンのイベント
@@ -320,10 +426,7 @@
             updateAll();
         }
 
-        // 初期描画
-        syncInputs();
-        updateAll();
-        renderPaletteSetList();
+
     </script>
 </body>
 </html>
