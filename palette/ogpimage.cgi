@@ -9,7 +9,7 @@ use MIME::Base64;
 
 my $q = CGI->new;
 
-my $palette = $q->param('palette') // '';
+my $palette = $q->param('colors') // '';
 
 # テスト用（ブラウザ直アクセス時）
 $palette ||= 'NjZK8u7m-.6mn.sSN.fGae7B_nb7q1Mj08Mbw-w8PD';
@@ -106,7 +106,7 @@ for my $row (0..$#layout){
 # ----------------------------
 
 print "Content-Type: image/png\n\n";
-print "Cache-Control: public, max-age=31536000\n";
+#print "Cache-Control: public, max-age=31536000\n";
 print $img->png;
 
 # ----------------------------
