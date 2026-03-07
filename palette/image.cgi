@@ -50,42 +50,63 @@ for my $c (@colors){
 # レイアウト
 # ----------------------------
 
-my $cols = 4;
-my $rows = 2;
-
 my $square = 110;
 my $gap    = 30;
 
-my $grid_w = $cols*$square + ($cols-1)*$gap;
+my $count = scalar @gdcolors;
+
+my @layout;
+
+if ($count == 1){ @layout = (1); }
+elsif ($count == 2){ @layout = (2); }
+elsif ($count == 3){ @layout = (3); }
+elsif ($count == 4){ @layout = (4); }
+elsif ($count == 5){ @layout = (3,2); }
+elsif ($count == 6){ @layout = (3,3); }
+elsif ($count == 7){ @layout = (4,3); }
+else { @layout = (4,4); }
+
+my $rows = scalar @layout;
+
 my $grid_h = $rows*$square + ($rows-1)*$gap;
+my $start_y = int((630-$grid_h)/2);
 
-my $start_x = int(($img_size-$grid_w)/2);
-my $start_y = int(($img_size-$grid_h)/2);
+my $index = 0;
 
-for my $i (0..$#gdcolors){
+for my $row (0..$#layout){
 
-    last if $i >= 8;
+    my $cols = $layout[$row];
 
-    my $row = int($i/$cols);
-    my $col = $i%$cols;
+    my $row_w = $cols*$square + ($cols-1)*$gap;
+    my $start_x = int((630-$row_w)/2);
 
-    my $x1 = $start_x + $col*($square+$gap);
-    my $y1 = $start_y + $row*($square+$gap);
+    for my $col (0..$cols-1){
 
-    $img->filledRectangle(
-        $x1,
-        $y1,
-        $x1+$square,
-        $y1+$square,
-        $gdcolors[$i]
-    );
+        last if $index >= $count;
+
+        my $x1 = $start_x + $col*($square+$gap);
+        my $y1 = $start_y + $row*($square+$gap);
+
+        $img->filledRectangle(
+            $x1,
+            $y1,
+            $x1+$square,
+            $y1+$square,
+            $gdcolors[$index]
+        );
+
+        $index++;
+    }
 }
+
+
 
 # ----------------------------
 # 出力
 # ----------------------------
 
 print "Content-Type: image/png\n\n";
+print "Cache-Control: public, max-age=31536000\n";
 print $img->png;
 
 # ----------------------------
