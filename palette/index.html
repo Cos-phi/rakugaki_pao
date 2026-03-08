@@ -3,18 +3,11 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <?php
-    // URL引数 "colors" を取得。なければデフォルト値を設定
-    $colors = isset($_GET['colors']) ? $_GET['colors'] : 'NjZK8u7m-.6mn.sSN.fGae7B_nb7q1Mj08Mbw-w8PD';
-    
-    // CGIのURLを組み立て
-    $cgi_url = "https://kurajo.ivory.ne.jp/rakugaki_pao/palette/ogpimage.cgi?colors=" . htmlspecialchars($colors);
-    ?>
     <meta name="viewport" content="width=750">
-    <meta property="og:image" content="<?php echo $cgi_url; ?>" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="../image/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="../image/apple-touch-icon.png">
     <title>パレット編集 - rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=22">
+    <link rel="stylesheet" type="text/css" href="../style.css?v=1">
     <style>
         .palette-row { margin-bottom: 12px; }
         .palette-label { display: inline-block; width: 120px; }
@@ -229,7 +222,7 @@
         });
         // パレットURL生成
         function getPaletteUrl() {
-            const url = `${location.origin}${location.pathname}?colors=${encodePalette(paletteStr)}`;
+            const url = `${location.origin}${location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1)}share.php?colors=${encodePalette(paletteStr)}`;
             return url;
         }
         // パレットURLコピー
@@ -308,22 +301,6 @@
             updateAll();
         }
 
-        // パレットURLプレビュー表示＋OGP用画像
-        function renderPaletteUrlPreview() {
-            const url = getPaletteUrl();
-            const svg = generatePaletteSVG();
-            const svgBase64 = btoa(unescape(encodeURIComponent(svg)));
-            const svgDataUri = `data:image/svg+xml;base64,${svgBase64}`;
-            paletteUrlPreview.innerHTML = `<input type="text" value="${url}" style="width:90%" readonly>\n` +
-                `<img src='${svgDataUri}' width='420' height='42' style='vertical-align:middle;margin-left:8px;'>`;
-        }
-        // SVG生成（10色横並び）
-        function generatePaletteSVG() {
-            let colors = [blackPenColor, backgroundColor, ...paletteColors, changeableColor].slice(0,10);
-            let rects = colors.map((c,i)=>`<rect x='${i*42}' y='0' width='42' height='42' fill='${c}' stroke='#36364A'/>`).join('');
-            return `<svg xmlns='http://www.w3.org/2000/svg' width='420' height='42'>${rects}</svg>`;
-        }
-
         // 色リスト描画
         function renderPaletteColors() {
             paletteColorsDiv.innerHTML = '';
@@ -393,7 +370,6 @@
             mergePaletteColors();
             renderPaletteColors();
             paletteStr = `${blackPenColor},${backgroundColor}|${paletteColors.join(',')}|${changeableColor}`;
-            renderPaletteUrlPreview();
         }
 
         // 追加ボタンのイベント
