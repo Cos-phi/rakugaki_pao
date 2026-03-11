@@ -11,26 +11,36 @@
     <style>
         .palette-row { margin-bottom: 12px; }
         .palette-label { display: inline-block; width: 120px; }
-        .palette-input { width: 120px; }
+        .palette-input { width: 42px;height: 42px; }
         .color-list { display: flex; gap: 8px; margin-bottom: 8px; }
         .color-item { display: flex; flex-direction: column; align-items: center; }
         .color-remove { margin-top: 2px; color: #c00; cursor: pointer; font-size: 12px; }
         .add-color-btn { margin-left: 8px; }
         .output-row { margin-top: 24px; }
         .output-box { width: 100%; font-size: 14px; }
+        #paletteeditor-content {
+            position: relative;
+            width: 720px;
+            margin-bottom: 16px;
+            color: #36364A;
+            border: 1px solid #505050;
+            background-color: #F2EEE6;
+            box-sizing:border-box;
+            padding: 32px 64px;
+        }
     </style>
 </head>
 <body>
-    <div id="app" style="max-width: 480px; margin: 32px auto;">
+    <div id="paletteeditor-content">
 
         <h2>パレット編集</h2>
         <div class="palette-row">
             <span class="palette-label">黒ペン色</span>
-            <input type="color" id="blackPenColor" value="#36364A">
+            <input type="color" id="blackPenColor" value="#36364A" class="palette-input">
         </div>
         <div class="palette-row">
             <span class="palette-label">背景色</span>
-            <input type="color" id="backgroundColor" value="#F2EEE6">
+            <input type="color" id="backgroundColor" value="#F2EEE6" class="palette-input">
         </div>
         <div class="palette-row">
             <span class="palette-label">パレット色</span>
@@ -39,7 +49,7 @@
         </div>
         <div class="palette-row">
             <span class="palette-label">変更可能色</span>
-            <input type="color" id="changeableColor" value="#C3C3C3">
+            <input type="color" id="changeableColor" value="#C3C3C3" class="palette-input">
         </div>
         <div class="output-row">
             <button id="addToList">パレットリストに保存</button>
@@ -310,6 +320,7 @@
                 const colorInput = document.createElement('input');
                 colorInput.type = 'color';
                 colorInput.value = color;
+                colorInput.className = 'palette-input';
                 colorInput.addEventListener('input', e => {
                     paletteColors[idx] = e.target.value;
                 });
