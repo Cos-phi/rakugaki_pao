@@ -24,8 +24,10 @@ my @two   = decode_section($sec1);
 my @seven = decode_section($sec2);
 my @one   = decode_section($sec3);
 
+# ペンの色（最初の2色の1色目）
+my $pen = $two[0] // [70,70,88];
 # 背景色（最初の2色の2色目）
-my $bg = $two[1] // [240,240,240];
+my $bg = $two[1] // [242,238,230];
 
 # 正方形の色
 my @colors = (@seven,@one);
@@ -39,6 +41,9 @@ my $img_size = 630;
 my $img = GD::Image->new($img_size,$img_size);
 
 my $bgc = $img->colorAllocate(@$bg);
+my $pen_color = $img->colorAllocate(@$pen);
+
+$img->filledRectangle(0,0,$img_size,$img_size,$bgc);
 
 # 正方形色
 my @gdcolors;
@@ -80,6 +85,8 @@ for my $row (0..$#layout){
     my $row_w = $cols*$square + ($cols-1)*$gap;
     my $start_x = int((630-$row_w)/2);
 
+    $img->setThickness(2);
+
     for my $col (0..$cols-1){
 
         last if $index >= $count;
@@ -93,6 +100,13 @@ for my $row (0..$#layout){
             $x1+$square,
             $y1+$square,
             $gdcolors[$index]
+        );
+        $img->rectangle(
+            $x1,
+            $y1,
+            $x1+$square,
+            $y1+$square,
+            $pen_color
         );
 
         $index++;

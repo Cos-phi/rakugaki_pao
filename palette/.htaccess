@@ -1,5 +1,0 @@
-# index.html というファイル名にのみ、以下の処理を適用する
-<Files "index.html">
-    AddHandler fcgid-script .html
-    fcgiwrapper "/usr/local/bin/php-cgi" .html
-</Files>
