@@ -7,7 +7,7 @@
     $colors = isset($_GET['colors']) ? $_GET['colors'] : 'NjZK8u7m-.6mn.sSN.fGae7B_nb7q1Mj08Mbw-w8PD';
     
     // CGIのURLを組み立て
-    $cgi_url = "https://kurajo.ivory.ne.jp/rakugaki_pao/palette/ogpimage.cgi?colors=" . htmlspecialchars($colors);
+    $cgi_url = "https://kurajo.ivory.ne.jp/rakugaki_pao/palette/image.cgi?colors=" . htmlspecialchars($colors);
     ?>
     <meta name="viewport" content="width=750">
     <meta property="og:image" content="<?php echo $cgi_url; ?>" />

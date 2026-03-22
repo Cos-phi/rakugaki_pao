@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=750">
     <link rel="icon" href="../image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="../image/apple-touch-icon.png">
-    <title>パレット編集 - rakugaki_pao</title>
+    <title>Edit Palette - rakugaki_pao</title>
     <link rel="stylesheet" type="text/css" href="../style.css?v=1">
     <style>
-        .palette-row { margin-bottom: 12px; }
+        .palette-row { padding: 24px; }
         .palette-label { display: inline-block; width: 120px; }
         .palette-input { width: 64px;height: 64px; border-radius: 4px; border: 1px solid #36364A; cursor: pointer; }
         .color-list { display: flex; gap: 1px; margin-bottom: 8px; }
@@ -18,6 +18,8 @@
         .add-color-btn {  height: 64px; border-radius: 4px; border: 1px solid #36364A; color: #36364A; font-size: 12px; text-align: center; cursor: pointer; }
         .output-row { margin-top: 24px; }
         .output-box { width: 100%; font-size: 14px; }
+        .palette-set-item { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; margin: 8px; width: 128px;}
+        .palette-set-item-buttons { display: flex; gap: 4px; margin-top: 4px; }
         #paletteeditor-content {
             position: relative;
             width: 720px;
@@ -28,18 +30,24 @@
             box-sizing:border-box;
             padding: 32px 64px;
         }
+        #paletteSetListContainer {
+            position: relative;
+            width: 720px;
+            color: #36364A;
+            border: 0px solid #505050;
+            box-sizing:border-box;
+        }
     </style>
 </head>
 <body>
     <div id="paletteeditor-content">
-
-        <h2>パレット編集</h2>
         <div class="palette-row" style="display: none;">
             <span class="palette-label">黒ペン色</span>
             <input type="color" id="blackPenColor" value="#36364A" class="palette-input">
         </div>
-        <div class="palette-row" style="display: none;">
+        <div class="palette-row" style="display: block;">
             <span class="palette-label">背景色</span>
+            <br>
             <input type="color" id="backgroundColor" value="#F2EEE6" class="palette-input">
         </div>
         <div class="palette-row">
@@ -49,17 +57,17 @@
 
         <div class="output-row">
             <button id="addToList">パレットリストに保存</button>
-            <button id="saveToLocal">rakugaki_paoに反映</button>
+            <button id="applyRakugakiPaoBtn">rakugaki_paoに反映</button>
             <button id="copyPaletteUrl">パレットをコピー</button>
         </div>
         <div class="output-row" id="paletteUrlPreview" style="margin-top:8px;"></div>
-        
-        <h2>保存済みパレットセット</h2>
-        <div class="output-row" id="paletteSetListContainer">
+    </div>
+    <div id ="paletteSetListContainer">
+        <div class="output-row">
             <div id="paletteSetList"></div>
         </div>
-    
     </div>
+
     <script>
         // 初期値
         const defaultColors = ["#FBA9A7", "#FAC48D", "#F9F19A", "#7BB07F", "#9DBEEA", "#D4C8F4", "#F0C6F0"];
@@ -92,28 +100,20 @@
         const addPaletteColorBtn = document.getElementById('addPaletteColor');
         const changeableColorInput = document.getElementById('changeableColor');
         const addToListBtn = document.getElementById('addToList');
-        const saveToLocal = document.getElementById('saveToLocal');
+        const applyRakugakiPaoBtn = document.getElementById('applyRakugakiPaoBtn');
         const copyPaletteUrlBtn = document.getElementById('copyPaletteUrl');
         const paletteSetList = document.getElementById('paletteSetList');
         const paletteSetListContainer = document.getElementById('paletteSetListContainer');
+        const paletteEditorContent = document.getElementById('paletteeditor-content');
         const paletteSetStorageKey = 'paletteSetList';
 
 
 
-        // デフォルトサンプル3セット
+        // デフォルトパレットセット（URLエンコードされた文字列）
         const defaultPaletteSets = [
-            {
-                name: 'デフォルト',
-                str: '#36364A,#F2EEE6|#FBA9A7,#FAC48D,#F9F19A,#7BB07F,#9DBEEA,#D4C8F4,#F0C6F0|#C3C3C3'
-            },
-            {
-                name: 'サンプル2',
-                str: '#222222,#FFFFFF|#FF0000,#00FF00,#0000FF,#FFFF00,#FF00FF,#00FFFF,#888888|#EEEEEE'
-            },
-            {
-                name: 'サンプル3',
-                str: '#3C3320,#F2EEE6|#FFD700,#FF8C00,#FF69B4,#8A2BE2,#00CED1,#228B22,#DC143C|#FFFFFF'
-            }
+            "NjZK8u7m-.6mn.sSN.fGae7B_nb7q1Mj08Mbw-w8PD",
+            "IiIi____-_wAAAP8AAAD___8A_wD_AP__iIiI-7u7u",
+            "PDMg8u7m-_9cA_4wA_2m0iiviAM7RIosi3BQ8-____",
         ];
 
         // 初期描画
@@ -139,8 +139,7 @@
         // パレットセット追加
         function addPaletteSet(str) {
             let list = getPaletteSetList();
-            const name = 'セット' + (list.length+1);
-            list.push({name, str});
+            list.push(encodePalette(str));
             setPaletteSetList(list);
             renderPaletteSetList();
         }
@@ -166,68 +165,73 @@
         function renderPaletteSetList() {
             let list = getPaletteSetList();
             paletteSetList.innerHTML = '';
-            list.forEach((set, idx) => {
+            paletteSetList.style.display = 'flex';
+            paletteSetList.style.flexWrap = 'wrap';
+            list.forEach((encodedPaletteStr, idx) => {
                 const div = document.createElement('div');
-                div.style.display = 'flex';
-                div.style.alignItems = 'center';
-                div.style.marginBottom = '8px';
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = set.name;
-                nameSpan.style.width = '120px';
-                nameSpan.style.marginRight = '8px';
-                const applyBtn = document.createElement('button');
-                applyBtn.textContent = '読込';
-                applyBtn.style.marginRight = '4px';
-                applyBtn.addEventListener('click', () => applyPaletteSet(set.str));
+                div.className = 'palette-set-item';
+
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = '削除';
-                deleteBtn.style.marginRight = '4px';
+                deleteBtn.className = 'palette-set-item-delete-btn';
                 deleteBtn.addEventListener('click', () => deletePaletteSet(idx));
-                // 色プレビュー
-                const previewDiv = document.createElement('div');
-                previewDiv.style.display = 'flex';
-                previewDiv.style.marginLeft = '8px';
-                previewDiv.style.marginRight = '8px';
-                let [mainPart, palettePart, changeablePart] = set.str.split('|');
-                let [bpc, bgc] = (mainPart || '').split(',');
-                let colors = [];
-                if(bpc) colors.push(bpc);
-                if(bgc) colors.push(bgc);
-                if(palettePart) colors = colors.concat(palettePart.split(','));
-                if(changeablePart) colors.push(changeablePart);
-                colors.slice(0,10).forEach(color => {
-                    const box = document.createElement('div');
-                    box.style.width = '42px';
-                    box.style.height = '42px';
-                    box.style.background = color;
-                    box.style.border = '1px solid #36364A';
-                    box.style.marginRight = '2px';
-                    previewDiv.appendChild(box);
+
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = 'コピー';
+                copyBtn.className = 'palette-set-item-copy-btn';
+                copyBtn.addEventListener('click', () => {
+                    console.log(encodedPaletteStr);
+                    const url = `${location.origin}${location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1)}share.php?colors=${encodedPaletteStr}`;
+                    navigator.clipboard.writeText(url);
+                    alert('パレットURLをコピーしました');
                 });
-                div.appendChild(nameSpan);
-                div.appendChild(applyBtn);
-                div.appendChild(deleteBtn);
+
+                // 色プレビュー
+                const previewDiv = document.createElement('img');
+                previewDiv.src = getPaletteImageUrl(encodedPaletteStr);
+                previewDiv.style.width = '128px';
+                previewDiv.style.height = '128px';
+                previewDiv.style.border = '1px solid #36364A';
+                previewDiv.style.marginLeft = '2px';
+                previewDiv.style.marginRight = '2px';
+                previewDiv.style.cursor = 'pointer';
+                previewDiv.addEventListener('click', () => applyPaletteSet(encodedPaletteStr));
+
                 div.appendChild(previewDiv);
+                div.appendChild(copyBtn);
+                div.appendChild(deleteBtn);
                 paletteSetList.appendChild(div);
             });
         }
         // 保存ボタンでセット追加
         addToListBtn.addEventListener('click', () => {
             addPaletteSet(paletteStr);
-            alert('パレットリストに保存しました');
         });
+
         // rakugaki_pao反映ボタン
-        saveToLocal.addEventListener('click', () => {
-            // input要素の値を変数に反映
+        applyRakugakiPaoBtn.addEventListener('click', () => {
+            applyRakugkiPao();
+        });
+
+        function applyRakugkiPao(){
             blackPenColor = blackPenColorInput.value;
             backgroundColor = backgroundColorInput.value;
-            updateAll(); // 最新のpaletteStrを生成
+            updateAll();
             window.localStorage.setItem(localstorageKeyPalette, paletteStr);
-            alert('rakugaki_paoに反映しました');
-        });
+            window.location.href = '../';
+            //alert('rakugaki_paoに反映しました');
+
+        }
+
         // パレットURL生成
         function getPaletteUrl() {
             const url = `${location.origin}${location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1)}share.php?colors=${encodePalette(paletteStr)}`;
+            return url;
+        }
+        // パレットプレビュー画像URL生成
+        function getPaletteImageUrl(encodedPaletteStr) {
+            //const url = `${location.origin}${location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1)}image?colors=${encodedPaletteStr}`;
+            const url = `https://kurajo.ivory.ne.jp/rakugaki_pao/palette/image.cgi?colors=${encodedPaletteStr}`;
             return url;
         }
         // パレットURLコピー
@@ -309,6 +313,7 @@
         // 色リスト描画
         function renderPaletteColors() {
             paletteColorsDiv.innerHTML = '';
+            paletteEditorContent.style.backgroundColor = backgroundColor;
             paletteColors.forEach((color, idx) => {
                 const item = document.createElement('div');
                 item.className = 'color-item';
@@ -370,6 +375,7 @@
                 }
             });
             paletteColorsDiv.appendChild(addPaletteColorBtn);
+
             // 追加ボタン制御
             if(paletteColors.length >= 7){
                 addPaletteColorBtn.style.display = 'none';
@@ -418,9 +424,11 @@
         // 入力イベント
         blackPenColorInput.addEventListener('input', e => {
             blackPenColor = e.target.value;
+            updateAll();
         });
         backgroundColorInput.addEventListener('input', e => {
             backgroundColor = e.target.value;
+            updateAll();
         });
 
         // 変数→input要素へ反映
@@ -430,7 +438,8 @@
         }
 
         // パレットセット反映
-        function applyPaletteSet(str) {
+        function applyPaletteSet(encodedStr) {
+            str = decodePalette(encodedStr);
             let [mainPart, palettePart, changeablePart] = str.split('|');
             let [bpc, bgc] = (mainPart || '').split(',');
             if(bpc) blackPenColor = bpc;
