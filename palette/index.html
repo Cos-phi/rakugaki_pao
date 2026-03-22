@@ -11,11 +11,11 @@
     <style>
         .palette-row { margin-bottom: 12px; }
         .palette-label { display: inline-block; width: 120px; }
-        .palette-input { width: 42px;height: 42px; }
-        .color-list { display: flex; gap: 8px; margin-bottom: 8px; }
-        .color-item { display: flex; flex-direction: column; align-items: center; }
+        .palette-input { width: 64px;height: 64px; border-radius: 4px; border: 1px solid #36364A; cursor: pointer; }
+        .color-list { display: flex; gap: 1px; margin-bottom: 8px; }
+        .color-item { display: flex; flex-wrap: wrap; justify-content: center; width: 64px; }
         .color-remove { margin-top: 2px; color: #c00; cursor: pointer; font-size: 12px; }
-        .add-color-btn { margin-left: 8px; }
+        .add-color-btn {  height: 64px; border-radius: 4px; border: 1px solid #36364A; color: #36364A; font-size: 12px; text-align: center; cursor: pointer; }
         .output-row { margin-top: 24px; }
         .output-box { width: 100%; font-size: 14px; }
         #paletteeditor-content {
@@ -34,23 +34,19 @@
     <div id="paletteeditor-content">
 
         <h2>パレット編集</h2>
-        <div class="palette-row">
+        <div class="palette-row" style="display: none;">
             <span class="palette-label">黒ペン色</span>
             <input type="color" id="blackPenColor" value="#36364A" class="palette-input">
         </div>
-        <div class="palette-row">
+        <div class="palette-row" style="display: none;">
             <span class="palette-label">背景色</span>
             <input type="color" id="backgroundColor" value="#F2EEE6" class="palette-input">
         </div>
         <div class="palette-row">
-            <span class="palette-label">パレット色</span>
+            <span class="palette-label">Pallete colors</span>
             <div id="paletteColors" class="color-list"></div>
-            <button id="addPaletteColor" class="add-color-btn">色を追加</button>
         </div>
-        <div class="palette-row">
-            <span class="palette-label">変更可能色</span>
-            <input type="color" id="changeableColor" value="#C3C3C3" class="palette-input">
-        </div>
+
         <div class="output-row">
             <button id="addToList">パレットリストに保存</button>
             <button id="saveToLocal">rakugaki_paoに反映</button>
@@ -62,7 +58,7 @@
         <div class="output-row" id="paletteSetListContainer">
             <div id="paletteSetList"></div>
         </div>
-
+    
     </div>
     <script>
         // 初期値
@@ -225,7 +221,6 @@
             // input要素の値を変数に反映
             blackPenColor = blackPenColorInput.value;
             backgroundColor = backgroundColorInput.value;
-            changeableColor = changeableColorInput.value;
             updateAll(); // 最新のpaletteStrを生成
             window.localStorage.setItem(localstorageKeyPalette, paletteStr);
             alert('rakugaki_paoに反映しました');
@@ -362,8 +357,45 @@
                 if (paletteColors.length > 1) item.appendChild(removeBtn);
                 paletteColorsDiv.appendChild(item);
             });
+
+            const addPaletteColorBtn = document.createElement('button');
+            addPaletteColorBtn.textContent = '+';
+            addPaletteColorBtn.className = 'add-color-btn';
+            addPaletteColorBtn.addEventListener('click', () => {
+                if (paletteColors.length < 7) {
+                    const used = new Set(paletteColors);
+                    const candidate = defaultColors.find(c => !used.has(c));
+                    paletteColors.push(candidate || '#FFFFFF');
+                    updateAll();
+                }
+            });
+            paletteColorsDiv.appendChild(addPaletteColorBtn);
             // 追加ボタン制御
-            addPaletteColorBtn.disabled = paletteColors.length >= 7;
+            if(paletteColors.length >= 7){
+                addPaletteColorBtn.style.display = 'none';
+            } else {
+                addPaletteColorBtn.style.display = 'inline-block';
+            }
+
+
+            // 変更可能色ボタン
+            const changeableColorItem = document.createElement('div');
+            changeableColorItem.className = 'color-item';
+            const colorInput = document.createElement('input');
+            colorInput.type = 'color';
+            colorInput.value = changeableColor;
+            colorInput.className = 'palette-input';
+            colorInput.id = 'changeableColor';
+            colorInput.addEventListener('input', e => {
+                changeableColor = e.target.value;
+            }); 
+            colorInput.addEventListener('change', e => {
+                changeableColor = e.target.value;
+                updateAll();
+            });
+            changeableColorItem.appendChild(colorInput);
+            paletteColorsDiv.appendChild(changeableColorItem)
+
         }
 
         // パレット色重複除去（後ろを消す）
@@ -383,16 +415,6 @@
             paletteStr = `${blackPenColor},${backgroundColor}|${paletteColors.join(',')}|${changeableColor}`;
         }
 
-        // 追加ボタンのイベント
-        addPaletteColorBtn.addEventListener('click', () => {
-            if (paletteColors.length < 7) {
-                const used = new Set(paletteColors);
-                const candidate = defaultColors.find(c => !used.has(c));
-                paletteColors.push(candidate || '#FFFFFF');
-                updateAll();
-            }
-        });
-
         // 入力イベント
         blackPenColorInput.addEventListener('input', e => {
             blackPenColor = e.target.value;
@@ -400,15 +422,11 @@
         backgroundColorInput.addEventListener('input', e => {
             backgroundColor = e.target.value;
         });
-        changeableColorInput.addEventListener('input', e => {
-            changeableColor = e.target.value;
-        });
 
         // 変数→input要素へ反映
         function syncInputs() {
             blackPenColorInput.value = blackPenColor;
             backgroundColorInput.value = backgroundColor;
-            changeableColorInput.value = changeableColor;
         }
 
         // パレットセット反映
