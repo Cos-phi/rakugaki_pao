@@ -15,6 +15,12 @@
                 <button id="clear" class="controls-top-button">
                     <img src="image/new.svg" style="height: 100%;" alt="Clear">
                 </button>
+                <button id="palette-edit" class="controls-top-button">
+                    <img src="image/palette.svg" style="height: 100%;" alt="Palette Edit">
+                </button>
+                <button id="manual" class="controls-top-button">
+                    <img src="image/manual.svg" style="height: 100%;" alt="Manual">
+                </button>
             </div>
 
             <div class="top-right-buttons">
@@ -26,9 +32,6 @@
                 </button>
                 <button id="share-button" class="controls-top-button">
                     <img src="image/share.svg" style="height: 100%;" alt="Share">
-                </button>
-                <button id="manual" class="controls-top-button">
-                    <img src="image/manual.svg" style="height: 100%;" alt="Manual">
                 </button>
             </div>
         </div>
@@ -148,6 +151,7 @@
 
         const clearButton = document.getElementById('clear');
         const manualButton = document.getElementById('manual');
+        const paletteEditButton = document.getElementById('palette-edit');
         
         const copyButton = document.getElementById('copy-button');
         const saveButton = document.getElementById('save-button');
@@ -412,6 +416,7 @@
         const translations = {
             ja: {
                 clear: "キャンバスのクリア",
+                paletteEdit: "パレットの編集",
                 copyButton: "クリップボードにコピー",
                 saveButton: "ダウンロードして保存",
                 shareButton: "共有",
@@ -450,6 +455,7 @@
             },
             en: {
                 clear: "Clear Canvas",
+                paletteEdit: "Edit Palette",
                 copyButton: "Copy to Clipboard",
                 saveButton: "Save to Download",
                 shareButton: "Share",
@@ -492,7 +498,8 @@
         // イベントリスナーの登録
         clearButton.addEventListener('click', clearCanvas);
         manualButton.addEventListener('click', openManual);
-        
+        paletteEditButton.addEventListener('click', openPaletteEdit);
+
         copyButton.addEventListener('click', copyImage);
         saveButton.addEventListener('click', saveImage);
         shareButton.addEventListener('click', shareImage);
@@ -980,6 +987,11 @@
             isWaitingFirstStroke = true;
         }
 
+        // パレット編集表示
+        function openPaletteEdit(){
+            location.href = "palette"
+        }
+
         // マニュアル表示
         function openManual(){
             location.href = manualUrl;
@@ -988,6 +1000,7 @@
         // ボタンのツールチップ・ラベルを設定
         function setTooltips() {
             clearButton.title = currentTranslations.clear;
+            paletteEditButton.title = currentTranslations.paletteEdit;
             copyButton.title = currentTranslations.copyButton;
             saveButton.title = currentTranslations.saveButton;
             shareButton.title = currentTranslations.shareButton;

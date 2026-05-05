@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2017 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="2.54mm" height="2.54mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 254 254"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#36364A;stroke-width:20;stroke-miterlimit:22.9256}
+    .fil0 {fill:none}
+   ]]>
+  </style>
+ </defs>
+ <g id="レイヤ_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <path class="fil0 str0" d="M84.43 53.27c3.25,-20.58 21.07,-36.33 42.57,-36.33 21.49,0 39.31,15.75 42.56,36.33 4.79,-1.84 9.99,-2.85 15.42,-2.85 23.8,0 43.1,19.3 43.1,43.1 0,13.51 -6.22,25.57 -15.96,33.48 9.74,7.9 15.96,19.96 15.96,33.48 0,23.8 -19.3,43.09 -43.1,43.09 -5.43,0 -10.63,-1 -15.42,-2.84 -3.25,20.58 -21.07,36.32 -42.56,36.32 -21.5,0 -39.32,-15.74 -42.57,-36.32 -4.79,1.83 -9.99,2.84 -15.42,2.84 -23.8,0 -43.1,-19.29 -43.1,-43.09 0,-13.52 6.22,-25.58 15.96,-33.48 -9.74,-7.91 -15.96,-19.97 -15.96,-33.48 0,-23.8 19.3,-43.1 43.1,-43.1 5.43,0 10.63,1.01 15.42,2.85z"/>
+  <path class="fil0 str0" d="M84.43 53.27l21.02 36.4m43.1 74.66l21.01 36.4"/>
+  <path class="fil0 str0" d="M169.56 53.27l-21.01 36.4m-43.1 74.66l-21.02 36.4"/>
+  <path class="fil0 str0" d="M41.87 127l42.03 0m86.19 0l42.03 0"/>
+  <circle class="fil0 str0" cx="127" cy="127" r="30.75"/>
+ </g>
+</svg>

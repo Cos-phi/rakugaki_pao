@@ -459,3 +459,12 @@ input[type="checkbox"] {
 .submit-button:hover {
     background-color: #563ACC;
 }
+
+/* スマートフォン向けの調整（画面幅が480px以下の場合） */
+@media screen and (max-width: 480px) {
+    .controls-top-button {
+        height: 64px; 
+        width: 64px;  
+        padding: 8px; 
+    }
+}

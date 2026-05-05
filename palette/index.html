@@ -40,31 +40,45 @@
     </style>
 </head>
 <body>
-    <div id="paletteeditor-content">
-        <div class="palette-row" style="display: none;">
-            <span class="palette-label">黒ペン色</span>
-            <input type="color" id="blackPenColor" value="#36364A" class="palette-input">
+    <app id="app"> 
+        <div id="controls-top">
+            <div class="top-left-buttons">
+                <button id="back" class="controls-top-button" title="rakugaki_paoに戻る">
+                    <img src="../image/back.svg" style="height: 100%;" alt="Back">
+                </button>
+            </div>
+            <div class="top-right-buttons">
+                <button id="shareUrl" class="controls-top-button" title="rakugaki_paoのURLを共有">
+                    <img src="../image/share.svg" style="height: 100%;" alt="Share">
+                </button>
+            </div>
         </div>
-        <div class="palette-row" style="display: block;">
-            <span class="palette-label">背景色</span>
-            <br>
-            <input type="color" id="backgroundColor" value="#F2EEE6" class="palette-input">
-        </div>
-        <div class="palette-row">
-            <span class="palette-label">Pallete colors</span>
-            <div id="paletteColors" class="color-list"></div>
-        </div>
+        <div id="paletteeditor-content">
+            <div class="palette-row" style="display: none;">
+                <span class="palette-label">黒ペン色</span>
+                <input type="color" id="blackPenColor" value="#36364A" class="palette-input">
+            </div>
+            <div class="palette-row" style="display: block;">
+                <span class="palette-label">背景色</span>
+                <br>
+                <input type="color" id="backgroundColor" value="#F2EEE6" class="palette-input">
+            </div>
+            <div class="palette-row">
+                <span class="palette-label">Pallete colors</span>
+                <div id="paletteColors" class="color-list"></div>
+            </div>
 
-        <div class="output-row">
-            <button id="addToList">パレットリストに保存</button>
-            <button id="applyRakugakiPaoBtn">rakugaki_paoに反映</button>
-            <button id="copyPaletteUrl">パレットをコピー</button>
+            <div class="output-row">
+                <button id="addToList">パレットリストに保存</button>
+                <button id="applyRakugakiPaoBtn">rakugaki_paoに反映</button>
+                <button id="copyPaletteUrl">パレットをコピー</button>
+            </div>
+            <div class="output-row" id="paletteUrlPreview" style="margin-top:8px;"></div>
         </div>
-        <div class="output-row" id="paletteUrlPreview" style="margin-top:8px;"></div>
-    </div>
-    <div id ="paletteSetListContainer">
-        <div class="output-row">
-            <div id="paletteSetList"></div>
+        <div id ="paletteSetListContainer">
+            <div class="output-row">
+                <div id="paletteSetList"></div>
+            </div>
         </div>
     </div>
 
@@ -94,6 +108,7 @@
         })();
 
         // 要素取得
+        const backButton = document.getElementById('back');
         const blackPenColorInput = document.getElementById('blackPenColor');
         const backgroundColorInput = document.getElementById('backgroundColor');
         const paletteColorsDiv = document.getElementById('paletteColors');
@@ -107,7 +122,10 @@
         const paletteEditorContent = document.getElementById('paletteeditor-content');
         const paletteSetStorageKey = 'paletteSetList';
 
-
+        // ボタンイベントリスナー登録
+        backButton.addEventListener('click', () => {
+            location.href='../index.html';
+        })
 
         // デフォルトパレットセット（URLエンコードされた文字列）
         const defaultPaletteSets = [
@@ -115,6 +133,8 @@
             "IiIi____-_wAAAP8AAAD___8A_wD_AP__iIiI-7u7u",
             "PDMg8u7m-_9cA_4wA_2m0iiviAM7RIosi3BQ8-____",
         ];
+
+
 
         // 初期描画
         
@@ -198,7 +218,7 @@
                 previewDiv.addEventListener('click', () => applyPaletteSet(encodedPaletteStr));
 
                 div.appendChild(previewDiv);
-                div.appendChild(copyBtn);
+                //div.appendChild(copyBtn);
                 div.appendChild(deleteBtn);
                 paletteSetList.appendChild(div);
             });
