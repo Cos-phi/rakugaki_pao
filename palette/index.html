@@ -21,6 +21,14 @@
         .output-box { width: 100%; font-size: 14px; }
         .palette-set-item { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; margin: 8px; width: 128px;}
         .palette-set-item-buttons { display: flex; gap: 4px; margin-top: 4px; }
+        .palette-preview-div {
+            width: 128px;
+            height: 128px;
+            border: 1px solid #36364A;
+            margin-left: 2px;
+            margin-right: 2px;
+            cursor: pointer;
+        }
         #paletteeditor-content {
             position: relative;
             width: 720px;
@@ -58,6 +66,32 @@
             background: none;
             cursor: pointer;
         }
+        #add-palette-set-btn {
+            font-size: 32px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            margin-top: 8px;
+            width: 128x;
+        }
+        #applyRakugakiPaoBtn {
+            padding: 0px;
+            width: 240px;
+            height: 42px;
+            margin-left: auto;
+            background-color: #6364ff;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;    
+            border: none;
+            border-radius: 4px;
+        }
+        #applyRakugakiPaoBtn:hover {
+            background-color: #563ACC;
+        }
+
     </style>
 </head>
 <body>
@@ -90,9 +124,7 @@
 
 
             <div class="output-row">
-
-                <button id="addToList">パレットリストに保存</button>
-                <button id="applyRakugakiPaoBtn">rakugaki_paoに反映</button>
+                <button id="applyRakugakiPaoBtn">▶ Start with this palette</button>
             </div>
         </div>
         <div id ="paletteSetListContainer">
@@ -134,7 +166,6 @@
         const paletteColorsDiv = document.getElementById('paletteColors');
         const addPaletteColorBtn = document.getElementById('addPaletteColor');
         const changeableColorInput = document.getElementById('changeableColor');
-        const addToListBtn = document.getElementById('addToList');
         const applyRakugakiPaoBtn = document.getElementById('applyRakugakiPaoBtn');
         const copyPaletteUrlBtn = document.getElementById('copyPaletteUrl');
         const paletteSetList = document.getElementById('paletteSetList');
@@ -225,23 +256,22 @@
                 // 色プレビュー
                 const previewDiv = document.createElement('img');
                 previewDiv.src = getPaletteImageUrl(encodedPaletteStr);
-                previewDiv.style.width = '128px';
-                previewDiv.style.height = '128px';
-                previewDiv.style.border = '1px solid #36364A';
-                previewDiv.style.marginLeft = '2px';
-                previewDiv.style.marginRight = '2px';
-                previewDiv.style.cursor = 'pointer';
+                previewDiv.className = 'palette-preview-div';
                 previewDiv.addEventListener('click', () => applyPaletteSet(encodedPaletteStr));
 
                 div.appendChild(previewDiv);
                 div.appendChild(deleteBtn);
                 paletteSetList.appendChild(div);
             });
+            const addToListBtn = document.createElement('div');
+            addToListBtn.textContent = '＋';
+            addToListBtn.id = 'add-palette-set-btn';
+            addToListBtn.className = 'palette-preview-div';
+            addToListBtn.addEventListener('click', () => {
+                addPaletteSet(paletteStr);
+            });     
+            paletteSetList.appendChild(addToListBtn);
         }
-        // 保存ボタンでセット追加
-        addToListBtn.addEventListener('click', () => {
-            addPaletteSet(paletteStr);
-        });
 
         // rakugaki_pao反映ボタン
         applyRakugakiPaoBtn.addEventListener('click', () => {
@@ -466,8 +496,8 @@
         function updateAll() {
             mergePaletteColors();
             renderPaletteColors();
-            updatePaletteUrlPreview();
             paletteStr = `${blackPenColor},${backgroundColor}|${paletteColors.join(',')}|${changeableColor}`;
+            updatePaletteUrlPreview();
         }
 
         // 入力イベント
