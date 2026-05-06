@@ -17,7 +17,7 @@
         .color-item { display: flex; flex-wrap: wrap; justify-content: center; width: 80px; }
         .add-color-btn {  height: 64px; border-radius: 4px; border: 1px solid #36364A; color: #36364A; font-size: 12px; text-align: center; cursor: pointer; }
         .color-edit-btn { border-style:none; background:none; font-size:12px; cursor:pointer; }
-        .output-row { margin-top: 24px; }
+        .output-row { margin-top: 24px; display: flex; text-align:center}
         .output-box { width: 100%; font-size: 14px; }
         .palette-set-item { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; margin: 8px; width: 128px;}
         .palette-set-item-buttons { display: flex; gap: 4px; margin-top: 4px; }
@@ -29,7 +29,7 @@
             border: 1px solid #505050;
             background-color: #F2EEE6;
             box-sizing:border-box;
-            padding: 64px 32px;
+            padding: 32px 32px;
         }
         #paletteSetListContainer {
             position: relative;
@@ -39,9 +39,24 @@
             box-sizing:border-box;
         }
         #palette-url-preview {
-            width: 500px;
-            font-size: 14px;
-            box-sizing: border-box;
+            margin-left: 32px;
+            margin-right: 2px;
+            height: 24px;
+            width: 540px;
+            padding: 2px 8px;
+            font-size: 12px;
+            color: #36364A;
+            background:none;
+            border-radius: 4px;
+            border:#36364A solid 1px;
+        }
+        #copyPaletteUrl {
+            height: 32px;
+            width: 32px;
+            padding: 1px;
+            border: none;
+            background: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -54,26 +69,26 @@
                 </button>
             </div>
             <div class="top-right-buttons" >
-                <button id="shareUrl" class="controls-top-button" title="rakugaki_paoのURLを共有">
-                    <img src="../image/share.svg" style="height: 100%;" alt="Share">
-                </button>
             </div>
         </div>
         <div id="paletteeditor-content">
+
+            <div class="output-row">
+                <input type="text" id="palette-url-preview" readonly>
+                <button id="copyPaletteUrl">
+                    <img src="../image/copytoclipboard.svg" alt="Copy" style="height : 80%; width: 80%;">
+                </button>
+            </div>
+
             <div class="palette-row" style="display: none;">
                 <input type="color" id="blackPenColor" value="#36364A" class="pen-background-input">
                 <input type="color" id="backgroundColor" value="#F2EEE6" class="pen-background-input">
             </div>
             <div class="palette-row">
-                <div id="paletteColors" class="color-list">
-                    
-                </div>
+                <div id="paletteColors" class="color-list"></div>
             </div>
 
-            <div class="output-row">
-                <input type="text" id="palette-url-preview" readonly>
-                <button id="copyPaletteUrl">パレットをコピー</button>
-            </div>
+
             <div class="output-row">
 
                 <button id="addToList">パレットリストに保存</button>
