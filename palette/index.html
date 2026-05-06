@@ -58,13 +58,19 @@
             border-radius: 4px;
             border:#36364A solid 1px;
         }
-        #copyPaletteUrl {
+        #copyPaletteUrlBtn {
             height: 32px;
             width: 32px;
             padding: 1px;
             border: none;
             background: none;
             cursor: pointer;
+        }
+        #copyPaletteUrlBtn:hover{
+            background-color: #E0E0E0;
+        }
+        #copyPaletteUrlBtn:active{
+            padding: 5px;
         }
         #add-palette-set-btn {
             font-size: 32px;
@@ -109,7 +115,7 @@
 
             <div class="output-row">
                 <input type="text" id="palette-url-preview" readonly>
-                <button id="copyPaletteUrl">
+                <button id="copyPaletteUrlBtn">
                     <img src="../image/copytoclipboard.svg" alt="Copy" style="height : 80%; width: 80%;">
                 </button>
             </div>
@@ -167,7 +173,7 @@
         const addPaletteColorBtn = document.getElementById('addPaletteColor');
         const changeableColorInput = document.getElementById('changeableColor');
         const applyRakugakiPaoBtn = document.getElementById('applyRakugakiPaoBtn');
-        const copyPaletteUrlBtn = document.getElementById('copyPaletteUrl');
+        const copyPaletteUrlBtn = document.getElementById('copyPaletteUrlBtn');
         const paletteSetList = document.getElementById('paletteSetList');
         const paletteSetListContainer = document.getElementById('paletteSetListContainer');
         const paletteEditorContent = document.getElementById('paletteeditor-content');
@@ -308,7 +314,7 @@
         copyPaletteUrlBtn.addEventListener('click', () => {
             const url = getPaletteUrl();
             navigator.clipboard.writeText(url);
-            alert('パレットURLをコピーしました');
+            //alert('パレットURLをコピーしました');
         });
 
         function encodePalette(str) {
