@@ -138,8 +138,8 @@
             <div class="select-container" style="margin-top:12px; gap:8px; align-items:center;">
                 <label for="timelapse-fps-select" style="color:#DDD9E8; font-size:14px;">FPS</label>
                 <select id="timelapse-fps-select" style="width:120px;">
-                    <option value="15">15</option>
-                    <option value="30" selected>30</option>
+                    <option value="15" selected>15</option>
+                    <option value="30">30</option>
                     <option value="60">60</option>
                 </select>
                 <button id="timelapse-export-button" class="submit-button" style="margin-left:auto;">Export</button>
@@ -1130,7 +1130,7 @@
             const frames = await getTimelapseFrames();
             if (frames.length === 0) throw new Error('No timelapse frames to export');
             const width = canvasWidth;
-            const height = 1280;
+            const height = 960;
             const exportCanvas = document.createElement('canvas');
             exportCanvas.width = width;
             exportCanvas.height = height;
@@ -1222,7 +1222,7 @@
             ctx.fillStyle = '#F0F0F0';
             ctx.fillRect(0, 0, width, height);
             ctx.globalAlpha = alpha;
-            const canvasTop = 280;
+            const canvasTop = 120;
             ctx.drawImage(bitmap, 0, canvasTop, canvasWidth, canvasHeight);
             drawExportTopText(ctx, width, canvasTop, frameCount, elapsedTimeSec);
             drawExportBottomText(ctx, width, canvasTop + canvasHeight + 48);
@@ -1231,7 +1231,7 @@
 
         function drawExportTopText(ctx, width, topHeight, frameCount, elapsedTimeSec){
             ctx.save();
-            ctx.font = '22px "Yu Gothic UI", sans-serif';
+            ctx.font = '24px "Yu Gothic UI", sans-serif';
             ctx.fillStyle = '#AAAAAA';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
@@ -1251,10 +1251,10 @@
         function drawExportBottomText(ctx, width, baseline){
             ctx.save();
             ctx.fillStyle = '#AAAAAA';
-            ctx.font = '26px "Yu Gothic UI", sans-serif';
+            ctx.font = '28px "Yu Gothic UI", sans-serif';
             ctx.textBaseline = 'alphabetic';
             const text = '#rakugaki_pao';
-            const letterSpacing = 3;
+            const letterSpacing = 6;
             const totalWidth = ctx.measureText(text).width + letterSpacing * (text.length - 1);
             let x = width/2 - totalWidth/2;
             for (const char of text) {
