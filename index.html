@@ -278,6 +278,7 @@
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
         const localstorageKeyFirstStrokeTime = 'FirstStrokeTimekey';
+        const localstorageKeyLastStrokeTime = 'LastStrokeTimekey';
         const localstorageKeyDestinationServerName = 'destinationservernamekey';
         const localstorageKeyPalette = 'palettecolorskey';
 
@@ -566,6 +567,9 @@
         blackLayer.addEventListener('touchend', stopDrawingTouch);
         blackLayer.addEventListener('touchcancel', stopDrawingTouch);
         blackLayer.addEventListener('touchmove', updateCursorTouch);
+        document.addEventListener('mouseup', stopDrawing);
+        document.addEventListener('touchend', stopDrawingTouch);
+        document.addEventListener('touchcancel', stopDrawingTouch);
 
         undoButton.addEventListener('mousedown', undo);
         toolSizeParamInput.addEventListener('input', changeToolSize);
@@ -800,8 +804,10 @@
         }
 
         function stopDrawing() {
+            if (!isDrawing) return;
             isDrawing = false;
             dryStroke();
+            setLastStrokeTime();
             captureTimelapseFrame();
             saveLocalstorage();
         }
@@ -1304,6 +1310,7 @@
                 black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
                 color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height),
                 firstStrokeTime: window.localStorage.getItem(localstorageKeyFirstStrokeTime),
+                lastStrokeTime: window.localStorage.getItem(localstorageKeyLastStrokeTime),
                 isWaitingFirstStroke
             });
             activateUndoButton();
@@ -1316,6 +1323,11 @@
             ctxColor.putImageData(state.color, 0, 0);
             if (state.firstStrokeTime != null) {
                 window.localStorage.setItem(localstorageKeyFirstStrokeTime, state.firstStrokeTime);
+                if (state.lastStrokeTime != null) {
+                    window.localStorage.setItem(localstorageKeyLastStrokeTime, state.lastStrokeTime);
+                } else {
+                    window.localStorage.removeItem(localstorageKeyLastStrokeTime);
+                }
                 isWaitingFirstStroke = state.isWaitingFirstStroke;
             } else {
                 resetFirstStrokeState();
@@ -1349,19 +1361,30 @@
             const nowTime = new Date();
             const firstStrokeTime = nowTime.getTime();
             window.localStorage.setItem(localstorageKeyFirstStrokeTime, firstStrokeTime);
+            window.localStorage.setItem(localstorageKeyLastStrokeTime, firstStrokeTime);
+        }
+
+        function setLastStrokeTime(){
+            const nowTime = new Date();
+            const lastStrokeTime = nowTime.getTime();
+            window.localStorage.setItem(localstorageKeyLastStrokeTime, lastStrokeTime);
         }
 
         function getElapsedTimeMinFromFirstStrokeTime(){
-            const firstStrokeTime = window.localStorage.getItem(localstorageKeyFirstStrokeTime) || null
-            const nowTime = new Date();
-            const elapsedTimeMin = Math.trunc((nowTime.getTime() - firstStrokeTime)/1000/60);
+            const firstStrokeTime = window.localStorage.getItem(localstorageKeyFirstStrokeTime);
+            const lastStrokeTime = window.localStorage.getItem(localstorageKeyLastStrokeTime);
+            if (firstStrokeTime == null) return 0;
+            const endTime = lastStrokeTime != null ? Number(lastStrokeTime) : new Date().getTime();
+            const elapsedTimeMin = Math.trunc((endTime - Number(firstStrokeTime))/1000/60);
             return elapsedTimeMin;
         }
 
         function getElapsedTimeSecFromFirstStrokeTime(){
-            const firstStrokeTime = window.localStorage.getItem(localstorageKeyFirstStrokeTime) || null
-            const nowTime = new Date();
-            const elapsedTimeSec = Math.trunc((nowTime.getTime() - firstStrokeTime)/1000);
+            const firstStrokeTime = window.localStorage.getItem(localstorageKeyFirstStrokeTime);
+            const lastStrokeTime = window.localStorage.getItem(localstorageKeyLastStrokeTime);
+            if (firstStrokeTime == null) return 0;
+            const endTime = lastStrokeTime != null ? Number(lastStrokeTime) : new Date().getTime();
+            const elapsedTimeSec = Math.trunc((endTime - Number(firstStrokeTime))/1000);
             return elapsedTimeSec;
         }
         
@@ -1403,6 +1426,7 @@
 
         function resetFirstStrokeState(){
             window.localStorage.removeItem(localstorageKeyFirstStrokeTime);
+            window.localStorage.removeItem(localstorageKeyLastStrokeTime);
             isWaitingFirstStroke = true;
         }
 
