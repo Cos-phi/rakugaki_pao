@@ -33,10 +33,14 @@
                 <button id="share-button" class="controls-top-button">
                     <img src="image/share.svg" style="height: 100%;" alt="Share">
                 </button>
+                <button id="timelapse-button" class="controls-top-button">
+                    <img src="image/timelapse.svg" style="height: 100%;" alt="Timelapse">
+                </button>
             </div>
         </div>
-
+ 
         <div id="canvas-container">
+            <canvas id="background-layer"></canvas>
             <canvas id="color-layer"></canvas>
             <canvas id="active-stroke-layer"></canvas>
             <canvas id="black-layer"></canvas>
@@ -118,6 +122,34 @@
         </div>
     </div>
 
+    <div id="timelapse-dialog-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="dialog-title-container">
+                <button id="close-timelapse-dialog-button" class="close-dialog-button">×</button>
+            </div>
+            <div class="preview-img-container">
+                <img id="timelapse-preview-img" width="360" height="360" alt="Timelapse Preview" src="image/dummy_preview.png">
+            </div>
+            <div style="margin-top:12px; color:#DDD9E8; font-size:14px;">
+                <div>Frames: <span id="timelapse-frame-count">0</span></div>
+                <div>Elapsed: <span id="timelapse-elapsed-time">0 min</span></div>
+                <div>Estimated duration: <span id="timelapse-estimated-duration">0:00</span></div>
+            </div>
+            <div class="select-container" style="margin-top:12px; gap:8px; align-items:center;">
+                <label for="timelapse-fps-select" style="color:#DDD9E8; font-size:14px;">FPS</label>
+                <select id="timelapse-fps-select" style="width:120px;">
+                    <option value="15">15</option>
+                    <option value="30" selected>30</option>
+                    <option value="60">60</option>
+                </select>
+                <button id="timelapse-export-button" class="submit-button" style="margin-left:auto;">Export</button>
+            </div>
+            <div id="timelapse-progress-line" style="margin-top:12px; display:none;">
+                <progress id="timelapse-progress-bar" value="0" max="100" style="width:100%;"></progress>
+            </div>
+        </div>
+    </div>
+    
     <div id="destination-server-setting-dialog-modal" class="modal"  style="display: none;"> <!-- none -->
         <div class="modal-content">
             <div class="dialog-title-container">
@@ -156,13 +188,25 @@
         const copyButton = document.getElementById('copy-button');
         const saveButton = document.getElementById('save-button');
         const shareButton = document.getElementById('share-button');
+        const timelapseButton = document.getElementById('timelapse-button');
 
         const canvasContainer = document.getElementById('canvas-container');
+        const backgroundLayer = document.getElementById('background-layer');
         const blackLayer = document.getElementById('black-layer');
         const colorLayer = document.getElementById('color-layer');
         const activeStrokeLayer = document.getElementById('active-stroke-layer');
         const cursor = document.getElementById('cursor');
         const combinedCanvas = document.createElement('canvas');
+        const timelapseDialogModal = document.getElementById('timelapse-dialog-modal');
+        const closeTimelapseDialogButton = document.getElementById('close-timelapse-dialog-button');
+        const timelapsePreviewImg = document.getElementById('timelapse-preview-img');
+        const timelapseFrameCountLabel = document.getElementById('timelapse-frame-count');
+        const timelapseElapsedTimeLabel = document.getElementById('timelapse-elapsed-time');
+        const timelapseEstimatedDurationLabel = document.getElementById('timelapse-estimated-duration');
+        const timelapseFpsSelect = document.getElementById('timelapse-fps-select');
+        const timelapseExportButton = document.getElementById('timelapse-export-button');
+        const timelapseProgressLine = document.getElementById('timelapse-progress-line');
+        const timelapseProgressBar = document.getElementById('timelapse-progress-bar');
 
         const undoButton = document.getElementById('undo-button');
         const toolSizeParamInput = document.getElementById('tool-size');
@@ -268,11 +312,13 @@
         // キャンバスの初期化
         canvasContainer.style.width = canvasWidth + 'px';
         canvasContainer.style.height = canvasHeight + 'px';
-        canvasContainer.style.backgroundColor = backgroundColor;
+        canvasContainer.style.backgroundColor = 'transparent';
         [combinedCanvas.width, combinedCanvas.height] = [canvasWidth, canvasHeight];
+        [backgroundLayer.width, backgroundLayer.height] = [canvasWidth, canvasHeight];
         [blackLayer.width, blackLayer.height] = [canvasWidth, canvasHeight];
         [colorLayer.width, colorLayer.height] = [canvasWidth, canvasHeight];
         [activeStrokeLayer.width, activeStrokeLayer.height] = [canvasWidth, canvasHeight];
+        const ctxBackground = backgroundLayer.getContext('2d',{ willReadFrequently: true });
         const ctxBlack = blackLayer.getContext('2d',{ willReadFrequently: true });
         const ctxColor = colorLayer.getContext('2d',{ willReadFrequently: true });
         const ctxActiveStroke = activeStrokeLayer.getContext('2d');
@@ -394,6 +440,8 @@
         let accessToken = null;
 
         let isWaitingFirstStroke = window.localStorage.getItem(localstorageKeyFirstStrokeTime) == null;
+        let timelapseFrameCount = 0;
+        let timelapseDb = null;
         
         let publishingLevel = defaultSettings.publishingLevel;
         let isSensitive = defaultSettings.isSensitive;
@@ -503,6 +551,10 @@
         copyButton.addEventListener('click', copyImage);
         saveButton.addEventListener('click', saveImage);
         shareButton.addEventListener('click', shareImage);
+        timelapseButton.addEventListener('click', openTimelapseDialog);
+        closeTimelapseDialogButton.addEventListener('click', closeDialog);
+        timelapseFpsSelect.addEventListener('change', updateTimelapseEstimatedDuration);
+        timelapseExportButton.addEventListener('click', exportTimelapseVideoDialog);
 
         blackLayer.addEventListener('mousedown', startDrawingMouse);
         blackLayer.addEventListener('mousemove', drawMouse);
@@ -628,7 +680,9 @@
         initializePostDialog();
         initializeModal();
         restoreAccessTokenOnLocalstorage();
-
+        initializeBackgroundCanvas();
+        initializeTimelapseStorage();
+ 
         // Import引数があればインポート処理を行う、ない場合はlocalstorageから復元する
         (async function(){
             const items = [];
@@ -748,6 +802,7 @@
         function stopDrawing() {
             isDrawing = false;
             dryStroke();
+            captureTimelapseFrame();
             saveLocalstorage();
         }
 
@@ -858,6 +913,360 @@
                 console.error('Layer restoration failed', e);
             }
         }
+ 
+        function initializeBackgroundCanvas() {
+            ctxBackground.fillStyle = backgroundColor;
+            ctxBackground.fillRect(0, 0, canvasWidth, canvasHeight);
+        }
+
+        function openTimelapseDb(){
+            return new Promise((resolve, reject) => {
+                if (timelapseDb) return resolve(timelapseDb);
+                const request = window.indexedDB.open('rakugaki_pao_timelapse', 1);
+                request.onupgradeneeded = () => {
+                    const db = request.result;
+                    if (!db.objectStoreNames.contains('frames')) {
+                        const store = db.createObjectStore('frames', { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('timestamp', 'timestamp');
+                    }
+                };
+                request.onsuccess = () => {
+                    timelapseDb = request.result;
+                    resolve(timelapseDb);
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function initializeTimelapseStorage(){
+            try {
+                await openTimelapseDb();
+                timelapseFrameCount = await getTimelapseFrameCount();
+                updateTimelapseLabels();
+            } catch (e) {
+                console.error('IndexedDB initialisation failed', e);
+            }
+        }
+
+        function clearTimelapseFrames(){
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const db = await openTimelapseDb();
+                    const tx = db.transaction('frames','readwrite');
+                    const store = tx.objectStore('frames');
+                    const request = store.clear();
+                    request.onsuccess = () => {
+                        timelapseFrameCount = 0;
+                        updateTimelapseLabels();
+                        updateTimelapseEstimatedDuration();
+                        resolve();
+                    };
+                    request.onerror = () => reject(request.error);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }
+
+        function saveTimelapseFrame(blob, elapsedTimeSec){
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const db = await openTimelapseDb();
+                    const tx = db.transaction('frames','readwrite');
+                    const store = tx.objectStore('frames');
+                    const data = {
+                        blob,
+                        elapsedTimeSec,
+                        timestamp: Date.now()
+                    };
+                    const request = store.add(data);
+                    request.onsuccess = () => {
+                        timelapseFrameCount += 1;
+                        updateTimelapseLabels();
+                        updateTimelapseEstimatedDuration();
+                        resolve();
+                    };
+                    request.onerror = () => reject(request.error);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }
+
+        function getTimelapseFrameCount(){
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const db = await openTimelapseDb();
+                    const tx = db.transaction('frames','readonly');
+                    const store = tx.objectStore('frames');
+                    const request = store.count();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }
+
+        function canvasToBlob(canvas, type, quality){
+            return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+        }
+
+        async function captureTimelapseFrame(){
+            if (isWaitingFirstStroke) return;
+            combineCanvas();
+            let blob = await canvasToBlob(combinedCanvas, 'image/webp', 1.0);
+            if (!blob) {
+                blob = await canvasToBlob(combinedCanvas, 'image/png');
+            }
+            if (!blob) return;
+            const elapsedTimeSec = getElapsedTimeSecFromFirstStrokeTime();
+            try {
+                await saveTimelapseFrame(blob, elapsedTimeSec);
+            } catch (e) {
+                console.error('Failed to save timelapse frame', e);
+            }
+        }
+ 
+        function getTimelapseFrames(){
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const db = await openTimelapseDb();
+                    const tx = db.transaction('frames','readonly');
+                    const store = tx.objectStore('frames');
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result.sort((a,b) => a.id - b.id));
+                    request.onerror = () => reject(request.error);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }
+
+        async function openTimelapseDialog(){
+            await initializeTimelapseStorage();
+            updateTimelapseLabels();
+            updateTimelapseEstimatedDuration();
+            combineCanvas();
+            timelapsePreviewImg.src = combinedCanvas.toDataURL('image/png');
+            timelapseExportButton.disabled = timelapseFrameCount === 0;
+            timelapseDialogModal.style.display = 'block';
+        }
+
+        function updateTimelapseLabels(){
+            timelapseFrameCountLabel.textContent = timelapseFrameCount.toString();
+            timelapseElapsedTimeLabel.textContent = formatElapsedTimeLabel();
+            updateTimelapseEstimatedDuration();
+        }
+
+        function formatElapsedTimeLabel(){
+            if (isWaitingFirstStroke) return '0 min';
+            const elapsedMin = getElapsedTimeMinFromFirstStrokeTime();
+            const elapsedSec = getElapsedTimeSecFromFirstStrokeTime() - elapsedMin * 60;
+            if (elapsedMin < 1) {
+                return `${elapsedSec} sec`;
+            }
+            return `${elapsedMin} min ${elapsedSec} sec`;
+        }
+
+        function updateTimelapseEstimatedDuration(){
+            const fps = parseInt(timelapseFpsSelect.value, 10);
+            const mainDuration = timelapseFrameCount / fps;
+            const fadeDuration = 0.25 * 4;
+            const fixedHold = 0.5 + 2.0;
+            const totalSeconds = mainDuration + fadeDuration + fixedHold;
+            timelapseEstimatedDurationLabel.textContent = `${Math.floor(totalSeconds/60)}:${String(Math.round(totalSeconds%60)).padStart(2,'0')}`;
+        }
+
+        async function exportTimelapseVideoDialog(){
+            const frameCount = await getTimelapseFrameCount();
+            if (frameCount === 0) {
+                alert('No timelapse frames available.');
+                return;
+            }
+            timelapseExportButton.disabled = true;
+            timelapseFpsSelect.disabled = true;
+            timelapseProgressLine.style.display = 'block';
+            timelapseProgressBar.value = 0;
+            try {
+                const fps = parseInt(timelapseFpsSelect.value, 10);
+                const blob = await exportTimelapseVideo(fps, progress => {
+                    timelapseProgressBar.value = Math.min(100, Math.max(0, progress));
+                });
+                const filename = makeTimelapseFileName(blob.type);
+                downloadBlob(blob, filename);
+            } catch (e) {
+                console.error(e);
+                alert('Failed to export timelapse.');
+            } finally {
+                timelapseExportButton.disabled = false;
+                timelapseFpsSelect.disabled = false;
+                timelapseProgressLine.style.display = 'none';
+            }
+        }
+
+        function makeTimelapseFileName(mimeType){
+            const nowTime = new Date();
+            const timeString = nowTime.toLocaleString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replaceAll('/','').replaceAll(':','').replaceAll(' ','-');
+            const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+            return `${timeString}_rakugaki_pao_timelapse(${timelapseFrameCount}strokes).${ext}`;
+        }
+
+        function downloadBlob(blob, filename){
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+        }
+
+        async function exportTimelapseVideo(fps, onProgress){
+            const frames = await getTimelapseFrames();
+            if (frames.length === 0) throw new Error('No timelapse frames to export');
+            const width = canvasWidth;
+            const height = 1280;
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = width;
+            exportCanvas.height = height;
+            const exportCtx = exportCanvas.getContext('2d');
+            const stream = exportCanvas.captureStream(fps);
+            const mimeType = getExportMimeType();
+            const recorder = new MediaRecorder(stream, { mimeType });
+            const chunks = [];
+            recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+            const recorderPromise = new Promise((resolve, reject) => {
+                recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
+                recorder.onerror = event => reject(event.error || new Error('MediaRecorder error'));
+            });
+            recorder.start();
+            await sleep(100);
+            const totalFrames = Math.ceil(0.5*fps) + Math.ceil(0.25*fps)*4 + frames.length + Math.ceil(2*fps);
+            let emitted = 0;
+            const finalBitmap = await buildFinalFrameBitmap();
+            const firstFrameBitmap = await createImageBitmap(frames[0].blob);
+            const lastFrameBitmap = await createImageBitmap(frames[frames.length - 1].blob);
+            const progressStep = 100 / totalFrames;
+            const updateProgress = () => onProgress(Math.round(emitted * progressStep));
+            const finalElapsedTimeSec = frames[frames.length - 1].elapsedTimeSec;
+            for (let i = 0; i < Math.ceil(0.5*fps); i++) {
+                drawExportFrame(exportCtx, finalBitmap, width, height, timelapseFrameCount, finalElapsedTimeSec);
+                await sleep(1000/fps);
+                emitted++;
+                updateProgress();
+            }
+            await renderFade(exportCtx, finalBitmap, null, 0.25, fps, '#F0F0F0', false, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, finalElapsedTimeSec);
+            await renderFade(exportCtx, null, firstFrameBitmap, 0.25, fps, '#F0F0F0', true, (count) => { emitted += count; updateProgress(); }, 1, frames[0].elapsedTimeSec);
+            for (let index = 0; index < frames.length; index++) {
+                const frame = frames[index];
+                const bitmap = await createImageBitmap(frame.blob);
+                drawExportFrame(exportCtx, bitmap, width, height, index + 1, frame.elapsedTimeSec);
+                bitmap.close();
+                await sleep(1000/fps);
+                emitted++;
+                updateProgress();
+            }
+            await renderFade(exportCtx, lastFrameBitmap, null, 0.25, fps, '#000000', false, (count) => { emitted += count; updateProgress(); }, frames.length, frames[frames.length - 1].elapsedTimeSec);
+            await renderFade(exportCtx, null, finalBitmap, 0.25, fps, '#000000', true, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec);
+            for (let i = 0; i < Math.ceil(2*fps); i++) {
+                drawExportFrame(exportCtx, finalBitmap, width, height, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec);
+                await sleep(1000/fps);
+                emitted++;
+                updateProgress();
+            }
+            recorder.stop();
+            finalBitmap.close();
+            firstFrameBitmap.close();
+            lastFrameBitmap.close();
+            return recorderPromise;
+        }
+
+        function getExportMimeType(){
+            if (MediaRecorder.isTypeSupported('video/mp4')) return 'video/mp4';
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) return 'video/webm;codecs=vp9';
+            if (MediaRecorder.isTypeSupported('video/webm')) return 'video/webm';
+            throw new Error('No supported export mime type');
+        }
+
+        async function buildFinalFrameBitmap(){
+            combineCanvas();
+            const blob = await new Promise(resolve => combinedCanvas.toBlob(resolve, 'image/png'));
+            return await createImageBitmap(blob);
+        }
+
+        async function renderFade(ctx, fromBitmap, toBitmap, duration, fps, background, fadeIn, progressCallback, frameCount, elapsedTimeSec){
+            const frameTotal = Math.ceil(duration * fps);
+            for (let index = 0; index < frameTotal; index++) {
+                const progress = (index + 1) / frameTotal;
+                ctx.fillStyle = background;
+                ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                if (fromBitmap && !fadeIn) {
+                    drawExportFrame(ctx, fromBitmap, ctx.canvas.width, ctx.canvas.height, frameCount, elapsedTimeSec, 1 - progress);
+                }
+                if (toBitmap && fadeIn) {
+                    drawExportFrame(ctx, toBitmap, ctx.canvas.width, ctx.canvas.height, frameCount, elapsedTimeSec, progress);
+                }
+                await sleep(1000/fps);
+                progressCallback(1);
+            }
+        }
+
+        function drawExportFrame(ctx, bitmap, width, height, frameCount, elapsedTimeSec, alpha = 1){
+            ctx.save();
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = '#F0F0F0';
+            ctx.fillRect(0, 0, width, height);
+            ctx.globalAlpha = alpha;
+            const canvasTop = 280;
+            ctx.drawImage(bitmap, 0, canvasTop, canvasWidth, canvasHeight);
+            drawExportTopText(ctx, width, canvasTop, frameCount, elapsedTimeSec);
+            drawExportBottomText(ctx, width, canvasTop + canvasHeight + 48);
+            ctx.restore();
+        }
+
+        function drawExportTopText(ctx, width, topHeight, frameCount, elapsedTimeSec){
+            ctx.save();
+            ctx.font = '22px "Yu Gothic UI", sans-serif';
+            ctx.fillStyle = '#AAAAAA';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            const framesText = String(frameCount).padStart(4, ' ');
+            let timeText;
+            if (elapsedTimeSec < 60) {
+                timeText = `${String(elapsedTimeSec).padStart(2, ' ')} sec`;
+            } else {
+                const minutes = Math.trunc(elapsedTimeSec / 60);
+                timeText = `${String(minutes).padStart(2, ' ')} min`;
+            }
+            const topText = `${framesText} strokes / ${timeText}`;
+            ctx.fillText(topText, width/2, topHeight - 16);
+            ctx.restore();
+        }
+
+        function drawExportBottomText(ctx, width, baseline){
+            ctx.save();
+            ctx.fillStyle = '#AAAAAA';
+            ctx.font = '26px "Yu Gothic UI", sans-serif';
+            ctx.textBaseline = 'alphabetic';
+            const text = '#rakugaki_pao';
+            const letterSpacing = 3;
+            const totalWidth = ctx.measureText(text).width + letterSpacing * (text.length - 1);
+            let x = width/2 - totalWidth/2;
+            for (const char of text) {
+                ctx.fillText(char, x, baseline);
+                x += ctx.measureText(char).width + letterSpacing;
+            }
+            ctx.restore();
+        }
+
+        function sleep(ms){
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function closeDialog(){
+            for (const modal of modals) {
+                modal.style.display = 'none';
+            }
+        }
 
         function restoreAccessTokenOnLocalstorage() {
             accessToken = window.localStorage.getItem(localstorageKeyAccessToken);
@@ -866,8 +1275,6 @@
                 accessToken = misskeyAccessToken;
             }
         }
-        
-        // リロード・URLクリーンアップに関する関数
         function reloadPage(){
             saveLocalstorage();
             location.reload()
@@ -895,16 +1302,24 @@
         function saveStateUnlimited() {
             undoStack.push({
                 black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
-                color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height)
+                color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height),
+                firstStrokeTime: window.localStorage.getItem(localstorageKeyFirstStrokeTime),
+                isWaitingFirstStroke
             });
             activateUndoButton();
         }
-
+ 
         function undo() {
             if (undoStack.length === 0) return;
             const state = undoStack.pop();
             ctxBlack.putImageData(state.black, 0, 0);
             ctxColor.putImageData(state.color, 0, 0);
+            if (state.firstStrokeTime != null) {
+                window.localStorage.setItem(localstorageKeyFirstStrokeTime, state.firstStrokeTime);
+                isWaitingFirstStroke = state.isWaitingFirstStroke;
+            } else {
+                resetFirstStrokeState();
+            }
             if (undoStack.length === 0) {
                 disactivateUndoButton();
             }
@@ -923,10 +1338,11 @@
         // キャンバスクリア・経過時間表示に関する関数
         function clearCanvas() {
             saveStateUnlimited();
-            saveLocalstorage();
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
+            ctxActiveStroke.clearRect(0, 0, activeStrokeLayer.width, activeStrokeLayer.height);
             resetFirstStrokeState();
+            saveLocalstorage();
         }
 
         function setFirstStrokeTime(){
@@ -980,6 +1396,9 @@
         function onFirstStrokeDetected(){
             setFirstStrokeTime();
             isWaitingFirstStroke = false;
+            if (timelapseFrameCount > 0) {
+                clearTimelapseFrames().catch(e => console.error('Failed to reset timelapse frames', e));
+            }
         }
 
         function resetFirstStrokeState(){
@@ -1340,10 +1759,10 @@
 
         // 絵の保存に関する関数
         function combineCanvas() {
-            ctxCombined.fillStyle = backgroundColor;
-            ctxCombined.fillRect(0,0,canvasWidth,canvasHeight);
+            ctxCombined.drawImage(backgroundLayer, 0, 0);
             ctxCombined.drawImage(colorLayer, 0, 0);
             ctxCombined.drawImage(blackLayer, 0, 0);
+            ctxCombined.drawImage(activeStrokeLayer, 0, 0);
         }
 
         function dataURLToBlob(dataURL) {
