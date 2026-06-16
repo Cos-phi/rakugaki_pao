@@ -127,21 +127,22 @@
             <div class="dialog-title-container">
                 <button id="close-timelapse-dialog-button" class="close-dialog-button">×</button>
             </div>
+            <div class="timelapse-info-container">
+                <span id="timelapse-frame-count">0</span> strokes / 
+                <span id="timelapse-elapsed-time">0 min</span>
+            </div>
             <div class="preview-img-container">
                 <img id="timelapse-preview-img" width="360" height="360" alt="Timelapse Preview" src="image/dummy_preview.png">
             </div>
-            <div style="margin-top:12px; color:#DDD9E8; font-size:14px;">
-                <div>Frames: <span id="timelapse-frame-count">0</span></div>
-                <div>Elapsed: <span id="timelapse-elapsed-time">0 min</span></div>
-                <div>Estimated duration: <span id="timelapse-estimated-duration">0:00</span></div>
-            </div>
             <div class="select-container" style="margin-top:12px; gap:8px; align-items:center;">
-                <label for="timelapse-fps-select" style="color:#DDD9E8; font-size:14px;">FPS</label>
-                <select id="timelapse-fps-select" style="width:120px;">
-                    <option value="15" selected>15</option>
-                    <option value="30">30</option>
-                    <option value="60">60</option>
+                <span class="timelapse-text">Speed: </span>
+                <select id="timelapse-fps-select">
+                    <option value="15" selected>15 fps</option>
+                    <option value="30">30 fps</option>
+                    <option value="60">60 fps</option>
                 </select>
+                <span class="timelapse-text">Est. Time:</span>
+                <span id="timelapse-estimated-duration">0:00</span>
                 <button id="timelapse-export-button" class="submit-button" style="margin-left:auto;">Export</button>
             </div>
             <div id="timelapse-progress-line" style="margin-top:12px; display:none;">

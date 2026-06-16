@@ -446,7 +446,7 @@ input[type="checkbox"] {
 }
 .submit-button {
     padding: 0px;
-    width: 120px;
+    width: 90px;
     height: 42px;
     margin-left: auto;
     background-color: #6364ff;
@@ -458,6 +458,33 @@ input[type="checkbox"] {
 }
 .submit-button:hover {
     background-color: #563ACC;
+}
+.timelapse-info-container {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    color: #9e9ba7;
+    font-size: 14px;
+    text-align: center;
+}
+#timelapse-fps-select {
+    width: 72px;
+    height: 42px;
+    border: 0px solid #ddd;
+    border-radius: 4px;
+    background-color: rgb(41, 41, 56);
+    font-size: 16px;
+    color: #DDD9E8;
+    font-weight: bold;
+    cursor: pointer;
+}
+#timelapse-estimated-duration {
+    font-size: 16px; 
+    color: #DDD9E8;
+    font-weight: bold;
+}
+.timelapse-text {
+    font-size: 12px; 
+    color: #9e9ba7;
 }
 
 /* スマートフォン向けの調整（画面幅が480px以下の場合） */
