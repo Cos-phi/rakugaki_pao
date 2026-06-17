@@ -127,12 +127,15 @@
             <div class="dialog-title-container">
                 <button id="close-timelapse-dialog-button" class="close-dialog-button">×</button>
             </div>
-            <div class="timelapse-info-container">
+            <div class="timelapse-info-container" style="display: none;">
                 <span id="timelapse-frame-count">0</span> strokes / 
                 <span id="timelapse-elapsed-time">0 min</span>
             </div>
-            <div class="preview-img-container">
-                <img id="timelapse-preview-img" width="360" height="360" alt="Timelapse Preview" src="image/dummy_preview.png">
+            <div id="timelapse-preview-container">
+                <canvas id="timelapse-preview-canvas" width="360" height="480"></canvas>
+            </div>
+            <div id="timelapse-progress-line" style="margin-top:12px; visibility:hidden;">
+                <progress id="timelapse-progress-bar" value="0" max="100" style="width:100%;"></progress>
             </div>
             <div class="select-container" style="margin-top:12px; gap:8px; align-items:center;">
                 <span class="timelapse-text">Speed: </span>
@@ -144,9 +147,6 @@
                 <span class="timelapse-text">Est. Time:</span>
                 <span id="timelapse-estimated-duration">0:00</span>
                 <button id="timelapse-export-button" class="submit-button" style="margin-left:auto;">Export</button>
-            </div>
-            <div id="timelapse-progress-line" style="margin-top:12px; display:none;">
-                <progress id="timelapse-progress-bar" value="0" max="100" style="width:100%;"></progress>
             </div>
         </div>
     </div>
@@ -200,7 +200,8 @@
         const combinedCanvas = document.createElement('canvas');
         const timelapseDialogModal = document.getElementById('timelapse-dialog-modal');
         const closeTimelapseDialogButton = document.getElementById('close-timelapse-dialog-button');
-        const timelapsePreviewImg = document.getElementById('timelapse-preview-img');
+        const timelapsePreviewCanvas = document.getElementById('timelapse-preview-canvas');
+        const timelapsePreviewCtx = timelapsePreviewCanvas.getContext('2d');
         const timelapseFrameCountLabel = document.getElementById('timelapse-frame-count');
         const timelapseElapsedTimeLabel = document.getElementById('timelapse-elapsed-time');
         const timelapseEstimatedDurationLabel = document.getElementById('timelapse-estimated-duration');
@@ -494,6 +495,8 @@
                     private: "🔒　フォロワー　",
                     direct: "✉️　特定の人　"
                 },
+                exportTimelapseButtonLabel: "動画を作成",
+                exportTimelapseButton: "タイムラプス動画を作成してダウンロード",
                 messages: {
                     noDrawing: "まだお絵かきしていません。",
                     drawingSeconds: "{sec}秒 お絵かきしました。",
@@ -534,6 +537,8 @@
                     private: "🔒　Followers　",
                     direct: "✉️　Specific people　"
                 },
+                exportTimelapseButtonLabel: "Export Video",
+                exportTimelapseButton: "Create and Download Video",
                 messages: {
                     noDrawing: "No drawing has been made yet.",
                     drawingSeconds: "Drew for {sec} seconds.",
@@ -1057,7 +1062,12 @@
             updateTimelapseLabels();
             updateTimelapseEstimatedDuration();
             combineCanvas();
-            timelapsePreviewImg.src = combinedCanvas.toDataURL('image/png');
+            // Draw the current combined canvas to the preview canvas with details
+            const previewCtx = timelapsePreviewCanvas.getContext('2d');
+            previewCtx.clearRect(0, 0, timelapsePreviewCanvas.width, timelapsePreviewCanvas.height);
+            const bitmap = await createImageBitmap(combinedCanvas);
+            drawPreviewFrameWithDetails(previewCtx, bitmap, timelapseFrameCount, getElapsedTimeSecFromFirstStrokeTime());
+            bitmap.close();
             timelapseExportButton.disabled = timelapseFrameCount === 0;
             timelapseDialogModal.style.display = 'block';
         }
@@ -1095,13 +1105,13 @@
             }
             timelapseExportButton.disabled = true;
             timelapseFpsSelect.disabled = true;
-            timelapseProgressLine.style.display = 'block';
+            timelapseProgressLine.style.visibility = 'visible';
             timelapseProgressBar.value = 0;
             try {
                 const fps = parseInt(timelapseFpsSelect.value, 10);
                 const blob = await exportTimelapseVideo(fps, progress => {
                     timelapseProgressBar.value = Math.min(100, Math.max(0, progress));
-                });
+                }, timelapsePreviewCanvas);
                 const filename = makeTimelapseFileName(blob.type);
                 downloadBlob(blob, filename);
             } catch (e) {
@@ -1110,7 +1120,7 @@
             } finally {
                 timelapseExportButton.disabled = false;
                 timelapseFpsSelect.disabled = false;
-                timelapseProgressLine.style.display = 'none';
+                timelapseProgressLine.style.visibility = 'hidden';
             }
         }
 
@@ -1129,7 +1139,7 @@
             setTimeout(() => URL.revokeObjectURL(link.href), 2000);
         }
 
-        async function exportTimelapseVideo(fps, onProgress){
+        async function exportTimelapseVideo(fps, onProgress, previewCanvas = null){
             const frames = await getTimelapseFrames();
             if (frames.length === 0) throw new Error('No timelapse frames to export');
             const width = canvasWidth;
@@ -1138,6 +1148,7 @@
             exportCanvas.width = width;
             exportCanvas.height = height;
             const exportCtx = exportCanvas.getContext('2d');
+            const previewCtx = previewCanvas ? previewCanvas.getContext('2d') : null;
             const stream = exportCanvas.captureStream(fps);
             const mimeType = getExportMimeType();
             const recorder = new MediaRecorder(stream, { mimeType });
@@ -1159,25 +1170,28 @@
             const finalElapsedTimeSec = frames[frames.length - 1].elapsedTimeSec;
             for (let i = 0; i < Math.ceil(0.5*fps); i++) {
                 drawExportFrame(exportCtx, finalBitmap, width, height, timelapseFrameCount, finalElapsedTimeSec);
+                if (previewCtx) drawPreviewFrameWithDetails(previewCtx, finalBitmap, timelapseFrameCount, finalElapsedTimeSec);
                 await sleep(1000/fps);
                 emitted++;
                 updateProgress();
             }
-            await renderFade(exportCtx, finalBitmap, null, 0.25, fps, '#F0F0F0', false, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, finalElapsedTimeSec);
-            await renderFade(exportCtx, null, firstFrameBitmap, 0.25, fps, '#F0F0F0', true, (count) => { emitted += count; updateProgress(); }, 1, frames[0].elapsedTimeSec);
+            await renderFade(exportCtx, finalBitmap, null, 0.25, fps, '#F0F0F0', false, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, finalElapsedTimeSec, previewCtx);
+            await renderFade(exportCtx, null, firstFrameBitmap, 0.25, fps, '#F0F0F0', true, (count) => { emitted += count; updateProgress(); }, 1, frames[0].elapsedTimeSec, previewCtx);
             for (let index = 0; index < frames.length; index++) {
                 const frame = frames[index];
                 const bitmap = await createImageBitmap(frame.blob);
                 drawExportFrame(exportCtx, bitmap, width, height, index + 1, frame.elapsedTimeSec);
+                if (previewCtx) drawPreviewFrameWithDetails(previewCtx, bitmap, index + 1, frame.elapsedTimeSec);
                 bitmap.close();
                 await sleep(1000/fps);
                 emitted++;
                 updateProgress();
             }
-            await renderFade(exportCtx, lastFrameBitmap, null, 0.25, fps, '#000000', false, (count) => { emitted += count; updateProgress(); }, frames.length, frames[frames.length - 1].elapsedTimeSec);
-            await renderFade(exportCtx, null, finalBitmap, 0.25, fps, '#000000', true, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec);
+            await renderFade(exportCtx, lastFrameBitmap, null, 0.25, fps, '#000000', false, (count) => { emitted += count; updateProgress(); }, frames.length, frames[frames.length - 1].elapsedTimeSec, previewCtx);
+            await renderFade(exportCtx, null, finalBitmap, 0.25, fps, '#000000', true, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec, previewCtx);
             for (let i = 0; i < Math.ceil(2*fps); i++) {
                 drawExportFrame(exportCtx, finalBitmap, width, height, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec);
+                if (previewCtx) drawPreviewFrameWithDetails(previewCtx, finalBitmap, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec);
                 await sleep(1000/fps);
                 emitted++;
                 updateProgress();
@@ -1202,17 +1216,23 @@
             return await createImageBitmap(blob);
         }
 
-        async function renderFade(ctx, fromBitmap, toBitmap, duration, fps, background, fadeIn, progressCallback, frameCount, elapsedTimeSec){
+        async function renderFade(ctx, fromBitmap, toBitmap, duration, fps, background, fadeIn, progressCallback, frameCount, elapsedTimeSec, previewCtx = null){
             const frameTotal = Math.ceil(duration * fps);
             for (let index = 0; index < frameTotal; index++) {
                 const progress = (index + 1) / frameTotal;
                 ctx.fillStyle = background;
                 ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                if (previewCtx) {
+                    previewCtx.fillStyle = background;
+                    previewCtx.fillRect(0, 0, previewCtx.canvas.width, previewCtx.canvas.height);
+                }
                 if (fromBitmap && !fadeIn) {
                     drawExportFrame(ctx, fromBitmap, ctx.canvas.width, ctx.canvas.height, frameCount, elapsedTimeSec, 1 - progress);
+                    if (previewCtx) drawPreviewFrameWithDetails(previewCtx, fromBitmap, frameCount, elapsedTimeSec, 1 - progress);
                 }
                 if (toBitmap && fadeIn) {
                     drawExportFrame(ctx, toBitmap, ctx.canvas.width, ctx.canvas.height, frameCount, elapsedTimeSec, progress);
+                    if (previewCtx) drawPreviewFrameWithDetails(previewCtx, toBitmap, frameCount, elapsedTimeSec, progress);
                 }
                 await sleep(1000/fps);
                 progressCallback(1);
@@ -1258,6 +1278,79 @@
             ctx.textBaseline = 'alphabetic';
             const text = '#rakugaki_pao';
             const letterSpacing = 6;
+            const totalWidth = ctx.measureText(text).width + letterSpacing * (text.length - 1);
+            let x = width/2 - totalWidth/2;
+            for (const char of text) {
+                ctx.fillText(char, x, baseline);
+                x += ctx.measureText(char).width + letterSpacing;
+            }
+            ctx.restore();
+        }
+
+        function drawPreviewFrame(ctx, bitmap, alpha = 1){
+            if (!ctx || !bitmap) return;
+            ctx.save();
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = '#F0F0F0';
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.globalAlpha = alpha;
+            // Draw the bitmap scaled to fit the preview canvas (360x360)
+            ctx.drawImage(bitmap, 0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.restore();
+        }
+
+        function drawPreviewFrameWithDetails(ctx, bitmap, frameCount, elapsedTimeSec, alpha = 1){
+            if (!ctx || !bitmap) return;
+            
+            const width = ctx.canvas.width;   // 360
+            const height = ctx.canvas.height; // 480
+            const scale = width / 720;        // 0.5
+            
+            ctx.save();
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = '#F0F0F0';
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.globalAlpha = alpha;
+            
+            // スケーリングして画像を描画
+            const canvasTop = (height - 720 * scale) / 2;     // 60
+            const canvasSize = 720 * scale;                    // 360
+            ctx.drawImage(bitmap, 0, canvasTop, canvasSize, canvasSize);
+            
+            // テキスト描画
+            drawPreviewTopText(ctx, width, canvasTop, frameCount, elapsedTimeSec, scale);
+            drawPreviewBottomText(ctx, width, canvasTop + canvasSize + 60 * scale, scale);
+            
+            ctx.restore();
+        }
+
+        function drawPreviewTopText(ctx, width, topHeight, frameCount, elapsedTimeSec, scale){
+            ctx.save();
+            ctx.font = `${Math.round(24 * scale)}px "Yu Gothic UI", sans-serif`;
+            ctx.fillStyle = '#AAAAAA';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            const framesText = String(frameCount).padStart(4, ' ');
+            let timeText;
+            if (elapsedTimeSec < 60) {
+                timeText = `${String(Math.floor(elapsedTimeSec)).padStart(2, ' ')} sec`;
+            } else {
+                const minutes = Math.trunc(elapsedTimeSec / 60);
+                timeText = `${String(minutes).padStart(2, ' ')} min`;
+            }
+            const topText = `${framesText} strokes / ${timeText}`;
+            ctx.fillText(topText, width/2, topHeight - 16 * scale);
+            ctx.restore();
+        }
+
+        function drawPreviewBottomText(ctx, width, baseline, scale){
+            ctx.save();
+            ctx.fillStyle = '#AAAAAA';
+            ctx.font = `${Math.round(28 * scale)}px "Yu Gothic UI", sans-serif`;
+            ctx.textBaseline = 'alphabetic';
+            const text = '#rakugaki_pao';
+            const letterSpacing = 6 * scale;
             const totalWidth = ctx.measureText(text).width + letterSpacing * (text.length - 1);
             let x = width/2 - totalWidth/2;
             for (const char of text) {
@@ -1468,6 +1561,8 @@
             isSensitiveCheckbox.nextElementSibling.title = currentTranslations.isSensitiveCheckbox;
             addUrlCheckbox.nextElementSibling.title = currentTranslations.addUrlCheckbox;
             submitButton.textContent = currentTranslations.submitButton;
+            timelapseExportButton.title = currentTranslations.exportTimelapseButton;
+            timelapseExportButton.textContent = currentTranslations.exportTimelapseButtonLabel;
         }
 
         // visibility-selectのオプションを更新する関数

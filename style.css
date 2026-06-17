@@ -276,14 +276,16 @@ button {
 }
 .modal-content {
     position: fixed;
-    top: 45%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: rgb(18, 18, 21);
     padding: 20px;
     padding-top: 16px;
     border-radius: 4px;
-    width: 360px;
+    width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
     user-drag: none;
     -webkit-user-drag: none;
     -moz-user-select: none;
@@ -382,14 +384,16 @@ button {
     align-items: center;
     justify-content: center;
     width: 360px;
-    height: 360px;
+    height: 480px;
     overflow: hidden;
     border-radius: 8px;
+    margin: 0 auto;
 }
 #preview-img {
     border-radius: 8px;
     border: 0px solid  rgb(18, 18, 21);
 }
+
 textarea {
     margin-bottom: 8px;
     margin-top: 8px;
@@ -455,9 +459,42 @@ input[type="checkbox"] {
     font-weight: bold;    
     border: none;
     border-radius: 4px;
+    transition: background-color 0.2s ease;
 }
 .submit-button:hover {
     background-color: #563ACC;
+}
+.submit-button:disabled,
+#timelapse-export-button {
+    width: 120px;
+}
+#timelapse-export-button:disabled {
+    background-color: #8a8a8a;
+    color: #e0e0e0;
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.8;
+}
+#timelapse-preview-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 360px;
+    height: 480px;
+    border: 0px solid #cfc;
+    margin-top: 0px;
+    margin-bottom: 16px;
+    margin-left: auto;
+    margin-right: auto; 
+}
+#timelapse-preview-canvas {
+    position: static;
+    display: block;
+    width: 360px;
+    height: 480px;
+    border-radius: 8px;
+    border: 0px solid  rgb(18, 18, 21);
+    background-color: #fff;
 }
 .timelapse-info-container {
     margin-top: 6px;
