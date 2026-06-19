@@ -497,6 +497,8 @@
                 },
                 exportTimelapseButtonLabel: "動画を作成",
                 exportTimelapseButton: "タイムラプス動画を作成してダウンロード",
+                exportTimelapseButtonLabelGenerating: "作成中...",
+                exportTimelapseButtonLabelSaved: "作成完了！",
                 messages: {
                     noDrawing: "まだお絵かきしていません。",
                     drawingSeconds: "{sec}秒 お絵かきしました。",
@@ -539,6 +541,8 @@
                 },
                 exportTimelapseButtonLabel: "Export Video",
                 exportTimelapseButton: "Create and Download Video",
+                exportTimelapseButtonLabelGenerating: "Generating...",
+                exportTimelapseButtonLabelSaved: "Saved!",
                 messages: {
                     noDrawing: "No drawing has been made yet.",
                     drawingSeconds: "Drew for {sec} seconds.",
@@ -1103,7 +1107,9 @@
                 alert('No timelapse frames available.');
                 return;
             }
+            
             timelapseExportButton.disabled = true;
+            timelapseExportButton.textContent = currentTranslations.exportTimelapseButtonLabelGenerating; 
             timelapseFpsSelect.disabled = true;
             timelapseProgressLine.style.visibility = 'visible';
             timelapseProgressBar.value = 0;
@@ -1114,11 +1120,18 @@
                 }, timelapsePreviewCanvas);
                 const filename = makeTimelapseFileName(blob.type);
                 downloadBlob(blob, filename);
+                // 保存完了後のラベル表示
+                timelapseExportButton.textContent = currentTranslations.exportTimelapseButtonLabelSaved;
+                timelapseExportButton.disabled = false;
+                setTimeout(() => {
+                    timelapseExportButton.textContent = currentTranslations.exportTimelapseButtonLabel;
+                }, 2000);
             } catch (e) {
                 console.error(e);
                 alert('Failed to export timelapse.');
-            } finally {
+                timelapseExportButton.textContent = currentTranslations.exportTimelapseButtonLabel;
                 timelapseExportButton.disabled = false;
+            } finally {
                 timelapseFpsSelect.disabled = false;
                 timelapseProgressLine.style.visibility = 'hidden';
             }
