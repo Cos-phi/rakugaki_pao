@@ -283,9 +283,8 @@ button {
     padding: 20px;
     padding-top: 16px;
     border-radius: 4px;
-    width: 400px;
+    width: 360px;
     max-height: 90vh;
-    overflow-y: auto;
     user-drag: none;
     -webkit-user-drag: none;
     -moz-user-select: none;
@@ -384,10 +383,10 @@ button {
     align-items: center;
     justify-content: center;
     width: 360px;
-    height: 480px;
+    height: 360px;
     overflow: hidden;
     border-radius: 8px;
-    margin: 0 auto;
+    margin:auto
 }
 #preview-img {
     border-radius: 8px;

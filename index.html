@@ -96,13 +96,13 @@
         </div>
     </div>
 
-    <div id="post-dialog-modal" class="modal"  style="display: none;"> <!-- none -->
+    <div id="post-dialog-modal" class="modal"  style="display: block;"> <!-- none -->
         <div class="modal-content">
             <div class="dialog-title-container">
                 <button id="close-post-dialog-button" class="close-dialog-button">×</button>
                 <button id="destination-server-reset-button"></button>
             </div>
-            <div class="preview-img-container">
+            <div class="preview-img-container" style="border-width: 2; border-style: solid; border-color: #000000; margin-bottom: 12px;">
                 <img id="preview-img" width="360" height="360" alt="Preview Image" src="image/dummy_preview.png">
             </div>
             <textarea id="comment-textarea" rows="3" maxlength="483"></textarea>
