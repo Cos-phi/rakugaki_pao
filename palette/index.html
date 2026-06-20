@@ -402,7 +402,7 @@
         // URL引数paletteがあれば最優先で読み込む（要素取得後に実行）
         function loadPaletteFromUrl() {
             const params = new URLSearchParams(window.location.search);
-            const paletteParam = params.get('c');
+            const paletteParam = params.get('p');
             if(paletteParam){
                 let paletteStr = decodePalette(paletteParam);
                 let [mainPart, palettePart, changeablePart] = paletteStr.split('|');
