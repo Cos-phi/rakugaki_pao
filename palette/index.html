@@ -50,7 +50,7 @@
             margin-left: 32px;
             margin-right: 2px;
             height: 24px;
-            width: 320px;
+            width: 400px;
             padding: 2px 8px;
             font-size: 10px;
             color: #36364A;
@@ -96,7 +96,7 @@
         }
         #applyRakugakiPaoBtn {
             padding: 0px;
-            width: 240px;
+            width: 320px;
             height: 42px;
             margin-left: auto;
             background-color: #6364ff;
@@ -205,17 +205,25 @@
         // デフォルトパレットセット（URLエンコードされた文字列）
         const defaultPaletteSets = [
             "NjZK8u7m-.6mn.sSN.fGae7B_nb7q1Mj08Mbw-w8PD",
-            "NjZK8u7m-_wAAAP8AAAD___8A_wD_AP__iIiI-7u7u",
-            "NjZK8u7m-_9cA_4wA_2m0iiviAM7RIosi3BQ8-____",
-            "NjZK8u7m-cUxLpJ6Yu7iVTH4.S153r2SIW3Zy-w8PD",
+            "NjZK8u7m-_9cA_4wA_2m0iiviAM7RIosi3BQ8-.vr6",
+            "NjZK8u7m-6N.wi8uP5qOjiKl.jc645aqLW3Zy-w8PD",
+            "NjZK8u7m-e7B___Hl_d7JyMONT2aruV9fzNTg-9_f3"
         ];
 
 
 
         // 初期描画
         
+        // ロケールに応じたラベル設定
+        function setLocaleLabels(){
+            const lang = (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.language || '';
+            const isJapanese = typeof lang === 'string' && lang.toLowerCase().startsWith('ja');
+            applyRakugakiPaoBtn.textContent = isJapanese ? '▶ このパレットではじめる' : '▶ Start with this palette';
+        }
+
         loadPaletteFromUrl();
         syncInputs();
+        setLocaleLabels();
         updateAll();
         renderPaletteSetList();
 
@@ -275,6 +283,10 @@
                 deleteBtnIcon.src = '../image/delete.svg';
                 deleteBtnIcon.alt = 'delete'; 
                 deleteBtnIcon.style.width = '24px';
+                if (idx < 4) {
+                    deleteBtn.disabled = true; // 最初のセットは削除不可
+                    deleteBtnIcon.style.opacity = '0.3';
+                }
                 deleteBtn.appendChild(deleteBtnIcon);
 
                 // 色プレビュー
@@ -417,6 +429,8 @@
                 colorInput.className = 'palette-input';
                 colorInput.addEventListener('input', e => {
                     paletteColors[idx] = e.target.value;
+                    //preveiw リアルタイム更新
+                    try { drawPreview(); } catch(e) { /* ignore if preview not ready */ };
                 });
                 colorInput.addEventListener('change', e => {
                     paletteColors[idx] = e.target.value;
