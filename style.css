@@ -31,10 +31,12 @@ body {
     cursor: none !important;
 }
 canvas {
-    position: absolute;
     top: 0;
     left: 0;
+}
+.rakugaki_canvas {
     border: 1px solid #505050;
+    position: absolute;
 }
 #cursor {
     position: absolute;

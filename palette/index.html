@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=750">
     <link rel="icon" href="../image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="../image/apple-touch-icon.png">
-    <title>Edit Palette - rakugaki_pao</title>
+    <title>rakugaki_pao - Custom Palette</title>
     <link rel="stylesheet" type="text/css" href="../style.css?v=1">
     <style>
         .palette-row { padding: 24px; text-align: center;}
@@ -50,13 +50,25 @@
             margin-left: 32px;
             margin-right: 2px;
             height: 24px;
-            width: 540px;
+            width: 320px;
             padding: 2px 8px;
-            font-size: 12px;
+            font-size: 10px;
             color: #36364A;
-            background:none;
+            background:#F0F0F0;
             border-radius: 4px;
             border:#36364A solid 1px;
+        }
+        .preview-container {
+            display:flex;
+            justify-content:center;
+            margin-bottom:16px;
+        }
+        #previewCanvas {
+            width: 360px;
+            height: 360px;
+            border: 0px outset #36364A;
+            background: transparent;
+            image-rendering: pixelated;
         }
         #copyPaletteUrlBtn {
             height: 32px;
@@ -109,21 +121,24 @@
                 </button>
             </div>
             <div class="top-right-buttons" >
-            </div>
-        </div>
-        <div id="paletteeditor-content">
-
-            <div class="output-row">
                 <input type="text" id="palette-url-preview" readonly>
                 <button id="copyPaletteUrlBtn">
                     <img src="../image/copytoclipboard.svg" alt="Copy" style="height : 80%; width: 80%;">
                 </button>
+            </div>
+        </div>
+        <div id="paletteeditor-content">
+
+            <div class="preview-container">
+                <canvas id="previewCanvas" width="360" height="360" aria-label="Palette Preview"></canvas>
             </div>
 
             <div class="palette-row" style="display: none;">
                 <input type="color" id="blackPenColor" value="#36364A" class="pen-background-input">
                 <input type="color" id="backgroundColor" value="#F2EEE6" class="pen-background-input">
             </div>
+
+
             <div class="palette-row">
                 <div id="paletteColors" class="color-list"></div>
             </div>
@@ -132,6 +147,8 @@
             <div class="output-row">
                 <button id="applyRakugakiPaoBtn">▶ Start with this palette</button>
             </div>
+
+            
         </div>
         <div id ="paletteSetListContainer">
             <div class="output-row">
@@ -297,7 +314,7 @@
 
         // パレットURL生成
         function getPaletteUrl() {
-            const url = `${location.origin}${location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1)}share.php?colors=${encodePalette(paletteStr)}`;
+            const url = `https://kurajo.ivory.ne.jp/rakugaki_pao/c.php?p=${encodePalette(paletteStr)}`;
             return url;
         }
         // パレットプレビュー画像URL生成
@@ -373,7 +390,7 @@
         // URL引数paletteがあれば最優先で読み込む（要素取得後に実行）
         function loadPaletteFromUrl() {
             const params = new URLSearchParams(window.location.search);
-            const paletteParam = params.get('colors');
+            const paletteParam = params.get('c');
             if(paletteParam){
                 let paletteStr = decodePalette(paletteParam);
                 let [mainPart, palettePart, changeablePart] = paletteStr.split('|');
@@ -390,7 +407,7 @@
         // 色リスト描画
         function renderPaletteColors() {
             paletteColorsDiv.innerHTML = '';
-            paletteEditorContent.style.backgroundColor = backgroundColor;
+            //paletteEditorContent.style.backgroundColor = backgroundColor;
             paletteColors.forEach((color, idx) => {
                 const item = document.createElement('div');
                 item.className = 'color-item';
@@ -505,6 +522,8 @@
             renderPaletteColors();
             paletteStr = `${blackPenColor},${backgroundColor}|${paletteColors.join(',')}|${changeableColor}`;
             updatePaletteUrlPreview();
+            // Update preview canvas
+            try { drawPreview(); } catch(e) { /* ignore if preview not ready */ }
         }
 
         // 入力イベント
@@ -535,6 +554,72 @@
             syncInputs();
             updateAll();
         }
+
+        // --- Preview rendering ---
+        const previewCanvas = document.getElementById('previewCanvas');
+        const previewCtx = previewCanvas ? previewCanvas.getContext('2d') : null;
+        const previewImagePaths = [
+            'palette_color1.png','palette_color2.png','palette_color3.png','palette_color4.png','palette_color5.png','palette_color6.png','palette_color7.png'
+        ];
+        let previewImages = [];
+        let lineImage = null;
+
+        function loadImage(src){
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = src;
+            });
+        }
+
+        async function loadPreviewImages(){
+            const promises = previewImagePaths.map(p => loadImage(p));
+            previewImages = await Promise.all(promises);
+            lineImage = await loadImage('palette_line.png');
+            drawPreview();
+        }
+
+        function colorizeToCanvas(img, color){
+            if(!img) return null;
+            const cv = document.createElement('canvas');
+            cv.width = img.naturalWidth || img.width;
+            cv.height = img.naturalHeight || img.height;
+            const ctx = cv.getContext('2d');
+            ctx.clearRect(0,0,cv.width,cv.height);
+            ctx.drawImage(img,0,0);
+            ctx.globalCompositeOperation = 'source-in';
+            ctx.fillStyle = color;
+            ctx.fillRect(0,0,cv.width,cv.height);
+            ctx.globalCompositeOperation = 'source-over';
+            return cv;
+        }
+
+        function drawPreview(){
+            if(!previewCtx) return;
+            // clear and fill background
+            previewCtx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
+            previewCtx.fillStyle = backgroundColor;
+            previewCtx.fillRect(0,0,previewCanvas.width,previewCanvas.height);
+
+            // draw palette color layers (palette_color1..7)
+            for(let i=0;i<7;i++){
+                const img = previewImages[i];
+                const color = paletteColors[i];
+                if(!img || !color) continue;
+                const colored = colorizeToCanvas(img, color);
+                if(colored) previewCtx.drawImage(colored, 0, 0, previewCanvas.width, previewCanvas.height);
+            }
+
+            // draw line layer with pen color
+            if(lineImage){
+                const coloredLine = colorizeToCanvas(lineImage, blackPenColor);
+                if(coloredLine) previewCtx.drawImage(coloredLine, 0, 0, previewCanvas.width, previewCanvas.height);
+            }
+        }
+
+        // Start loading preview images
+        loadPreviewImages();
 
 
     </script>
