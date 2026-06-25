@@ -505,7 +505,7 @@ input[type="checkbox"] {
     text-align: center;
 }
 #timelapse-fps-select {
-    width: 72px;
+    width: 96px;
     height: 42px;
     border: 0px solid #ddd;
     border-radius: 4px;
@@ -515,13 +515,9 @@ input[type="checkbox"] {
     font-weight: bold;
     cursor: pointer;
 }
-#timelapse-estimated-duration {
-    font-size: 16px; 
-    color: #DDD9E8;
-    font-weight: bold;
-}
+
 .timelapse-text {
-    font-size: 12px; 
+    font-size: 14px; 
     color: #9e9ba7;
 }
 

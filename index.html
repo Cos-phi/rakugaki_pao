@@ -138,15 +138,14 @@
                 <progress id="timelapse-progress-bar" value="0" max="100" style="width:100%;"></progress>
             </div>
             <div class="select-container" style="margin-top:12px; gap:8px; align-items:center;">
-                <span class="timelapse-text">Speed: </span>
+                
                 <select id="timelapse-fps-select">
-                    <option value="15" selected>15 fps</option>
-                    <option value="30">30 fps</option>
-                    <option value="60">60 fps</option>
-                    <option value="120">120 fps</option>
+                    <option value="15sec" selected>⏱ 15 sec</option>
+                    <option value="30sec">⏱ 30 sec</option>
+                    <option value="60sec">⏱ 60 sec</option>
+                    <option value="30fps">🎥 30 fps</option>
                 </select>
-                <span class="timelapse-text">Est. Time:</span>
-                <span id="timelapse-estimated-duration">0:00</span>
+                <span id="timelapse-estimated-duration" class="timelapse-text">0:00</span>
                 <button id="timelapse-export-button" class="submit-button" style="margin-left:auto;">Export</button>
             </div>
         </div>
@@ -996,7 +995,8 @@
                     const data = {
                         blob,
                         elapsedTimeSec,
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        frameNumber: timelapseFrameCount + 1
                     };
                     const request = store.add(data);
                     request.onsuccess = () => {
@@ -1093,13 +1093,92 @@
             return `${elapsedMin} min ${elapsedSec} sec`;
         }
 
+        const TIMELAPSE_EXPORT_OVERHEAD_SECONDS = 0.5 + 0.25 * 4 + 2.0;
+
+        function parseTimelapseExportMode(){
+            const value = timelapseFpsSelect.value;
+            if (value === '30fps') return { mode: '30fps' };
+            return { mode: 'duration', durationSec: Number(value.replace('sec', '')) };
+        }
+
+        function formatTimeLabel(seconds){
+            const totalSeconds = Math.max(0, Math.round(seconds));
+            const minutes = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
+            return `${minutes}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function formatFpsLabel(fps){
+            if (fps <= 0) return '0 fps';
+            const rounded = Math.round(fps);
+            if (Math.abs(fps - rounded) < 0.05) {
+                return `${rounded} fps`;
+            }
+            return `${fps.toFixed(1)} fps`;
+        }
+
+        function simplifyFraction(numerator, denominator){
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const divisor = gcd(numerator, denominator);
+            return `${numerator / divisor}/${denominator / divisor}`;
+        }
+
         function updateTimelapseEstimatedDuration(){
-            const fps = parseInt(timelapseFpsSelect.value, 10);
-            const mainDuration = timelapseFrameCount / fps;
-            const fadeDuration = 0.25 * 4;
-            const fixedHold = 0.5 + 2.0;
-            const totalSeconds = mainDuration + fadeDuration + fixedHold;
-            timelapseEstimatedDurationLabel.textContent = `${Math.floor(totalSeconds/60)}:${String(Math.round(totalSeconds%60)).padStart(2,'0')}`;
+            const mode = parseTimelapseExportMode();
+            if (timelapseFrameCount === 0) {
+                timelapseEstimatedDurationLabel.textContent = '0:00';
+                return;
+            }
+            if (mode.mode === '30fps') {
+                const mainDuration = timelapseFrameCount / 30;
+                const totalSeconds = mainDuration + TIMELAPSE_EXPORT_OVERHEAD_SECONDS;
+                timelapseEstimatedDurationLabel.textContent = formatTimeLabel(totalSeconds);
+                return;
+            }
+            const targetSeconds = mode.durationSec;
+            const mainDuration = Math.max(0, targetSeconds - TIMELAPSE_EXPORT_OVERHEAD_SECONDS);
+            if (mainDuration <= 0) {
+                timelapseEstimatedDurationLabel.textContent = '30fps';
+                return;
+            }
+            const requiredFps = timelapseFrameCount / mainDuration;
+            if (requiredFps <= 30) {
+                timelapseEstimatedDurationLabel.textContent = formatFpsLabel(requiredFps);
+                return;
+            }
+            const keptFrames = Math.max(1, Math.round(30 * mainDuration));
+            const ratio = `${timelapseFrameCount}->${keptFrames}`;
+            timelapseEstimatedDurationLabel.textContent = `30 fps (${ratio})`;
+        }
+
+        function selectFramesEvenly(frames, count){
+            if (count >= frames.length) return frames.slice();
+            if (count <= 1) return [frames[0]];
+            const step = (frames.length - 1) / (count - 1);
+            const selected = [];
+            for (let i = 0; i < count; i++) {
+                const index = Math.round(i * step);
+                selected.push(frames[index]);
+            }
+            return selected;
+        }
+
+        function prepareTimelapseExportFrames(frames){
+            const mode = parseTimelapseExportMode();
+            if (mode.mode === '30fps') {
+                return { exportFps: 30, exportFrames: frames };
+            }
+            const targetSeconds = mode.durationSec;
+            const mainDuration = Math.max(0, targetSeconds - TIMELAPSE_EXPORT_OVERHEAD_SECONDS);
+            if (mainDuration <= 0) {
+                return { exportFps: 30, exportFrames: frames };
+            }
+            const requiredFps = frames.length / mainDuration;
+            if (requiredFps <= 30) {
+                return { exportFps: requiredFps, exportFrames: frames };
+            }
+            const keptFrames = Math.max(1, Math.round(30 * mainDuration));
+            return { exportFps: 30, exportFrames: selectFramesEvenly(frames, keptFrames) };
         }
 
         async function exportTimelapseVideoDialog(){
@@ -1115,8 +1194,9 @@
             timelapseProgressLine.style.visibility = 'visible';
             timelapseProgressBar.value = 0;
             try {
-                const fps = parseInt(timelapseFpsSelect.value, 10);
-                const blob = await exportTimelapseVideo(fps, progress => {
+                const frames = await getTimelapseFrames();
+                const { exportFps, exportFrames } = prepareTimelapseExportFrames(frames);
+                const blob = await exportTimelapseVideo(exportFps, exportFrames, progress => {
                     timelapseProgressBar.value = Math.min(100, Math.max(0, progress));
                 }, timelapsePreviewCanvas);
                 const filename = makeTimelapseFileName(blob.type);
@@ -1153,8 +1233,7 @@
             setTimeout(() => URL.revokeObjectURL(link.href), 2000);
         }
 
-        async function exportTimelapseVideo(fps, onProgress, previewCanvas = null){
-            const frames = await getTimelapseFrames();
+        async function exportTimelapseVideo(fps, frames, onProgress, previewCanvas = null){
             if (frames.length === 0) throw new Error('No timelapse frames to export');
             const width = canvasWidth;
             const height = 960;
@@ -1194,8 +1273,9 @@
             for (let index = 0; index < frames.length; index++) {
                 const frame = frames[index];
                 const bitmap = await createImageBitmap(frame.blob);
-                drawExportFrame(exportCtx, bitmap, width, height, index + 1, frame.elapsedTimeSec);
-                if (previewCtx) drawPreviewFrameWithDetails(previewCtx, bitmap, index + 1, frame.elapsedTimeSec);
+                const frameNumber = frame.frameNumber != null ? frame.frameNumber : (frame.id != null ? frame.id : index + 1);
+                drawExportFrame(exportCtx, bitmap, width, height, frameNumber, frame.elapsedTimeSec);
+                if (previewCtx) drawPreviewFrameWithDetails(previewCtx, bitmap, frameNumber, frame.elapsedTimeSec);
                 bitmap.close();
                 await sleep(1000/fps);
                 emitted++;
