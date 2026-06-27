@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=24"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=25"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
 </head>
 <body>
     <div id="app">
@@ -1243,6 +1243,7 @@
             const exportCtx = exportCanvas.getContext('2d');
             const previewCtx = previewCanvas ? previewCanvas.getContext('2d') : null;
             const stream = exportCanvas.captureStream(fps);
+            const track = stream.getVideoTracks()[0];
             const mimeType = getExportMimeType();
             const recorder = new MediaRecorder(stream, { mimeType });
             const chunks = [];
@@ -1252,48 +1253,62 @@
                 recorder.onerror = event => reject(event.error || new Error('MediaRecorder error'));
             });
             recorder.start();
-            await sleep(100);
+            await preciseSleep(100);
             const totalFrames = Math.ceil(0.5*fps) + Math.ceil(0.25*fps)*4 + frames.length + Math.ceil(2*fps);
             let emitted = 0;
             const finalBitmap = await buildFinalFrameBitmap();
-            const firstFrameBitmap = await createImageBitmap(frames[0].blob);
-            const lastFrameBitmap = await createImageBitmap(frames[frames.length - 1].blob);
+            // フレームを事前に bitmap に変換して描画時の遅延を削減する
+            const frameBitmaps = await Promise.all(frames.map(f => createImageBitmap(f.blob)));
+            const firstFrameBitmap = frameBitmaps[0];
+            const lastFrameBitmap = frameBitmaps[frameBitmaps.length - 1];
             const progressStep = 100 / totalFrames;
+            const frameInterval = 1000 / fps;
+            const startTime = performance.now() + 100; // 開始タイミングを少し先にずらす
             const updateProgress = () => onProgress(Math.round(emitted * progressStep));
             const finalElapsedTimeSec = frames[frames.length - 1].elapsedTimeSec;
+            // 前後の固定フレーム
+            // Prelude: 描画→requestFrame→スケジュール待機 の流れで正確な間隔を目指す
             for (let i = 0; i < Math.ceil(0.5*fps); i++) {
                 drawExportFrame(exportCtx, finalBitmap, width, height, timelapseFrameCount, finalElapsedTimeSec);
                 if (previewCtx) drawPreviewFrameWithDetails(previewCtx, finalBitmap, timelapseFrameCount, finalElapsedTimeSec);
-                await sleep(1000/fps);
+                if (track && track.requestFrame) try { track.requestFrame(); } catch(e){}
                 emitted++;
                 updateProgress();
+                await preciseSleep(Math.max(0, startTime + emitted * frameInterval - performance.now()));
             }
-            await renderFade(exportCtx, finalBitmap, null, 0.25, fps, '#F0F0F0', false, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, finalElapsedTimeSec, previewCtx);
-            await renderFade(exportCtx, null, firstFrameBitmap, 0.25, fps, '#F0F0F0', true, (count) => { emitted += count; updateProgress(); }, 1, frames[0].elapsedTimeSec, previewCtx);
+            await renderFade(exportCtx, finalBitmap, null, 0.25, fps, '#F0F0F0', false, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, finalElapsedTimeSec, previewCtx, track);
+            await renderFade(exportCtx, null, firstFrameBitmap, 0.25, fps, '#F0F0F0', true, (count) => { emitted += count; updateProgress(); }, 1, frames[0].elapsedTimeSec, previewCtx, track);
             for (let index = 0; index < frames.length; index++) {
                 const frame = frames[index];
-                const bitmap = await createImageBitmap(frame.blob);
+                const bitmap = frameBitmaps[index];
                 const frameNumber = frame.frameNumber != null ? frame.frameNumber : (frame.id != null ? frame.id : index + 1);
                 drawExportFrame(exportCtx, bitmap, width, height, frameNumber, frame.elapsedTimeSec);
                 if (previewCtx) drawPreviewFrameWithDetails(previewCtx, bitmap, frameNumber, frame.elapsedTimeSec);
-                bitmap.close();
-                await sleep(1000/fps);
+                if (track && track.requestFrame) try { track.requestFrame(); } catch(e){}
                 emitted++;
                 updateProgress();
+                await preciseSleep(Math.max(0, startTime + emitted * frameInterval - performance.now()));
             }
-            await renderFade(exportCtx, lastFrameBitmap, null, 0.25, fps, '#000000', false, (count) => { emitted += count; updateProgress(); }, frames.length, frames[frames.length - 1].elapsedTimeSec, previewCtx);
-            await renderFade(exportCtx, null, finalBitmap, 0.25, fps, '#000000', true, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec, previewCtx);
+            await renderFade(exportCtx, lastFrameBitmap, null, 0.25, fps, '#000000', false, (count) => { emitted += count; updateProgress(); }, frames.length, frames[frames.length - 1].elapsedTimeSec, previewCtx, track);
+            await renderFade(exportCtx, null, finalBitmap, 0.25, fps, '#000000', true, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec, previewCtx, track);
             for (let i = 0; i < Math.ceil(2*fps); i++) {
                 drawExportFrame(exportCtx, finalBitmap, width, height, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec);
                 if (previewCtx) drawPreviewFrameWithDetails(previewCtx, finalBitmap, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec);
-                await sleep(1000/fps);
+                if (track && track.requestFrame) try { track.requestFrame(); } catch(e){}
                 emitted++;
                 updateProgress();
+                await preciseSleep(Math.max(0, startTime + emitted * frameInterval - performance.now()));
             }
             recorder.stop();
             finalBitmap.close();
-            firstFrameBitmap.close();
-            lastFrameBitmap.close();
+            // クリーンアップ: 事前生成した bitmaps をすべて閉じる
+            try {
+                if (Array.isArray(frameBitmaps)) {
+                    frameBitmaps.forEach(b => { try { b.close(); } catch(e){} });
+                }
+            } catch(e){}
+            try { firstFrameBitmap.close(); } catch(e){}
+            try { lastFrameBitmap.close(); } catch(e){}
             return recorderPromise;
         }
 
@@ -1310,7 +1325,7 @@
             return await createImageBitmap(blob);
         }
 
-        async function renderFade(ctx, fromBitmap, toBitmap, duration, fps, background, fadeIn, progressCallback, frameCount, elapsedTimeSec, previewCtx = null){
+        async function renderFade(ctx, fromBitmap, toBitmap, duration, fps, background, fadeIn, progressCallback, frameCount, elapsedTimeSec, previewCtx = null, track = null){
             const frameTotal = Math.ceil(duration * fps);
             for (let index = 0; index < frameTotal; index++) {
                 const progress = (index + 1) / frameTotal;
@@ -1328,7 +1343,8 @@
                     drawExportFrame(ctx, toBitmap, ctx.canvas.width, ctx.canvas.height, frameCount, elapsedTimeSec, progress);
                     if (previewCtx) drawPreviewFrameWithDetails(previewCtx, toBitmap, frameCount, elapsedTimeSec, progress);
                 }
-                await sleep(1000/fps);
+                if (track && track.requestFrame) try { track.requestFrame(); } catch(e){}
+                await preciseSleep(1000/fps);
                 progressCallback(1);
             }
         }
@@ -1456,6 +1472,25 @@
 
         function sleep(ms){
             return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 精度の高い待機: 長めは setTimeout、短い残り時間は requestAnimationFrame で合わせる
+        function preciseSleep(ms){
+            const target = performance.now() + ms;
+            return new Promise(resolve => {
+                function loop(){
+                    const now = performance.now();
+                    if (now >= target) return resolve();
+                    const remaining = target - now;
+                    if (remaining > 16) {
+                        // 少し手前でセットタイムアウトに戻す
+                        setTimeout(loop, Math.max(0, remaining - 8));
+                    } else {
+                        requestAnimationFrame(loop);
+                    }
+                }
+                loop();
+            });
         }
 
         function closeDialog(){
