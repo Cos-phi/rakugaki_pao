@@ -1243,14 +1243,28 @@
             const exportCtx = exportCanvas.getContext('2d');
             const previewCtx = previewCanvas ? previewCanvas.getContext('2d') : null;
             const stream = exportCanvas.captureStream(fps);
+            const silentAudio = createSilentAudioTrack();
+            if (silentAudio && silentAudio.track) {
+                stream.addTrack(silentAudio.track);
+            }
             const track = stream.getVideoTracks()[0];
             const mimeType = getExportMimeType();
             const recorder = new MediaRecorder(stream, { mimeType });
             const chunks = [];
             recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
             const recorderPromise = new Promise((resolve, reject) => {
-                recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
-                recorder.onerror = event => reject(event.error || new Error('MediaRecorder error'));
+                recorder.onstop = () => {
+                    if (silentAudio) {
+                        try { silentAudio.cleanup(); } catch (e) {}
+                    }
+                    resolve(new Blob(chunks, { type: mimeType }));
+                };
+                recorder.onerror = event => {
+                    if (silentAudio) {
+                        try { silentAudio.cleanup(); } catch (e) {}
+                    }
+                    reject(event.error || new Error('MediaRecorder error'));
+                };
             });
             recorder.start();
             await preciseSleep(100);
@@ -1317,6 +1331,33 @@
             if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) return 'video/webm;codecs=vp9';
             if (MediaRecorder.isTypeSupported('video/webm')) return 'video/webm';
             throw new Error('No supported export mime type');
+        }
+
+        function createSilentAudioTrack(){
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return null;
+            const audioContext = new AudioContextClass();
+            const destination = audioContext.createMediaStreamDestination();
+            const constantSource = audioContext.createConstantSource();
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = 0;
+            constantSource.connect(gainNode).connect(destination);
+            constantSource.start();
+            const stopTimer = window.setTimeout(() => {
+                try { constantSource.stop(); } catch (e) {}
+            }, 900);
+            const track = destination.stream.getAudioTracks()[0];
+            return {
+                track,
+                cleanup(){
+                    window.clearTimeout(stopTimer);
+                    try { constantSource.stop(); } catch (e) {}
+                    try { constantSource.disconnect(); } catch (e) {}
+                    try { gainNode.disconnect(); } catch (e) {}
+                    try { track.stop(); } catch (e) {}
+                    try { audioContext.close(); } catch (e) {}
+                }
+            };
         }
 
         async function buildFinalFrameBitmap(){
