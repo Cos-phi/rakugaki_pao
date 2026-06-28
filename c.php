@@ -9,9 +9,13 @@
     // CGIのURLを組み立て
     $cgi_url = "https://kurajo.ivory.ne.jp/rakugaki_pao/palette/image.cgi?colors=" . htmlspecialchars($colors);
     ?>
-    <meta name="viewport" content="width=750">
-    <meta property="og:image" content="<?php echo $cgi_url; ?>" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image" content="<?php echo $cgi_url; ?>">
+    <meta property="og:title" content="rakugaki_pao - Custom Palette">
+    
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:image" content="<?php echo $cgi_url; ?>">
+    <meta name="twitter:title" content="rakugaki_pao - Custom Palette">
+
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
