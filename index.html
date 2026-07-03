@@ -1279,7 +1279,9 @@
             const frameInterval = 1000 / fps;
             const startTime = performance.now() + 100; // 開始タイミングを少し先にずらす
             const updateProgress = () => onProgress(Math.round(emitted * progressStep));
-            const finalElapsedTimeSec = frames[frames.length - 1].elapsedTimeSec;
+            const lastExportedFrame = frames[frames.length - 1];
+            const lastExportedFrameNumber = lastExportedFrame?.frameNumber != null ? lastExportedFrame.frameNumber : frames.length;
+            const finalElapsedTimeSec = lastExportedFrame?.elapsedTimeSec ?? 0;
             // 前後の固定フレーム
             // Prelude: 描画→requestFrame→スケジュール待機 の流れで正確な間隔を目指す
             for (let i = 0; i < Math.ceil(0.5*fps); i++) {
@@ -1303,8 +1305,8 @@
                 updateProgress();
                 await preciseSleep(Math.max(0, startTime + emitted * frameInterval - performance.now()));
             }
-            await renderFade(exportCtx, lastFrameBitmap, null, 0.25, fps, '#000000', false, (count) => { emitted += count; updateProgress(); }, frames.length, frames[frames.length - 1].elapsedTimeSec, previewCtx, track);
-            await renderFade(exportCtx, null, finalBitmap, 0.25, fps, '#000000', true, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec, previewCtx, track);
+            await renderFade(exportCtx, lastFrameBitmap, null, 0.25, fps, '#000000', false, (count) => { emitted += count; updateProgress(); }, lastExportedFrameNumber, finalElapsedTimeSec, previewCtx, track);
+            await renderFade(exportCtx, null, finalBitmap, 0.25, fps, '#000000', true, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, finalElapsedTimeSec, previewCtx, track);
             for (let i = 0; i < Math.ceil(2*fps); i++) {
                 drawExportFrame(exportCtx, finalBitmap, width, height, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec);
                 if (previewCtx) drawPreviewFrameWithDetails(previewCtx, finalBitmap, timelapseFrameCount, frames[frames.length - 1].elapsedTimeSec);
