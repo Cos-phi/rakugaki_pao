@@ -220,9 +220,9 @@ button {
     border-radius: 50%;
 }
 #tool-size {
-    width: 96px;
-    margin-right: 16px;
-    margin-left: 16px;
+    width: 88px;
+    margin-right: 24px;
+    margin-left: 24px;
     vertical-align: middle;
 }
 #opacity {
