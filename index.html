@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=25"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=26"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
 </head>
 <body>
     <div id="app">
@@ -1271,35 +1271,25 @@
             const totalFrames = Math.ceil(0.5*fps) + Math.ceil(0.25*fps)*4 + frames.length + Math.ceil(2*fps);
             let emitted = 0;
             const finalBitmap = await buildFinalFrameBitmap();
-            // フレームを事前に bitmap に変換して描画時の遅延を削減する
-            // ただし大量のフレームを同時に decode するとブラウザのリソース制限で失敗するため
-            // 並列デコード数を制限し、デコード失敗時はログを出して後でオンデマンドで再試行します。
-            async function createImageBitmapsLimited(framesArray, concurrency = 8) {
-                const results = new Array(framesArray.length).fill(null);
-                let nextIndex = 0;
-                async function worker() {
-                    while (true) {
-                        const idx = nextIndex++;
-                        if (idx >= framesArray.length) break;
-                        try {
-                            results[idx] = await createImageBitmap(framesArray[idx].blob);
-                        } catch (e) {
-                            console.warn('createImageBitmap failed for frame', idx, e);
-                            results[idx] = null;
-                        }
-                    }
+            const prefetchCount = 3;
+            let firstFrameBitmap = finalBitmap;
+            let lastFrameBitmap = finalBitmap;
+
+            async function decodeFrameBitmap(frame, fallbackBitmap = finalBitmap) {
+                try {
+                    return await createImageBitmap(frame.blob);
+                } catch (e) {
+                    const frameNumber = frame.frameNumber != null ? frame.frameNumber : (frame.id != null ? frame.id : 'unknown');
+                    console.warn('createImageBitmap failed for frame', frameNumber, e);
+                    return fallbackBitmap;
                 }
-                const workers = [];
-                for (let i = 0; i < Math.max(1, Math.min(concurrency, framesArray.length)); i++) workers.push(worker());
-                await Promise.all(workers);
-                return results;
             }
-            const frameBitmaps = await createImageBitmapsLimited(frames, 8);
-            let firstFrameBitmap = frameBitmaps[0];
-            let lastFrameBitmap = frameBitmaps[frameBitmaps.length - 1];
-            // フォールバック: 先頭/末尾フレームがデコードできなければ finalBitmap を使う
-            if (!firstFrameBitmap) firstFrameBitmap = finalBitmap;
-            if (!lastFrameBitmap) lastFrameBitmap = finalBitmap;
+
+            if (frames.length > 0) {
+                firstFrameBitmap = await decodeFrameBitmap(frames[0], finalBitmap);
+                lastFrameBitmap = await decodeFrameBitmap(frames[frames.length - 1], finalBitmap);
+            }
+
             const progressStep = 100 / totalFrames;
             const frameInterval = 1000 / fps;
             const startTime = performance.now() + 100; // 開始タイミングを少し先にずらす
@@ -1319,26 +1309,34 @@
             }
             await renderFade(exportCtx, finalBitmap, null, 0.25, fps, '#F0F0F0', false, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, finalElapsedTimeSec, previewCtx, track);
             await renderFade(exportCtx, null, firstFrameBitmap, 0.25, fps, '#F0F0F0', true, (count) => { emitted += count; updateProgress(); }, 1, frames[0].elapsedTimeSec, previewCtx, track);
-            for (let index = 0; index < frames.length; index++) {
-                const frame = frames[index];
-                let bitmap = frameBitmaps[index];
-                // 事前デコードで失敗している場合はオンデマンドで再試行する
-                if (!bitmap) {
-                    try {
-                        bitmap = await createImageBitmap(frame.blob);
-                    } catch (e) {
-                        console.warn('On-demand createImageBitmap failed for frame', index, e);
-                        // フォールバック: 描画可能なビットマップがない場合は finalBitmap を使う
-                        bitmap = finalBitmap;
-                    }
+
+            const pendingBitmaps = [];
+            let nextIndex = 0;
+            async function enqueueNextBitmaps() {
+                while (pendingBitmaps.length < prefetchCount && nextIndex < frames.length) {
+                    const frame = frames[nextIndex];
+                    nextIndex += 1;
+                    pendingBitmaps.push((async () => {
+                        const bitmap = await decodeFrameBitmap(frame, finalBitmap);
+                        return { bitmap, frame };
+                    })());
                 }
+            }
+
+            await enqueueNextBitmaps();
+            for (let index = 0; index < frames.length; index++) {
+                const { bitmap, frame } = await pendingBitmaps.shift();
                 const frameNumber = frame.frameNumber != null ? frame.frameNumber : (frame.id != null ? frame.id : index + 1);
                 drawExportFrame(exportCtx, bitmap, width, height, frameNumber, frame.elapsedTimeSec);
                 if (previewCtx) drawPreviewFrameWithDetails(previewCtx, bitmap, frameNumber, frame.elapsedTimeSec);
                 if (track && track.requestFrame) try { track.requestFrame(); } catch(e){}
+                if (bitmap && bitmap !== finalBitmap) {
+                    try { bitmap.close(); } catch (e) {}
+                }
                 emitted++;
                 updateProgress();
                 await preciseSleep(Math.max(0, startTime + emitted * frameInterval - performance.now()));
+                await enqueueNextBitmaps();
             }
             await renderFade(exportCtx, lastFrameBitmap, null, 0.25, fps, '#000000', false, (count) => { emitted += count; updateProgress(); }, lastExportedFrameNumber, finalElapsedTimeSec, previewCtx, track);
             await renderFade(exportCtx, null, finalBitmap, 0.25, fps, '#000000', true, (count) => { emitted += count; updateProgress(); }, timelapseFrameCount, finalElapsedTimeSec, previewCtx, track);
@@ -1351,13 +1349,7 @@
                 await preciseSleep(Math.max(0, startTime + emitted * frameInterval - performance.now()));
             }
             recorder.stop();
-            finalBitmap.close();
-            // クリーンアップ: 事前生成した bitmaps をすべて閉じる（nullチェック）
-            try {
-                if (Array.isArray(frameBitmaps)) {
-                    frameBitmaps.forEach(b => { try { if (b) b.close(); } catch(e){} });
-                }
-            } catch(e){}
+            try { finalBitmap.close(); } catch (e) {}
             try { if (firstFrameBitmap && firstFrameBitmap !== finalBitmap) firstFrameBitmap.close(); } catch(e){}
             try { if (lastFrameBitmap && lastFrameBitmap !== finalBitmap) lastFrameBitmap.close(); } catch(e){}
             return recorderPromise;
