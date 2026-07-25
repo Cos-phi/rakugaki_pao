@@ -1631,9 +1631,7 @@
             saveLocalstorage();
             if (state.firstStrokeTime != null) {
                 window.localStorage.setItem(localstorageKeyFirstStrokeTime, state.firstStrokeTime);
-                if (state.lastStrokeTime != null) {
-                    window.localStorage.setItem(localstorageKeyLastStrokeTime, state.lastStrokeTime);
-                } else {
+                if (state.lastStrokeTime === null) {
                     window.localStorage.removeItem(localstorageKeyLastStrokeTime);
                 }
                 isWaitingFirstStroke = state.isWaitingFirstStroke;
