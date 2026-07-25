@@ -48,10 +48,26 @@ canvas {
     mix-blend-mode: difference;
 }
 #controls-top {
+    position: relative;
     margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
     max-width: 720px;
+}
+.top-center-status {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    white-space: nowrap;
+    font-size: 16px;
+    color: #AAAAAA;
+    letter-spacing: 0.08rem;
+    z-index: 1;
 }
 .top-left-buttons {
     display: flex;

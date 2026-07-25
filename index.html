@@ -23,6 +23,10 @@
                 </button>
             </div>
 
+            <div class="top-center-status">
+                <span id="drawing-status-label">0 strokes / 0 min</span>
+            </div>
+
             <div class="top-right-buttons">
                 <button id="copy-button" class="controls-top-button">
                     <img src="image/copytoclipboard.svg" style="height: 100%;" alt="Copy">
@@ -209,6 +213,7 @@
         const timelapseExportButton = document.getElementById('timelapse-export-button');
         const timelapseProgressLine = document.getElementById('timelapse-progress-line');
         const timelapseProgressBar = document.getElementById('timelapse-progress-bar');
+        const drawingStatusLabel = document.getElementById('drawing-status-label');
 
         const undoButton = document.getElementById('undo-button');
         const toolSizeParamInput = document.getElementById('tool-size');
@@ -281,6 +286,7 @@
         const localstorageKeyAccessToken = 'accesstokenkey';
         const localstorageKeyFirstStrokeTime = 'FirstStrokeTimekey';
         const localstorageKeyLastStrokeTime = 'LastStrokeTimekey';
+        const localstorageKeyStrokeCount = 'StrokeCountkey';
         const localstorageKeyDestinationServerName = 'destinationservernamekey';
         const localstorageKeyPalette = 'palettecolorskey';
 
@@ -443,6 +449,7 @@
         let accessToken = null;
 
         let isWaitingFirstStroke = window.localStorage.getItem(localstorageKeyFirstStrokeTime) == null;
+        let strokeCount = Number(window.localStorage.getItem(localstorageKeyStrokeCount) || 0);
         let timelapseFrameCount = 0;
         let timelapseDb = null;
         
@@ -698,6 +705,7 @@
         restoreAccessTokenOnLocalstorage();
         initializeBackgroundCanvas();
         initializeTimelapseStorage();
+        updateDrawingStatusLabel();
  
         // Import引数があればインポート処理を行う、ない場合はlocalstorageから復元する
         (async function(){
@@ -820,6 +828,9 @@
             isDrawing = false;
             dryStroke();
             setLastStrokeTime();
+            strokeCount += 1;
+            window.localStorage.setItem(localstorageKeyStrokeCount, strokeCount);
+            updateDrawingStatusLabel();
             captureTimelapseFrame();
             saveLocalstorage();
         }
@@ -1606,7 +1617,8 @@
                 color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height),
                 firstStrokeTime: window.localStorage.getItem(localstorageKeyFirstStrokeTime),
                 lastStrokeTime: window.localStorage.getItem(localstorageKeyLastStrokeTime),
-                isWaitingFirstStroke
+                isWaitingFirstStroke,
+                strokeCount
             });
             activateUndoButton();
         }
@@ -1625,6 +1637,8 @@
                     window.localStorage.removeItem(localstorageKeyLastStrokeTime);
                 }
                 isWaitingFirstStroke = state.isWaitingFirstStroke;
+                window.localStorage.setItem(localstorageKeyStrokeCount, strokeCount);
+                updateDrawingStatusLabel();
             } else {
                 resetFirstStrokeState();
             }
@@ -1651,6 +1665,7 @@
             ctxActiveStroke.clearRect(0, 0, activeStrokeLayer.width, activeStrokeLayer.height);
             resetFirstStrokeState();
             saveLocalstorage();
+            hideDrawingStatusLabel();
         }
 
         function setFirstStrokeTime(){
@@ -1684,6 +1699,18 @@
             return elapsedTimeSec;
         }
         
+        function updateDrawingStatusLabel() {
+            const elapsedMin = getElapsedTimeMinFromFirstStrokeTime();
+            const elapsedSec = getElapsedTimeSecFromFirstStrokeTime() - elapsedMin * 60;
+            const elapsedLabel = elapsedMin > 0 ? `${elapsedMin} min` : `${elapsedSec} sec`;
+            drawingStatusLabel.style.display = 'inline';
+            drawingStatusLabel.textContent = `${strokeCount} strokes / ${elapsedLabel}`;
+        }
+
+        function hideDrawingStatusLabel() {
+            drawingStatusLabel.style.display = 'none';
+        }
+
         function showElapsedTimeFromFirstStrokeTime(){
             const elapsedTimeMin = getElapsedTimeMinFromFirstStrokeTime();
             const sec = getElapsedTimeSecFromFirstStrokeTime() - elapsedTimeMin * 60;
@@ -1713,7 +1740,9 @@
         }
 
         function onFirstStrokeDetected(){
-            setFirstStrokeTime();
+            setFirstStrokeTime();            
+            window.localStorage.removeItem(localstorageKeyStrokeCount);
+            strokeCount = 0;
             isWaitingFirstStroke = false;
             if (timelapseFrameCount > 0) {
                 clearTimelapseFrames().catch(e => console.error('Failed to reset timelapse frames', e));
@@ -1722,8 +1751,8 @@
 
         function resetFirstStrokeState(){
             window.localStorage.removeItem(localstorageKeyFirstStrokeTime);
-            window.localStorage.removeItem(localstorageKeyLastStrokeTime);
             isWaitingFirstStroke = true;
+            updateDrawingStatusLabel();
         }
 
         // パレット編集表示
