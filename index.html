@@ -1636,13 +1636,13 @@
                 }
                 isWaitingFirstStroke = state.isWaitingFirstStroke;
                 window.localStorage.setItem(localstorageKeyStrokeCount, strokeCount);
-                updateDrawingStatusLabel();
             } else {
                 resetFirstStrokeState();
             }
             if (undoStack.length === 0) {
                 disactivateUndoButton();
             }
+            updateDrawingStatusLabel();
         }
 
         function activateUndoButton() {
@@ -1701,7 +1701,11 @@
             const elapsedMin = getElapsedTimeMinFromFirstStrokeTime();
             const elapsedSec = getElapsedTimeSecFromFirstStrokeTime() - elapsedMin * 60;
             const elapsedLabel = elapsedMin > 0 ? `${elapsedMin} min` : `${elapsedSec} sec`;
-            drawingStatusLabel.style.display = 'inline';
+            if(isWaitingFirstStroke === true){ 
+                drawingStatusLabel.style.display = 'none';
+            }else{
+                drawingStatusLabel.style.display = 'block';
+            }
             drawingStatusLabel.textContent = `${strokeCount} strokes / ${elapsedLabel}`;
         }
 
