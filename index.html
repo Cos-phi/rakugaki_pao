@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=26"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=27"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
 </head>
 <body>
     <div id="app">
@@ -302,7 +302,7 @@
             let paletteStr = window.localStorage.getItem(localstorageKeyPalette);
             if (paletteStr) {
                 // 形式: blackPenColor,backgroundColor|color1,color2,..|initialChangeableColor
-                console.log(paletteStr);
+                // console.log(paletteStr);
                 let [mainPart, palettePart, changeablePart] = paletteStr.split('|');
                 let [bpc, bgc] = (mainPart || '').split(',');
                 blackPenColor = bpc || defaultBlackPenColor;
@@ -948,6 +948,7 @@
             ctxBackground.fillRect(0, 0, canvasWidth, canvasHeight);
         }
 
+        // タイムラプスに関する関数
         function openTimelapseDb(){
             return new Promise((resolve, reject) => {
                 if (timelapseDb) return resolve(timelapseDb);
