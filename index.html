@@ -1060,7 +1060,7 @@
                 blob = await canvasToBlob(combinedCanvas, 'image/png');
             }
             if (!blob) return;
-            const elapsedTimeSec = getElapsedTimeSecFromFirstStrokeTime();
+            const elapsedTimeSec = getElapsedTimeSec();
             try {
                 await saveTimelapseFrame(blob, elapsedTimeSec);
             } catch (e) {
@@ -1092,7 +1092,7 @@
             const previewCtx = timelapsePreviewCanvas.getContext('2d');
             previewCtx.clearRect(0, 0, timelapsePreviewCanvas.width, timelapsePreviewCanvas.height);
             const bitmap = await createImageBitmap(combinedCanvas);
-            drawPreviewFrameWithDetails(previewCtx, bitmap, timelapseFrameCount, getElapsedTimeSecFromFirstStrokeTime());
+            drawPreviewFrameWithDetails(previewCtx, bitmap, timelapseFrameCount, getElapsedTimeSec());
             bitmap.close();
             timelapseExportButton.disabled = timelapseFrameCount === 0;
             timelapseDialogModal.style.display = 'block';
@@ -1106,8 +1106,8 @@
 
         function formatElapsedTimeLabel(){
             if (isWaitingFirstStroke) return '0 min';
-            const elapsedMin = getElapsedTimeMinFromFirstStrokeTime();
-            const elapsedSec = getElapsedTimeSecFromFirstStrokeTime() - elapsedMin * 60;
+            const elapsedMin = getElapsedTimeMin();
+            const elapsedSec = getElapsedTimeSec() - elapsedMin * 60;
             if (elapsedMin < 1) {
                 return `${elapsedSec} sec`;
             }
@@ -1703,19 +1703,19 @@
             return elapsedMs;
         }
 
-        function getElapsedTimeMinFromFirstStrokeTime(){
+        function getElapsedTimeMin(){
             if (window.localStorage.getItem(localstorageKeyFirstStrokeTime) == null) return 0;
             return Math.trunc(getCurrentDrawingTimeMs() / 1000 / 60);
         }
 
-        function getElapsedTimeSecFromFirstStrokeTime(){
+        function getElapsedTimeSec(){
             if (window.localStorage.getItem(localstorageKeyFirstStrokeTime) == null) return 0;
             return Math.trunc(getCurrentDrawingTimeMs() / 1000);
         }
         
         function updateDrawingStatusLabel() {
-            const elapsedMin = getElapsedTimeMinFromFirstStrokeTime();
-            const elapsedSec = getElapsedTimeSecFromFirstStrokeTime() - elapsedMin * 60;
+            const elapsedMin = getElapsedTimeMin();
+            const elapsedSec = getElapsedTimeSec() - elapsedMin * 60;
             const elapsedLabel = elapsedMin > 0 ? `${elapsedMin} min` : `${elapsedSec} sec`;
             if(isWaitingFirstStroke === true){ 
                 drawingStatusLabel.style.display = 'none';
@@ -1730,8 +1730,8 @@
         }
 
         function showElapsedTimeFromFirstStrokeTime(){
-            const elapsedTimeMin = getElapsedTimeMinFromFirstStrokeTime();
-            const sec = getElapsedTimeSecFromFirstStrokeTime() - elapsedTimeMin * 60;
+            const elapsedTimeMin = getElapsedTimeMin();
+            const sec = getElapsedTimeSec() - elapsedTimeMin * 60;
             if( isWaitingFirstStroke ){
                 showMessage(currentTranslations.messages.noDrawing);
             }else if( elapsedTimeMin < 1) {
@@ -2155,7 +2155,7 @@
         function setOutputFileName(){
             const nowTime = new Date();
             const timeString = nowTime.toLocaleString("ja-JP", {year: "numeric",month: "2-digit", day: "2-digit", hour:"2-digit", minute:"2-digit"}).replaceAll('/', '').replaceAll(':','').replaceAll(' ','-');
-            outputFileName = timeString + '_rakugaki_pao(' + getElapsedTimeMinFromFirstStrokeTime() +'min).png';
+            outputFileName = timeString + '_rakugaki_pao(' + getElapsedTimeMin() +'min).png';
         }
 
 
