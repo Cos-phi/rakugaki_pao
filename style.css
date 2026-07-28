@@ -513,13 +513,6 @@ input[type="checkbox"] {
     border: 0px solid  rgb(18, 18, 21);
     background-color: #fff;
 }
-.timelapse-info-container {
-    margin-top: 6px;
-    margin-bottom: 6px;
-    color: #9e9ba7;
-    font-size: 14px;
-    text-align: center;
-}
 #timelapse-fps-select {
     width: 96px;
     height: 42px;

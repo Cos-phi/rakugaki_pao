@@ -131,10 +131,6 @@
             <div class="dialog-title-container">
                 <button id="close-timelapse-dialog-button" class="close-dialog-button">×</button>
             </div>
-            <div class="timelapse-info-container" style="display: none;">
-                <span id="timelapse-frame-count">0</span> strokes / 
-                <span id="timelapse-elapsed-time">0 min</span>
-            </div>
             <div id="timelapse-preview-container">
                 <canvas id="timelapse-preview-canvas" width="360" height="480"></canvas>
             </div>
@@ -206,8 +202,6 @@
         const closeTimelapseDialogButton = document.getElementById('close-timelapse-dialog-button');
         const timelapsePreviewCanvas = document.getElementById('timelapse-preview-canvas');
         const timelapsePreviewCtx = timelapsePreviewCanvas.getContext('2d');
-        const timelapseFrameCountLabel = document.getElementById('timelapse-frame-count');
-        const timelapseElapsedTimeLabel = document.getElementById('timelapse-elapsed-time');
         const timelapseEstimatedDurationLabel = document.getElementById('timelapse-estimated-duration');
         const timelapseFpsSelect = document.getElementById('timelapse-fps-select');
         const timelapseExportButton = document.getElementById('timelapse-export-button');
@@ -982,7 +976,6 @@
             try {
                 await openTimelapseDb();
                 timelapseFrameCount = await getTimelapseFrameCount();
-                updateTimelapseLabels();
             } catch (e) {
                 console.error('IndexedDB initialisation failed', e);
             }
@@ -997,7 +990,6 @@
                     const request = store.clear();
                     request.onsuccess = () => {
                         timelapseFrameCount = 0;
-                        updateTimelapseLabels();
                         updateTimelapseEstimatedDuration();
                         resolve();
                     };
@@ -1023,7 +1015,6 @@
                     const request = store.add(data);
                     request.onsuccess = () => {
                         timelapseFrameCount += 1;
-                        updateTimelapseLabels();
                         updateTimelapseEstimatedDuration();
                         resolve();
                     };
@@ -1086,7 +1077,6 @@
 
         async function openTimelapseDialog(){
             await initializeTimelapseStorage();
-            updateTimelapseLabels();
             updateTimelapseEstimatedDuration();
             combineCanvas();
             // Draw the current combined canvas to the preview canvas with details
@@ -1097,22 +1087,6 @@
             bitmap.close();
             timelapseExportButton.disabled = timelapseFrameCount === 0;
             timelapseDialogModal.style.display = 'block';
-        }
-
-        function updateTimelapseLabels(){
-            timelapseFrameCountLabel.textContent = timelapseFrameCount.toString();
-            timelapseElapsedTimeLabel.textContent = formatElapsedTimeLabel();
-            updateTimelapseEstimatedDuration();
-        }
-
-        function formatElapsedTimeLabel(){
-            if (isWaitingFirstStroke) return '0 min';
-            const elapsedMin = getElapsedTimeMin();
-            const elapsedSec = getElapsedTimeSec() - elapsedMin * 60;
-            if (elapsedMin < 1) {
-                return `${elapsedSec} sec`;
-            }
-            return `${elapsedMin} min ${elapsedSec} sec`;
         }
 
         const TIMELAPSE_EXPORT_OVERHEAD_SECONDS = 0.5 + 0.25 * 4 + 2.0;
@@ -1244,7 +1218,7 @@
             const nowTime = new Date();
             const timeString = nowTime.toLocaleString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replaceAll('/','').replaceAll(':','').replaceAll(' ','-');
             const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-            return `${timeString}_rakugaki_pao_timelapse(${timelapseFrameCount}strokes).${ext}`;
+            return `${timeString}_rakugaki_pao_timelapse(${formatDrawingStatusTextForFilename()}).${ext}`;
         }
 
         function downloadBlob(blob, filename){
@@ -1700,6 +1674,13 @@
             return `${strokeCountText} strokes / ${elapsedTimeLabel}`;
         }
 
+        function formatDrawingStatusTextForFilename(){
+            const elapsedTimeSec = getElapsedTimeSec();
+            const elapsedTimeMin = Math.trunc(elapsedTimeSec / 60);
+            const elapsedTimeSecRemainder = elapsedTimeSec - elapsedTimeMin * 60;
+            return `${strokeCount}strokes${elapsedTimeMin}min${elapsedTimeSecRemainder}sec`;
+        }
+
         function hideDrawingStatusLabel() {
             drawingStatusLabel.style.display = 'none';
         }
@@ -2129,7 +2110,7 @@
         function setOutputFileName(){
             const nowTime = new Date();
             const timeString = nowTime.toLocaleString("ja-JP", {year: "numeric",month: "2-digit", day: "2-digit", hour:"2-digit", minute:"2-digit"}).replaceAll('/', '').replaceAll(':','').replaceAll(' ','-');
-            outputFileName = timeString + '_rakugaki_pao(' + getElapsedTimeMin() +'min).png';
+            outputFileName = timeString + '_rakugaki_pao(' + formatDrawingStatusTextForFilename() + ').png';
         }
 
 
