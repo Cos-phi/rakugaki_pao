@@ -470,7 +470,8 @@ input[type="checkbox"] {
     filter: grayscale();
 }
 #is-sensitive-checkbox:checked + .checkbox-label,
-#add-url-checkbox:checked + .checkbox-label {
+#add-url-checkbox:checked + .checkbox-label,
+#add-drawing-status-checkbox:checked + .checkbox-label {
     background-color:#6364ff;
     color:#EBECFF;
     filter: none;

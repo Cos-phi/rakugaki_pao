@@ -6,7 +6,7 @@
     <link rel="icon" href="image/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
     <title>rakugaki_pao</title>
-    <link rel="stylesheet" type="text/css" href="style.css?v=27"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
+    <link rel="stylesheet" type="text/css" href="style.css?v=28"> <!--v=の値を変えることで、CSSのキャッシュを破棄して再読み込みしてもらいますわ-->
 </head>
 <body>
     <div id="app">
@@ -121,6 +121,8 @@
                 <label for="is-sensitive-checkbox" class="checkbox-label">⚠️</label>
                 <input type="checkbox" id="add-url-checkbox">
                 <label for="add-url-checkbox" class="checkbox-label">🔗</label>
+                <input type="checkbox" id="add-drawing-status-checkbox">
+                <label for="add-drawing-status-checkbox" class="checkbox-label">⌚</label>
                 <button id="submit-button" class="submit-button"></button>   
             </div>
         </div>
@@ -253,6 +255,7 @@
         const visibilitySelect = document.getElementById('visibility-select');
         const isSensitiveCheckbox = document.getElementById('is-sensitive-checkbox')
         const addUrlCheckbox = document.getElementById('add-url-checkbox');
+        const addDrawingStatusCheckbox = document.getElementById('add-drawing-status-checkbox');
         const submitButton = document.getElementById('submit-button');
         
         // ブラウザの言語設定検出
@@ -494,6 +497,7 @@
                 visibilitySelect: "公開範囲",
                 isSensitiveCheckbox: "閲覧注意",
                 addUrlCheckbox: "URL",
+                addDrawingStatusCheckbox: "描画回数/時間",
                 postButton: hostName + "に投稿",
                 submitButton: "投稿",
                 visibilityOptions: {
@@ -536,6 +540,7 @@
                 visibilitySelect: "Visibility",
                 isSensitiveCheckbox: "Sensitive",
                 addUrlCheckbox: "URL",
+                addDrawingStatusCheckbox: "Stroke Count / Time",
                 postButton: "Post" + " to " + hostName,
                 submitButton: "Post",
                 visibilityOptions: {
@@ -551,7 +556,7 @@
                 messages: {
                     imageCopied: "Image copied to clipboard",
                     hashtagCopied: "Hashtag copied to clipboard",
-                    drawingStatusCopied: "Drawing status copied to clipboard",
+                    drawingStatusCopied: "Stroke Count / Time copied to clipboard",
                     postedSuccess: "Posted successfully!",
                     misskeyAuthError: "Misskey authentication is no longer valid. Please re-authenticate and try again."
                 }
@@ -610,6 +615,7 @@
         submitButton.addEventListener('click', postToDestinationServer);
         closePostDialogButton.addEventListener('click',closeDialog);
         addUrlCheckbox.addEventListener('change', toggleAddUrl);
+        addDrawingStatusCheckbox.addEventListener('change', toggleAddDrawingStatus);
         isSensitiveCheckbox.addEventListener('change', toggleSensitiveBlur);
 
         copyHashtagButton.addEventListener('click',copyHastag);
@@ -1757,6 +1763,7 @@
             visibilitySelect.title = currentTranslations.visibilitySelect;
             isSensitiveCheckbox.nextElementSibling.title = currentTranslations.isSensitiveCheckbox;
             addUrlCheckbox.nextElementSibling.title = currentTranslations.addUrlCheckbox;
+            addDrawingStatusCheckbox.nextElementSibling.title = currentTranslations.addDrawingStatusCheckbox;
             submitButton.textContent = currentTranslations.submitButton;
             timelapseExportButton.title = currentTranslations.exportTimelapseButton;
             timelapseExportButton.textContent = currentTranslations.exportTimelapseButtonLabel;
@@ -2249,16 +2256,59 @@
             visibilitySelect.value = defaultSettings.publishingLevel;
             isSensitiveCheckbox.checked = defaultSettings.isSensitive;
             addUrlCheckbox.checked = false;
+            addDrawingStatusCheckbox.checked = false;
             commentTextarea.value = defaultSettings.postComment;
             toggleSensitiveBlur();
         }
 
-        function toggleAddUrl() {
-            if (addUrlCheckbox.checked) {
-                commentTextarea.value = shareUrl + "\n" + commentTextarea.value;
-            } else {
-                commentTextarea.value = commentTextarea.value.replace(shareUrl+"\n", '');
+        function normalizePostBodyLineBreaks(text) {
+            return text.replace(/\r\n/g, '\n');
+        }
+
+        function addPostBodyPrefix(body, prefixText) {
+            const normalizedBody = normalizePostBodyLineBreaks(body);
+            return `${prefixText}\n${normalizedBody}`;
+        }
+
+        function removePostBodyPrefix(body, prefixText) {
+            const normalizedBody = normalizePostBodyLineBreaks(body);
+            const lines = normalizedBody.split('\n');
+            const prefixIndex = lines.findIndex(line => line === prefixText);
+
+            if (prefixIndex < 0) {
+                return normalizedBody;
             }
+
+            lines.splice(prefixIndex, 1);
+            if (prefixIndex > 0 && lines[prefixIndex - 1] === '') {
+                lines.splice(prefixIndex - 1, 1);
+            }
+
+            return lines.join('\n');
+        }
+
+        function syncPostBodyPrefixes() {
+            let body = commentTextarea.value;
+
+            body = removePostBodyPrefix(body, getDrawingStatusLabel());
+            body = removePostBodyPrefix(body, shareUrl);
+
+            if (addDrawingStatusCheckbox.checked) {
+                body = addPostBodyPrefix(body, getDrawingStatusLabel());
+            }
+            if (addUrlCheckbox.checked) {
+                body = addPostBodyPrefix(body, shareUrl);
+            }
+
+            commentTextarea.value = body;
+        }
+
+        function toggleAddUrl() {
+            syncPostBodyPrefixes();
+        }
+
+        function toggleAddDrawingStatus() {
+            syncPostBodyPrefixes();
         }
 
         function toggleSensitiveBlur() {
