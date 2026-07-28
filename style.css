@@ -63,7 +63,7 @@ canvas {
     justify-content: center;
     align-items: center;
     pointer-events: none;
-    white-space: nowrap;
+    white-space: pre;
     font-size: 16px;
     color: #AAAAAA;
     letter-spacing: 0.08rem;

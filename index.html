@@ -1459,15 +1459,7 @@
             ctx.fillStyle = '#AAAAAA';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
-            const framesText = String(frameCount).padStart(4, ' ');
-            let timeText;
-            if (elapsedTimeSec < 60) {
-                timeText = `${String(elapsedTimeSec).padStart(2, ' ')} sec`;
-            } else {
-                const minutes = Math.trunc(elapsedTimeSec / 60);
-                timeText = `${String(minutes).padStart(2, ' ')} min`;
-            }
-            const topText = `${framesText} strokes / ${timeText}`;
+            const topText = formatDrawingStatusLabel(frameCount, elapsedTimeSec);
             ctx.fillText(topText, width/2, topHeight - 16);
             ctx.restore();
         }
@@ -1532,15 +1524,7 @@
             ctx.fillStyle = '#AAAAAA';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
-            const framesText = String(frameCount).padStart(4, ' ');
-            let timeText;
-            if (elapsedTimeSec < 60) {
-                timeText = `${String(Math.floor(elapsedTimeSec)).padStart(2, ' ')} sec`;
-            } else {
-                const minutes = Math.trunc(elapsedTimeSec / 60);
-                timeText = `${String(minutes).padStart(2, ' ')} min`;
-            }
-            const topText = `${framesText} strokes / ${timeText}`;
+            const topText = formatDrawingStatusLabel(frameCount, elapsedTimeSec);
             ctx.fillText(topText, width/2, topHeight - 16 * scale);
             ctx.restore();
         }
@@ -1714,15 +1698,30 @@
         }
         
         function updateDrawingStatusLabel() {
-            const elapsedMin = getElapsedTimeMin();
-            const elapsedSec = getElapsedTimeSec() - elapsedMin * 60;
-            const elapsedLabel = elapsedMin > 0 ? `${elapsedMin} min` : `${elapsedSec} sec`;
+            const elapsedSec = getElapsedTimeSec();
             if(isWaitingFirstStroke === true){ 
                 drawingStatusLabel.style.display = 'none';
             }else{
                 drawingStatusLabel.style.display = 'block';
             }
-            drawingStatusLabel.textContent = `${strokeCount} strokes / ${elapsedLabel}`;
+            drawingStatusLabel.textContent = formatDrawingStatusLabel(strokeCount, elapsedSec);
+        }
+
+        function formatDrawingStatusLabel(strokeCount, elapsedTimeSec){
+            const strokeCountText = String(strokeCount).padStart(4, ' ');
+            let elapsedTimeLabel = '';
+            if(elapsedTimeSec < 60){
+                elapsedTimeLabel = `${elapsedTimeSec} sec`;
+            }else if(elapsedTimeSec < 60*10){
+                const elapsedTimeMin = Math.trunc(elapsedTimeSec / 60);
+                const elapsedTimeSecRemainder = elapsedTimeSec - elapsedTimeMin * 60;
+                elapsedTimeLabel = `${elapsedTimeMin} min ${elapsedTimeSecRemainder} sec`;
+            }else{
+                const elapsedTimeMin = Math.trunc(elapsedTimeSec / 60);
+                const elapsedTimeSecRemainder = elapsedTimeSec - elapsedTimeMin * 60;
+                elapsedTimeLabel = `${elapsedTimeMin} min`;
+            }
+            return `${strokeCountText} strokes / ${elapsedTimeLabel}`;
         }
 
         function hideDrawingStatusLabel() {
