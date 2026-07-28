@@ -69,6 +69,16 @@ canvas {
     letter-spacing: 0.08rem;
     z-index: 1;
 }
+
+#drawing-status-label {
+    pointer-events: auto;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+}
 .top-left-buttons {
     display: flex;
     gap: 0px;

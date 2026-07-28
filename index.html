@@ -24,7 +24,7 @@
             </div>
 
             <div class="top-center-status">
-                <span id="drawing-status-label">0 strokes / 0 min</span>
+                <button id="drawing-status-label">0 strokes / 0 min</button>
             </div>
 
             <div class="top-right-buttons">
@@ -186,6 +186,8 @@
         const manualButton = document.getElementById('manual');
         const paletteEditButton = document.getElementById('palette-edit');
         
+        const drawingStatusLabel = document.getElementById('drawing-status-label');
+        
         const copyButton = document.getElementById('copy-button');
         const saveButton = document.getElementById('save-button');
         const shareButton = document.getElementById('share-button');
@@ -198,6 +200,7 @@
         const activeStrokeLayer = document.getElementById('active-stroke-layer');
         const cursor = document.getElementById('cursor');
         const combinedCanvas = document.createElement('canvas');
+
         const timelapseDialogModal = document.getElementById('timelapse-dialog-modal');
         const closeTimelapseDialogButton = document.getElementById('close-timelapse-dialog-button');
         const timelapsePreviewCanvas = document.getElementById('timelapse-preview-canvas');
@@ -207,7 +210,6 @@
         const timelapseExportButton = document.getElementById('timelapse-export-button');
         const timelapseProgressLine = document.getElementById('timelapse-progress-line');
         const timelapseProgressBar = document.getElementById('timelapse-progress-bar');
-        const drawingStatusLabel = document.getElementById('drawing-status-label');
 
         const undoButton = document.getElementById('undo-button');
         const toolSizeParamInput = document.getElementById('tool-size');
@@ -510,6 +512,7 @@
                     drawingMinutes: "{min}分 お絵かきしました。",
                     imageCopied: "画像をクリップボードにコピーしました",
                     hashtagCopied: "ハッシュタグをコピーしました",
+                    drawingStatusCopied: "描画回数/時間をコピーしました",
                     postedSuccess: "　投稿しましたわ！",
                     misskeyAuthError: "Misskey認証が無効になっていますの。再認証してもういちど試してくださいませ。"
                 }
@@ -554,6 +557,7 @@
                     drawingMinutes: "Drew for {min} minutes.",
                     imageCopied: "Image copied to clipboard",
                     hashtagCopied: "Hashtag copied to clipboard",
+                    drawingStatusCopied: "Drawing status copied to clipboard",
                     postedSuccess: "Posted successfully!",
                     misskeyAuthError: "Misskey authentication is no longer valid. Please re-authenticate and try again."
                 }
@@ -615,6 +619,7 @@
         isSensitiveCheckbox.addEventListener('change', toggleSensitiveBlur);
 
         copyHashtagButton.addEventListener('click',copyHastag);
+        drawingStatusLabel.addEventListener('click',copyDrawingStatus);
 
         // ショートカットキーの登録
         document.addEventListener('keydown', event => {
@@ -2158,19 +2163,60 @@
             showElapsedTimeFromFirstStrokeTime();
         }
                
-        // ハッシュタグのコピーに関する関数
-        function copyHastag() {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(hashtag).then(function () {
-                    showMessage(currentTranslations.messages.hashtagCopied);
-                }).catch(function (error) {
-                    console.error('ハッシュタグのコピーに失敗しました:', error);
-                    alert('ハッシュタグのコピーに失敗しましたの / Failed to copy hashtag');
-                });
-            } else {
-                alert('テキストをコピーできませんの / Cannot copy text');
-            }
+        // テキストコピーに関する関数
+        function copyTextToClipboard(text, successMessage, errorMessage) {
+            const doCopy = async () => {
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                        showMessage(successMessage);
+                        return true;
+                    }
+                } catch (error) {
+                    console.warn('Clipboard API failed, falling back to execCommand:', error);
+                }
+
+                try {
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = text;
+                    tempInput.setAttribute('readonly', '');
+                    tempInput.style.position = 'fixed';
+                    tempInput.style.left = '-9999px';
+                    tempInput.style.top = '-9999px';
+                    document.body.appendChild(tempInput);
+                    tempInput.focus();
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    showMessage(successMessage);
+                    return true;
+                } catch (error) {
+                    console.error(error);
+                    alert(errorMessage);
+                    return false;
+                }
+            };
+
+            return doCopy();
         }
+
+        function copyHastag() {
+            copyTextToClipboard(
+                hashtag,
+                currentTranslations.messages.hashtagCopied,
+                'ハッシュタグのコピーに失敗しましたの / Failed to copy hashtag'
+            );
+        }
+
+        function copyDrawingStatus() {
+            const drawingStatus = getDrawingStatusLabel();
+            copyTextToClipboard(
+                drawingStatus,
+                currentTranslations.messages.drawingStatusCopied,
+                '描画状況のコピーに失敗しましたの / Failed to copy drawing status'
+            );
+        }
+
         
         // 下部情報表示に関する関数
         function showMessage(text) {
