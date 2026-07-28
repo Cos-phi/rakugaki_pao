@@ -507,9 +507,6 @@
                 exportTimelapseButtonLabelGenerating: "作成中...",
                 exportTimelapseButtonLabelSaved: "作成完了！",
                 messages: {
-                    noDrawing: "まだお絵かきしていません。",
-                    drawingSeconds: "{sec}秒 お絵かきしました。",
-                    drawingMinutes: "{min}分 お絵かきしました。",
                     imageCopied: "画像をクリップボードにコピーしました",
                     hashtagCopied: "ハッシュタグをコピーしました",
                     drawingStatusCopied: "描画回数/時間をコピーしました",
@@ -552,9 +549,6 @@
                 exportTimelapseButtonLabelGenerating: "Generating...",
                 exportTimelapseButtonLabelSaved: "Saved!",
                 messages: {
-                    noDrawing: "No drawing has been made yet.",
-                    drawingSeconds: "Drew for {sec} seconds.",
-                    drawingMinutes: "Drew for {min} minutes.",
                     imageCopied: "Image copied to clipboard",
                     hashtagCopied: "Hashtag copied to clipboard",
                     drawingStatusCopied: "Drawing status copied to clipboard",
@@ -688,9 +682,6 @@
                     break;
                 case 'KeyN':
                     clearCanvas();
-                    break;
-                case 'KeyT':
-                    showElapsedTimeFromFirstStrokeTime();
                     break;
                 default:
                     return;
@@ -1696,18 +1687,6 @@
             drawingStatusLabel.style.display = 'block';
         }
 
-        function showElapsedTimeFromFirstStrokeTime(){
-            const elapsedTimeMin = getElapsedTimeMin();
-            const sec = getElapsedTimeSec() - elapsedTimeMin * 60;
-            if( isWaitingFirstStroke ){
-                showMessage(currentTranslations.messages.noDrawing);
-            }else if( elapsedTimeMin < 1) {
-                showMessage(currentTranslations.messages.drawingSeconds.replace('{sec}', sec));
-            }else{
-                showMessage(currentTranslations.messages.drawingMinutes.replace('{min}', elapsedTimeMin));
-            }
-        }
-
         function isCanvasEmpty(){
             const blackData = ctxBlack.getImageData(0,0,blackLayer.width, blackLayer.height).data;
             const colorData = ctxColor.getImageData(0,0,colorLayer.width, colorLayer.height).data;
@@ -2132,7 +2111,6 @@
                 await navigator.clipboard.write([item]);
             })
             showMessage(currentTranslations.messages.imageCopied);
-            showElapsedTimeFromFirstStrokeTime();
         }
 
         function saveImage() {
@@ -2143,7 +2121,6 @@
             link.download = outputFileName;
             link.href = dataURL;
             link.click();
-            showElapsedTimeFromFirstStrokeTime();
         }
 
         function shareImage() {
@@ -2162,7 +2139,6 @@
             }).catch((error) => {
                 console.log('共有できませんでしたの‥‥');
             });
-            showElapsedTimeFromFirstStrokeTime();
         }
                
         // テキストコピーに関する関数
@@ -2263,7 +2239,6 @@
 
         // 投稿ダイアログ
         function openPostDialog() {
-            showElapsedTimeFromFirstStrokeTime();
             combineCanvas();    
             const dataURL = combinedCanvas.toDataURL('image/png');
             previewImg.src = dataURL;
@@ -2436,7 +2411,6 @@
             setOutputFileName();
             activatePostingProgressBar();
             closeDialog();
-            showElapsedTimeFromFirstStrokeTime();
             fetch(`${serverUrl}/api/v1/media`, {
                     method: 'POST',
                     headers: {
@@ -2475,7 +2449,6 @@
                 deactivatePostingProgressBar();
                 setTimeout(() => {
                     showMessage(currentTranslations.messages.postedSuccess)
-                    showElapsedTimeFromFirstStrokeTime();
                     initializePostDialog();
                 }, 100);
                 
@@ -2499,7 +2472,6 @@
             setOutputFileName();
             activatePostingProgressBar();
             closeDialog();
-            showElapsedTimeFromFirstStrokeTime();
 
             // 画像アップロード
             fetch(`${serverUrl}/api/drive/files/create`, {
@@ -2546,7 +2518,6 @@
                 deactivatePostingProgressBar();
                 setTimeout(() => {
                     showMessage(currentTranslations.messages.postedSuccess);
-                    showElapsedTimeFromFirstStrokeTime();
                     initializePostDialog();
                 }, 100);
             })
