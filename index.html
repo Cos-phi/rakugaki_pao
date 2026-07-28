@@ -279,13 +279,13 @@
             isSensitive: false,
             postComment: "\n\n"+hashtag+" "
         };
+        const activeElapsedMsLimit = 1*60*1000; // おえかき時間差分の可算は1分が上限
         
         // ストレージキー
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
         const localstorageKeyAccessToken = 'accesstokenkey';
         const localstorageKeyFirstStrokeTime = 'FirstStrokeTimekey';
-        const localstorageKeyLastStrokeTime = 'LastStrokeTimekey';
         const localstorageKeyAccumulatedDrawingTime = 'AccumulatedDrawingTimekey';
         const localstorageKeyLastDrawingTime = 'LastDrawingTimekey';
         const localstorageKeyStrokeCount = 'StrokeCountkey';
@@ -830,15 +830,16 @@
             if (!isDrawing) return;
             isDrawing = false;
             dryStroke();
-            const lastDrawingTime = Number(window.localStorage.getItem(localstorageKeyLastDrawingTime) || 0);
+            const now = Date.now();
+            const lastDrawingTime = Number(window.localStorage.getItem(localstorageKeyLastDrawingTime) || now);
             if (lastDrawingTime > 0) {
-                const activeElapsedMs = Math.min(Date.now() - lastDrawingTime, 60000);
+                const activeElapsedMs = Math.min(now - lastDrawingTime, activeElapsedMsLimit);
                 accumulatedDrawingTimeMs += activeElapsedMs;
                 window.localStorage.setItem(localstorageKeyAccumulatedDrawingTime, accumulatedDrawingTimeMs);
             }
-            setLastStrokeTime();
             strokeCount += 1;
             window.localStorage.setItem(localstorageKeyStrokeCount, strokeCount);
+            window.localStorage.setItem(localstorageKeyLastDrawingTime, now);
             updateDrawingStatusLabel();
             captureTimelapseFrame();
             saveLocalstorage();
@@ -1610,7 +1611,6 @@
                 black: ctxBlack.getImageData(0, 0, blackLayer.width, blackLayer.height),
                 color: ctxColor.getImageData(0, 0, colorLayer.width, colorLayer.height),
                 firstStrokeTime: window.localStorage.getItem(localstorageKeyFirstStrokeTime),
-                lastStrokeTime: window.localStorage.getItem(localstorageKeyLastStrokeTime),
                 lastDrawingTime: window.localStorage.getItem(localstorageKeyLastDrawingTime),
                 accumulatedDrawingTimeMs,
                 isWaitingFirstStroke,
@@ -1659,42 +1659,18 @@
             const firstStrokeTime = nowTime;
             accumulatedDrawingTimeMs = 0;
             window.localStorage.setItem(localstorageKeyFirstStrokeTime, firstStrokeTime);
-            window.localStorage.setItem(localstorageKeyLastStrokeTime, firstStrokeTime);
             window.localStorage.setItem(localstorageKeyAccumulatedDrawingTime, accumulatedDrawingTimeMs);
             window.localStorage.setItem(localstorageKeyLastDrawingTime, firstStrokeTime);
         }
 
-        function setLastStrokeTime(){
-            const nowTime = Date.now();
-            const lastStrokeTime = nowTime;
-            window.localStorage.setItem(localstorageKeyLastStrokeTime, lastStrokeTime);
-        }
-
-        function updateLastDrawingTime(){
-            const nowTime = Date.now();
-            window.localStorage.setItem(localstorageKeyLastDrawingTime, nowTime);
-            return nowTime;
-        }
-
-        function getCurrentDrawingTimeMs(){
-            let elapsedMs = accumulatedDrawingTimeMs;
-            const lastDrawingTime = Number(window.localStorage.getItem(localstorageKeyLastDrawingTime) || 0);
-            if (isDrawing && lastDrawingTime > 0) {
-                const activeElapsedMs = Math.min(Date.now() - lastDrawingTime, 60000);
-                elapsedMs += activeElapsedMs;
-            }
-            updateLastDrawingTime();
-            return elapsedMs;
-        }
-
         function getElapsedTimeMin(){
-            if (window.localStorage.getItem(localstorageKeyFirstStrokeTime) == null) return 0;
-            return Math.trunc(getCurrentDrawingTimeMs() / 1000 / 60);
+            if (isWaitingFirstStroke == true) return 0;
+            return Math.trunc(accumulatedDrawingTimeMs / 1000 / 60);
         }
 
         function getElapsedTimeSec(){
-            if (window.localStorage.getItem(localstorageKeyFirstStrokeTime) == null) return 0;
-            return Math.trunc(getCurrentDrawingTimeMs() / 1000);
+            if (isWaitingFirstStroke == true) return 0;
+            return Math.trunc(accumulatedDrawingTimeMs / 1000);
         }
         
         function updateDrawingStatusLabel() {
@@ -1769,7 +1745,6 @@
 
         function resetFirstStrokeState(){
             window.localStorage.removeItem(localstorageKeyFirstStrokeTime);
-            window.localStorage.removeItem(localstorageKeyLastStrokeTime);
             window.localStorage.removeItem(localstorageKeyAccumulatedDrawingTime);
             window.localStorage.removeItem(localstorageKeyLastDrawingTime);
             accumulatedDrawingTimeMs = 0;
