@@ -1205,10 +1205,12 @@
                 downloadBlob(blob, filename);
                 // 保存完了後のラベル表示
                 timelapseExportButton.textContent = currentTranslations.exportTimelapseButtonLabelSaved;
+                timelapseExportButton.style.backgroundColor = '#49E49E'; // 緑色に変更
                 timelapseExportButton.disabled = false;
                 setTimeout(() => {
                     timelapseExportButton.textContent = currentTranslations.exportTimelapseButtonLabel;
-                }, 2000);
+                    timelapseExportButton.style.backgroundColor = ''; // 元の色に戻す
+                }, 3600);
             } catch (e) {
                 console.error(e);
                 alert('Failed to export timelapse.');
