@@ -1642,21 +1642,7 @@
             ctxColor.putImageData(state.color, 0, 0);
             saveLocalstorage();
             if (state.firstStrokeTime != null) {
-                window.localStorage.setItem(localstorageKeyFirstStrokeTime, state.firstStrokeTime);
-                if (state.lastStrokeTime === null) {
-                    window.localStorage.removeItem(localstorageKeyLastStrokeTime);
-                } else {
-                    window.localStorage.setItem(localstorageKeyLastStrokeTime, state.lastStrokeTime);
-                }
-                if (state.lastDrawingTime === null) {
-                    window.localStorage.removeItem(localstorageKeyLastDrawingTime);
-                } else {
-                    window.localStorage.setItem(localstorageKeyLastDrawingTime, state.lastDrawingTime);
-                }
-                accumulatedDrawingTimeMs = state.accumulatedDrawingTimeMs ?? 0;
-                window.localStorage.setItem(localstorageKeyAccumulatedDrawingTime, accumulatedDrawingTimeMs);
                 isWaitingFirstStroke = state.isWaitingFirstStroke;
-                strokeCount = state.strokeCount;
                 window.localStorage.setItem(localstorageKeyStrokeCount, strokeCount);
             } else {
                 resetFirstStrokeState();
@@ -1683,7 +1669,7 @@
             ctxBlack.clearRect(0, 0, blackLayer.width, blackLayer.height);
             ctxColor.clearRect(0, 0, colorLayer.width, colorLayer.height);
             ctxActiveStroke.clearRect(0, 0, activeStrokeLayer.width, activeStrokeLayer.height);
-            resetFirstStrokeState();
+            isWaitingFirstStroke = true;
             saveLocalstorage();
             hideDrawingStatusLabel();
         }
@@ -1780,6 +1766,7 @@
         }
 
         function onFirstStrokeDetected(){
+            resetFirstStrokeState();
             setFirstStrokeTime();
             window.localStorage.removeItem(localstorageKeyStrokeCount);
             strokeCount = 0;
