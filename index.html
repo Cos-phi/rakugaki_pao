@@ -1641,12 +1641,8 @@
             ctxBlack.putImageData(state.black, 0, 0);
             ctxColor.putImageData(state.color, 0, 0);
             saveLocalstorage();
-            if (state.firstStrokeTime != null) {
-                isWaitingFirstStroke = state.isWaitingFirstStroke;
-                window.localStorage.setItem(localstorageKeyStrokeCount, strokeCount);
-            } else {
-                resetFirstStrokeState();
-            }
+            isWaitingFirstStroke = state.isWaitingFirstStroke;
+            window.localStorage.setItem(localstorageKeyStrokeCount, strokeCount);
             if (undoStack.length === 0) {
                 disactivateUndoButton();
             }
@@ -1708,17 +1704,13 @@
         }
 
         function getElapsedTimeMinFromFirstStrokeTime(){
-            const firstStrokeTime = window.localStorage.getItem(localstorageKeyFirstStrokeTime);
-            if (firstStrokeTime == null) return 0;
-            const elapsedTimeMin = Math.trunc(getCurrentDrawingTimeMs() / 1000 / 60);
-            return elapsedTimeMin;
+            if (window.localStorage.getItem(localstorageKeyFirstStrokeTime) == null) return 0;
+            return Math.trunc(getCurrentDrawingTimeMs() / 1000 / 60);
         }
 
         function getElapsedTimeSecFromFirstStrokeTime(){
-            const firstStrokeTime = window.localStorage.getItem(localstorageKeyFirstStrokeTime);
-            if (firstStrokeTime == null) return 0;
-            const elapsedTimeSec = Math.trunc(getCurrentDrawingTimeMs() / 1000);
-            return elapsedTimeSec;
+            if (window.localStorage.getItem(localstorageKeyFirstStrokeTime) == null) return 0;
+            return Math.trunc(getCurrentDrawingTimeMs() / 1000);
         }
         
         function updateDrawingStatusLabel() {
