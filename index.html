@@ -273,8 +273,9 @@
             isSensitive: false,
             postComment: "\n\n"+hashtag+" "
         };
-        const activeElapsedMsLimit = 1*60*1000; // おえかき時間差分の可算は1分が上限
-        
+        const activeElapsedMsLimit = 1*60*1000; // おえかき時間差分の可算上限 (ms)
+        const secDisplayLimit = 10; // 経過時間秒表示の上限 (min)
+
         // ストレージキー
         const localstorageKeyBlack = 'blacklayerlskey';
         const localstorageKeyColor = 'colorlayerlskey';
@@ -1660,19 +1661,17 @@
         }
 
         function formatDrawingStatusLabel(strokeCount, elapsedTimeSec){
-            const strokeCountText = String(strokeCount).padStart(4, ' ');
             const elapsedTimeMin = Math.trunc(elapsedTimeSec / 60);
             const elapsedTimeSecRemainder = elapsedTimeSec - elapsedTimeMin * 60;
             let elapsedTimeLabel = '';
-            
             if(elapsedTimeSec < 60){
                 elapsedTimeLabel = `${elapsedTimeSec} sec`;
-            }else if(elapsedTimeSec < 60*10){
+            }else if(elapsedTimeSec < 60*secDisplayLimit){
                 elapsedTimeLabel = `${elapsedTimeMin} min ${elapsedTimeSecRemainder} sec`;
             }else{
                 elapsedTimeLabel = `${elapsedTimeMin} min`;
             }
-            return `${strokeCountText} strokes / ${elapsedTimeLabel}`;
+            return `${strokeCount} strokes / ${elapsedTimeLabel}`;
         }
 
         function getDrawingStatusTextForFilename(){
