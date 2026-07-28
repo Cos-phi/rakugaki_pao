@@ -1218,7 +1218,7 @@
             const nowTime = new Date();
             const timeString = nowTime.toLocaleString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replaceAll('/','').replaceAll(':','').replaceAll(' ','-');
             const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-            return `${timeString}_rakugaki_pao_timelapse(${formatDrawingStatusTextForFilename()}).${ext}`;
+            return `${timeString}_rakugaki_pao_timelapse(${getDrawingStatusTextForFilename()}).${ext}`;
         }
 
         function downloadBlob(blob, filename){
@@ -1638,43 +1638,44 @@
         }
 
         function getElapsedTimeMin(){
-            if (isWaitingFirstStroke == true) return 0;
             return Math.trunc(accumulatedDrawingTimeMs / 1000 / 60);
         }
 
         function getElapsedTimeSec(){
-            if (isWaitingFirstStroke == true) return 0;
             return Math.trunc(accumulatedDrawingTimeMs / 1000);
         }
         
         function updateDrawingStatusLabel() {
-            const elapsedSec = getElapsedTimeSec();
             if(isWaitingFirstStroke === true){ 
-                drawingStatusLabel.style.display = 'none';
+                hideDrawingStatusLabel();
             }else{
-                drawingStatusLabel.style.display = 'block';
+                showDrawingStatusLabel();
             }
-            drawingStatusLabel.textContent = formatDrawingStatusLabel(strokeCount, elapsedSec);
+            drawingStatusLabel.textContent = getDrawingStatusLabel();
+        }
+
+        function getDrawingStatusLabel() {
+            const elapsedSec = getElapsedTimeSec();
+            return formatDrawingStatusLabel(strokeCount, elapsedSec);
         }
 
         function formatDrawingStatusLabel(strokeCount, elapsedTimeSec){
             const strokeCountText = String(strokeCount).padStart(4, ' ');
+            const elapsedTimeMin = Math.trunc(elapsedTimeSec / 60);
+            const elapsedTimeSecRemainder = elapsedTimeSec - elapsedTimeMin * 60;
             let elapsedTimeLabel = '';
+            
             if(elapsedTimeSec < 60){
                 elapsedTimeLabel = `${elapsedTimeSec} sec`;
             }else if(elapsedTimeSec < 60*10){
-                const elapsedTimeMin = Math.trunc(elapsedTimeSec / 60);
-                const elapsedTimeSecRemainder = elapsedTimeSec - elapsedTimeMin * 60;
                 elapsedTimeLabel = `${elapsedTimeMin} min ${elapsedTimeSecRemainder} sec`;
             }else{
-                const elapsedTimeMin = Math.trunc(elapsedTimeSec / 60);
-                const elapsedTimeSecRemainder = elapsedTimeSec - elapsedTimeMin * 60;
                 elapsedTimeLabel = `${elapsedTimeMin} min`;
             }
             return `${strokeCountText} strokes / ${elapsedTimeLabel}`;
         }
 
-        function formatDrawingStatusTextForFilename(){
+        function getDrawingStatusTextForFilename(){
             const elapsedTimeSec = getElapsedTimeSec();
             const elapsedTimeMin = Math.trunc(elapsedTimeSec / 60);
             const elapsedTimeSecRemainder = elapsedTimeSec - elapsedTimeMin * 60;
@@ -1683,6 +1684,10 @@
 
         function hideDrawingStatusLabel() {
             drawingStatusLabel.style.display = 'none';
+        }
+
+        function showDrawingStatusLabel() {
+            drawingStatusLabel.style.display = 'block';
         }
 
         function showElapsedTimeFromFirstStrokeTime(){
@@ -2110,7 +2115,7 @@
         function setOutputFileName(){
             const nowTime = new Date();
             const timeString = nowTime.toLocaleString("ja-JP", {year: "numeric",month: "2-digit", day: "2-digit", hour:"2-digit", minute:"2-digit"}).replaceAll('/', '').replaceAll(':','').replaceAll(' ','-');
-            outputFileName = timeString + '_rakugaki_pao(' + formatDrawingStatusTextForFilename() + ').png';
+            outputFileName = timeString + '_rakugaki_pao(' + getDrawingStatusTextForFilename() + ').png';
         }
 
 
