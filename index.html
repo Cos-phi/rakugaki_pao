@@ -1671,7 +1671,7 @@
             if(elapsedTimeSec < 60){
                 elapsedTimeLabel = `${elapsedTimeSec} sec`;
             }else if(elapsedTimeSec < 60*secDisplayLimit){
-                elapsedTimeLabel = `${elapsedTimeMin} min ${elapsedTimeSecRemainder} sec`;
+                elapsedTimeLabel = `${elapsedTimeMin} min ${String(elapsedTimeSecRemainder).padStart(2, '0')} sec`;
             }else{
                 elapsedTimeLabel = `${elapsedTimeMin} min`;
             }
