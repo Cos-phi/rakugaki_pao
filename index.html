@@ -1873,6 +1873,7 @@
                 const button = document.createElement('button');
                 button.className = 'color-brush-button';
                 button.style.backgroundColor = color;
+                button.style.boxShadow = `inset 0 0 0 4px ${color}`;
                 button.dataset.color = color;  // データ属性を追加
                 button.addEventListener('mousedown', () => {
                     isEraser = false;
@@ -1886,6 +1887,7 @@
 
         function createChangeableColorBrushButton() {
             changeableColorBrushButton.style.backgroundColor = curPaletteColor;
+            changeableColorBrushButton.style.boxShadow = `inset 0 0 0 4px ${curPaletteColor}`;
             changeableColorBrushButton.dataset.color = curPaletteColor;
             colorBrushButtonsContainer.appendChild(changeableColorBrushButton);
             changeableColorBrushButton.addEventListener('mousedown', selectChangeableColorBrushButton);
@@ -2014,7 +2016,8 @@
         }
         
         function updateChangeableColorBrushButton(color){
-            changeableColorBrushButton.style.backgroundColor = `rgb(${hexToRgba(color,toolOpacity.colorBrush)})`;
+            changeableColorBrushButton.style.backgroundColor = `rgb(${hexToRgba(color,toolOpacity.colorBrush)})`;    
+            changeableColorBrushButton.style.boxShadow = `inset 0 0 0 4px ${curPaletteColor}`;
             changeableColorBrushButton.dataset.color = color;
         }
 
