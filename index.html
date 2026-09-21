@@ -1357,9 +1357,18 @@
         }
 
         function getExportMimeType(){
-            if (MediaRecorder.isTypeSupported('video/mp4')) return 'video/mp4';
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) return 'video/webm;codecs=vp9';
-            if (MediaRecorder.isTypeSupported('video/webm')) return 'video/webm';
+            const candidates = [
+                'video/mp4;codecs=avc1.42E01F,mp4a.40.2',
+                'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+                'video/mp4;codecs=avc1,mp4a.40.2',
+                'video/mp4',
+                'video/webm;codecs=vp9,opus',
+                'video/webm;codecs=vp9',
+                'video/webm'
+            ];
+            for (const type of candidates) {
+                if (MediaRecorder.isTypeSupported(type)) return type;
+            }
             throw new Error('No supported export mime type');
         }
 
