@@ -1267,7 +1267,7 @@
                     reject(event.error || new Error('MediaRecorder error'));
                 };
             });
-            recorder.start();
+            recorder.start(1000);
             await preciseSleep(100);
             const totalFrames = Math.ceil(0.5*fps) + Math.ceil(0.25*fps)*4 + frames.length + Math.ceil(2*fps);
             let emitted = 0;
