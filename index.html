@@ -1382,14 +1382,10 @@
             gainNode.gain.value = 0;
             constantSource.connect(gainNode).connect(destination);
             constantSource.start();
-            const stopTimer = window.setTimeout(() => {
-                try { constantSource.stop(); } catch (e) {}
-            }, 900);
             const track = destination.stream.getAudioTracks()[0];
             return {
                 track,
                 cleanup(){
-                    window.clearTimeout(stopTimer);
                     try { constantSource.stop(); } catch (e) {}
                     try { constantSource.disconnect(); } catch (e) {}
                     try { gainNode.disconnect(); } catch (e) {}
